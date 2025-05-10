@@ -19,3 +19,4 @@ subprojects {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
+id("com.google.gms.google-services") version "4.4.2" apply false
