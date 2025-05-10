@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "288385935631",
+    "project_id": "cookmate-cad6d",
+    "storage_bucket": "cookmate-cad6d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:288385935631:android:8c5501a2b5f043e2a0767a",
+        "android_client_info": {
+          "package_name": "com.android.application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTF6d9qrQAHta4Ci-TKs1B_1CxDhrAvhw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
