@@ -7,6 +7,13 @@
   "email": "string",
   "password_hash": "string",
   "profile_picture": "string (URL)",
+  "Age": "number",
+  "Weight": "number",
+  "Gender":"string",
+  "Height": "number",
+  "Specific allergies":"string",
+  "Diseases":"string",
+  "Are you a vegetarian?":"boolean"
   
 }
  
