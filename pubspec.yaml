@@ -31,8 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_core: ^3.13.0
-  firebase_auth: ^5.5.3
-
+  firebase_auth: 5.5.3
   cloud_firestore: ^5.6.7
   google_sign_in: ^6.2.0
   firebase_app_check: ^0.3.2+5
@@ -64,6 +63,11 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  assets:
+    - assets/google_logo.jpeg
+    - assets/facebook_logo.jpeg
+    - assets/apple_logo.jpeg
+    - assets/cookmate_logo.jpeg
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
