@@ -1,5 +1,4 @@
 
-
  users
 {
   "user_id": "string ",
