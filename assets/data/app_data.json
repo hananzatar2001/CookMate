@@ -1,0 +1,286 @@
+{
+  "recipes": [
+    {
+      "id": "1",
+      "name": "Fried Eggs with Veggies",
+      "description": "A nutritious breakfast with protein-rich eggs and fresh vegetables.",
+      "calories": 294,
+      "weight": "100g",
+      "imageUrl": "assets/images/fried_eggs_250501_5.png",
+      "mealType": "Breakfast",
+      "protein": 15,
+      "carbs": 5,
+      "fat": 10
+    },
+    {
+      "id": "2",
+      "name": "Kale Power Salad",
+      "description": "Fresh green salad with nutritious kale and seasonal vegetables.",
+      "calories": 150,
+      "weight": "100g",
+      "imageUrl": "assets/images/kale_power_salad_250501_4.png",
+      "mealType": "Lunch",
+      "protein": 3,
+      "carbs": 10,
+      "fat": 8
+    },
+    {
+      "id": "3",
+      "name": "Grilled Steak",
+      "description": "Juicy grilled meat steak with herbs and spices.",
+      "calories": 220,
+      "weight": "100g",
+      "imageUrl": "assets/images/meat_steak_250501_3.png",
+      "mealType": "Dinner",
+      "protein": 12,
+      "carbs": 15,
+      "fat": 12
+    },
+    {
+      "id": "4",
+      "name": "Midnight Pasta",
+      "description": "Simple yet delicious pasta for late night cravings.",
+      "calories": 320,
+      "weight": "250g",
+      "imageUrl": "assets/images/midnight_pasta_250501_6.png",
+      "mealType": "Dinner",
+      "protein": 18,
+      "carbs": 42,
+      "fat": 8
+    },
+    {
+      "id": "5",
+      "name": "Restaurant Specialty",
+      "description": "Special dish from our restaurant collection.",
+      "calories": 280,
+      "weight": "300g",
+      "imageUrl": "assets/images/R1_250501_7.png",
+      "mealType": "Lunch",
+      "protein": 10,
+      "carbs": 45,
+      "fat": 6
+    },
+    {
+      "id": "6",
+      "name": "Protein Breakfast Bowl",
+      "description": "Specialty breakfast dish with high protein content.",
+      "calories": 420,
+      "weight": "200g",
+      "imageUrl": "assets/images/B1_250501_0.png",
+      "mealType": "Breakfast",
+      "protein": 32,
+      "carbs": 30,
+      "fat": 20
+    },
+    {
+      "id": "7",
+      "name": "Balanced Lunch Plate",
+      "description": "Healthy lunch option with balanced nutrition.",
+      "calories": 380,
+      "weight": "180g",
+      "imageUrl": "assets/images/B2_250501_1.png",
+      "mealType": "Lunch",
+      "protein": 16,
+      "carbs": 28,
+      "fat": 24
+    },
+    {
+      "id": "8",
+      "name": "Gourmet Dinner Plate",
+      "description": "Delicious dinner option for a satisfying meal.",
+      "calories": 350,
+      "weight": "220g",
+      "imageUrl": "assets/images/B3_250501_2.png",
+      "mealType": "Dinner",
+      "protein": 15,
+      "carbs": 40,
+      "fat": 14
+    },
+    {
+      "id": "9",
+      "name": "Ginger Peach Rice Pudding",
+      "description": "Sweet and creamy dessert with fragrant ginger and juicy peaches.",
+      "calories": 245,
+      "weight": "150g",
+      "imageUrl": "assets/images/Ginger-Peach-Rice-Pudding-Recipe-–-Brown-snacks.jpg",
+      "mealType": "Snacks",
+      "protein": 4,
+      "carbs": 48,
+      "fat": 5
+    },
+    {
+      "id": "10",
+      "name": "Chocolate Peanut Butter Bars",
+      "description": "Rich and indulgent bars with the perfect combination of chocolate and peanut butter.",
+      "calories": 315,
+      "weight": "80g",
+      "imageUrl": "assets/images/IMG_5199-chocolate-peanut-butter-bars-720x720.jpg",
+      "mealType": "Snacks",
+      "protein": 7,
+      "carbs": 32,
+      "fat": 18
+    },
+    {
+      "id": "11",
+      "name": "Peppermint Mocha Cookies",
+      "description": "Festive cookies with hints of coffee and refreshing peppermint.",
+      "calories": 185,
+      "weight": "45g",
+      "imageUrl": "assets/images/peppermint-mocha-cookies-4.jpg",
+      "mealType": "Snacks",
+      "protein": 2,
+      "carbs": 26,
+      "fat": 9
+    },
+    {
+      "id": "12",
+      "name": "Sugar Cookie Bars",
+      "description": "Soft and sweet cookie bars topped with colorful frosting.",
+      "calories": 220,
+      "weight": "60g",
+      "imageUrl": "assets/images/sugar-cookie-bars.jpg",
+      "mealType": "Snacks",
+      "protein": 2,
+      "carbs": 36,
+      "fat": 8
+    },
+    {
+      "id": "13",
+      "name": "Sweet & Salty Churro Mix",
+      "description": "Crunchy snack mix with the perfect balance of sweet cinnamon and salt.",
+      "calories": 275,
+      "weight": "70g",
+      "imageUrl": "assets/images/SWEET-SALTY-CHURRO-SNACK-MIX.jpeg",
+      "mealType": "Snacks",
+      "protein": 3,
+      "carbs": 38,
+      "fat": 12
+    }
+  ],
+  "user": {
+    "id": "1",
+    "name": "hello",
+    "email": "hello@gmail.com",
+    "password": "password123",
+    "dailyCalorieTarget": 2000,
+    "dailyProteinTarget": 100,
+    "dailyCarbsTarget": 250,
+    "dailyFatTarget": 65,
+    "age": 18,
+    "weight": 180,
+    "gender": "female",
+    "height": 180,
+    "disease": null,
+    "allergy": null,
+    "isVegetarian": false
+  },
+  "mealPlan": {
+    "id": "1",
+    "userId": "1",
+    "records": [
+      {
+        "date": "2025-05-01",
+        "recipeIds": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13"
+        ]
+      }
+    ]
+  },
+  "nutrition": {
+    "id": "1",
+    "userId": "1",
+    "records": [
+      {
+        "date": "2025-05-01",
+        "consumedCalories": 523,
+        "consumedProtein": 25,
+        "consumedCarbs": 60,
+        "consumedFat": 18,
+        "targetCalories": 2000,
+        "targetProtein": 100,
+        "targetCarbs": 250,
+        "targetFat": 65
+      }
+    ]
+  },
+  "notifications": [
+    {
+      "id": "1",
+      "message": "New Recipe Alert! Try out our latest \"Vegan Burger\" recipe.",
+      "time": "2025-05-04T12:05:00.000",
+      "type": "newRecipe",
+      "isRead": false
+    },
+    {
+      "id": "2",
+      "message": "Your profile was updated successfully. ✔️",
+      "time": "2025-05-04T11:45:00.000",
+      "type": "profileUpdate",
+      "isRead": false
+    },
+    {
+      "id": "3",
+      "message": "Don't forget to complete your profile for better recommendations! 🔍",
+      "time": "2025-05-04T11:30:00.000",
+      "type": "reminder",
+      "isRead": false
+    },
+    {
+      "id": "4",
+      "message": "New Feature Unlocked! Try our latest Meal Planner tool now. 📝",
+      "time": "2025-05-04T10:00:00.000",
+      "type": "featureUpdate",
+      "isRead": false
+    },
+    {
+      "id": "5",
+      "message": "Weekly meal plan has been generated based on your preferences.",
+      "time": "2025-05-03T15:30:00.000",
+      "type": "mealPlanner",
+      "isRead": true
+    }
+  ],
+  "notificationUser": {
+    "id": "notification_user_1",
+    "userId": "1",
+    "records": [
+      {
+        "notificationId": "1",
+        "isRead": false
+      },
+      {
+        "notificationId": "2",
+        "isRead": false
+      },
+      {
+        "notificationId": "3",
+        "isRead": false
+      },
+      {
+        "notificationId": "4",
+        "isRead": false
+      },
+      {
+        "notificationId": "5",
+        "isRead": true
+      }
+    ]
+  },
+  "favorites": {
+    "id": "1",
+    "userId": "1",
+    "recipeIds": ["3", "4", "6", "8", "10", "12"]
+  }
+}
