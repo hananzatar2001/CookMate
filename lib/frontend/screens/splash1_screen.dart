@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'splash2_screen.dart';
-import '../widgets/NavigationBar.dart';
+
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -97,7 +97,7 @@ class _SplashScreenState extends State<SplashScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(currentIndex: 0),
+   
 
 
     );
