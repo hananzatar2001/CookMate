@@ -1,72 +1,119 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../screens/splash1_screen.dart';
+import '../screens/user_profile_screen.dart';
+import '../screens/saved_recipess_screen.dart';
 
-class BottomNavBar extends StatefulWidget {
-  const BottomNavBar({super.key});
+class CustomBottomNavBar extends StatefulWidget {
+  final int currentIndex;
+
+  const CustomBottomNavBar({
+    Key? key,
+    required this.currentIndex,
+  }) : super(key: key);
 
   @override
-  State<BottomNavBar> createState() => _BottomNavBarState();
+  State<CustomBottomNavBar> createState() => _CustomBottomNavBarState();
 }
 
-class _BottomNavBarState extends State<BottomNavBar> {
-  int _currentIndex = 0;
+class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
+  String userId = '';
 
-  final List<Widget> _pages = const [
-    Center(child: Text('Home')),
-    Center(child: Text('Saved')),
-    Center(child: Text('Add')),
-    Center(child: Text('Favorites')),
-    Center(child: Text('Profile')),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadUserId();
+  }
 
-  final List<IconData> _icons = const [
-    Icons.home,
-    Icons.bookmark_rounded,
-    Icons.add_box,
-    Icons.favorite,
-    Icons.person,
-  ];
-
-  static const Color iconColor = Color(0xFF333333);
+  Future<void> _loadUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userId = prefs.getString('userId') ?? '';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_currentIndex],
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(bottom: 50),
+    final List<IconData> icons = [
+      Icons.home,
+      Icons.bookmark_rounded,
+      Icons.add_box,
+      Icons.favorite,
+      Icons.person,
+    ];
+
+    return Container(
+      color: Colors.white,
+      child: SafeArea(
+        top: false,
+        bottom: false,
         child: Container(
+          height: 65,
           padding: const EdgeInsets.symmetric(horizontal: 33),
-          height: 70,
-          color: Colors.white,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(_icons.length, (index) {
-              final bool isSelected = _currentIndex == index;
+            children: List.generate(icons.length, (index) {
+              final bool isSelected = widget.currentIndex == index;
 
               return GestureDetector(
                 onTap: () {
-                  setState(() {
-                    _currentIndex = index;
-                  });
+                  if (widget.currentIndex != index) {
+                    switch (index) {
+                   
+                      case 1:
+                        if (userId.isNotEmpty) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>  SavedRecipesScreen(),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("User ID not found")),
+                          );
+                        }
+                        break;
+                      case 4:
+                        if (userId.isNotEmpty) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ProfilePage(),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("User ID not found")),
+                          );
+                        }
+                        break;
+
+                    
+                    }
+                  }
                 },
-                child: Transform.scale(
-                  scale: 1.4,
-                  child: Container(
-                    decoration: isSelected
-                        ? BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.27),
-                          blurRadius: 3,
-                          spreadRadius: -1,
-                          offset: const Offset(3, 3),
-                        ),
-                      ],
-                    )
-                        : null,
-                    child: Icon(
-                      _icons[index],
-                      color: iconColor,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 40),
+                  child: Transform.scale(
+                    scale: 1.5,
+                    child: Container(
+                      decoration: isSelected
+                          ? BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.27),
+                            blurRadius: 3,
+                            spreadRadius: -1,
+                            offset: const Offset(3, 3),
+                          ),
+                        ],
+                      )
+                          : null,
+                      child: Icon(
+                        icons[index],
+                        color: const Color(0xFF333333),
+                      ),
                     ),
                   ),
                 ),
