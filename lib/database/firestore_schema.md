@@ -11,6 +11,7 @@
   "Weight": "number",
   "Gender":"string",
   "Height": "number",
+  "CaloriesNeeded": "number",
   "Specific allergies":"string",
   "Diseases":"string",
   "Are you a vegetarian?":"boolean"
@@ -81,4 +82,11 @@
   "protein": "number",
   "carbs": "number",
   "fats": "number"
+}
+
+ ShoppingList
+
+{
+  "user_id": "reference to users/{userId}",
+  "products": ["string"]
 }
