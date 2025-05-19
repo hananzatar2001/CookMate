@@ -59,13 +59,13 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                 onTap: () {
                   if (widget.currentIndex != index) {
                     switch (index) {
-                   
+
                       case 1:
                         if (userId.isNotEmpty) {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (_) =>  SavedRecipesScreen(),
+                              builder: (_) => SavedRecipesScreen(),
                             ),
                           );
                         } else {
@@ -89,7 +89,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                         }
                         break;
 
-                    
+                    // باقي الحالات يمكن إضافتها هنا لاحقًا
                     }
                   }
                 },
@@ -98,18 +98,18 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                   child: Transform.scale(
                     scale: 1.5,
                     child: Container(
-                      decoration: isSelected
-                          ? BoxDecoration(
-                        boxShadow: [
+                      decoration: BoxDecoration(
+                        boxShadow: isSelected
+                            ? [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.27),
                             blurRadius: 3,
                             spreadRadius: -1,
                             offset: const Offset(3, 3),
                           ),
-                        ],
-                      )
-                          : null,
+                        ]
+                            : [],
+                      ),
                       child: Icon(
                         icons[index],
                         color: const Color(0xFF333333),
