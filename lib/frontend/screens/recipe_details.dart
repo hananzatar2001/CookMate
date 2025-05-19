@@ -3,6 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'Steps_Page.dart';
+import 'Ingredients_Page.dart';
 
 class RecipeDetailsPage extends StatefulWidget {
   final Map<String, dynamic> recipe;
@@ -15,19 +19,24 @@ class RecipeDetailsPage extends StatefulWidget {
 
 class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
   bool isSaved = false;
+  int selectedTabIndex = 0;
 
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
   String selectedMeal = "Breakfast";
 
-  static const String apiKey = '5cbc633fbbd840a29f5a29225a1ad55f';
+  static const String apiKey = 'eaf8e536e30445a4b4862cdcaa7dbb0f';
+  static const String ytApiKey = 'AIzaSyAn4XdXyZ-hLagS-je_kMEXw2M1afcajJ4'; // ضع مفتاح YouTube API الخاص بك هنا
 
   bool isLoading = false;
   List<String> ingredients = [];
-  List<String> steps = [];
   String? videoUrl;
+  String? youtubeVideoId;
 
-  int selectedTabIndex = 0;
+  double protein = 0;
+  double fat = 0;
+  double carbs = 0;
+  double fiber = 0;
 
   @override
   void initState() {
@@ -45,65 +54,71 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
       if (recipeId == null) throw Exception('Recipe ID not found');
 
       final url = Uri.parse(
-          'https://api.spoonacular.com/recipes/$recipeId/information?apiKey=$apiKey&includeNutrition=false');
+          'https://api.spoonacular.com/recipes/$recipeId/information?apiKey=$apiKey&includeNutrition=true');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
-        final ingredientsData = data['extendedIngredients'] as List<dynamic>? ?? [];
-        final stepsData = (data['analyzedInstructions'] != null &&
-            data['analyzedInstructions'].isNotEmpty)
-            ? (data['analyzedInstructions'][0]['steps'] as List<dynamic>)
-            : [];
-
+        final ingredientsData = data['extendedIngredients'] ?? [];
         final fetchedIngredients = ingredientsData
-            .map((item) => item['original']?.toString() ?? 'Unknown Ingredient')
+            .map<String>((item) => item['original'].toString())
             .toList();
 
-        final fetchedSteps =
-        stepsData.map((step) => step['step']?.toString() ?? '').toList();
+        final nutrients = data['nutrition']['nutrients'] ?? [];
+
+        for (var item in nutrients) {
+          switch (item['name']) {
+            case 'Protein':
+              protein = item['amount']?.toDouble() ?? 0;
+              break;
+            case 'Fat':
+              fat = item['amount']?.toDouble() ?? 0;
+              break;
+            case 'Carbohydrates':
+              carbs = item['amount']?.toDouble() ?? 0;
+              break;
+            case 'Fiber':
+              fiber = item['amount']?.toDouble() ?? 0;
+              break;
+          }
+        }
 
         setState(() {
           ingredients = fetchedIngredients;
-          steps = fetchedSteps;
-          videoUrl = null;
-          isLoading = false;
+          videoUrl = data['sourceUrl'];
         });
+
+        await fetchYouTubeVideo(widget.recipe['title'] ?? '');
       } else {
-        throw Exception('Failed to fetch recipe info: ${response.statusCode}');
+        throw Exception('Failed to load recipe');
       }
     } catch (e) {
+      print("Error: $e");
+    } finally {
       setState(() {
         isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching recipe details: $e')),
-      );
     }
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-      });
-    }
-  }
+  Future<void> fetchYouTubeVideo(String query) async {
+    final url = Uri.parse(
+        'https://www.googleapis.com/youtube/v3/search?part=snippet&q=${Uri.encodeComponent(query)}&type=video&maxResults=1&key=$ytApiKey');
 
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked =
-    await showTimePicker(context: context, initialTime: selectedTime);
-    if (picked != null && picked != selectedTime) {
-      setState(() {
-        selectedTime = picked;
-      });
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final items = data['items'];
+        if (items != null && items.isNotEmpty) {
+          setState(() {
+            youtubeVideoId = items[0]['id']['videoId'];
+          });
+        }
+      }
+    } catch (e) {
+      print('YouTube video fetch error: $e');
     }
   }
 
@@ -116,29 +131,26 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Date: ${DateFormat('yyyy-MM-dd').format(selectedDate)}"),
               ElevatedButton(
                 onPressed: () => _selectDate(context),
                 child: const Text("Pick Date"),
               ),
-              Text("Time: ${selectedTime.format(context)}"),
               ElevatedButton(
                 onPressed: () => _selectTime(context),
                 child: const Text("Pick Time"),
               ),
               DropdownButton<String>(
                 value: selectedMeal,
-                onChanged: (String? newValue) {
+                onChanged: (value) {
                   setState(() {
-                    selectedMeal = newValue!;
+                    selectedMeal = value!;
                   });
                 },
-                items: <String>['Breakfast', 'Lunch', 'Dinner', 'Snack']
-                    .map<DropdownMenuItem<String>>(
-                        (String value) => DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    ))
+                items: ['Breakfast', 'Lunch', 'Dinner', 'Snack']
+                    .map((meal) => DropdownMenuItem<String>(
+                  value: meal,
+                  child: Text(meal),
+                ))
                     .toList(),
               ),
             ],
@@ -147,7 +159,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
             TextButton(
               onPressed: () {
                 saveScheduledRecipe();
-                Navigator.of(context).pop();
+                Navigator.pop(context);
               },
               child: const Text("Save"),
             ),
@@ -158,7 +170,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
   }
 
   void saveScheduledRecipe() {
-    final scheduledDateTime = DateTime(
+    final DateTime scheduledDateTime = DateTime(
       selectedDate.year,
       selectedDate.month,
       selectedDate.day,
@@ -170,123 +182,230 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
       'recipe': widget.recipe,
       'scheduledDateTime': scheduledDateTime.toIso8601String(),
       'meal': selectedMeal,
-    }).then((value) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Recipe scheduled successfully!')),
-      );
-    }).catchError((error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to schedule recipe.')),
-      );
     });
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null) setState(() => selectedDate = picked);
+  }
+
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked =
+    await showTimePicker(context: context, initialTime: selectedTime);
+    if (picked != null) setState(() => selectedTime = picked);
+  }
+
+  void _launchVideo(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open the video')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final recipe = widget.recipe;
+    final imageUrl = recipe['image_url'] ?? recipe['image'] ?? '';
+
+    if (selectedTabIndex == 1) {
+      Future.microtask(() {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => IngredientsPage(recipeId: widget.recipe['id']),
+          ),
+        ).then((_) {
+          setState(() {
+            selectedTabIndex = 0;
+          });
+        });
+      });
+    }
+
+    if (selectedTabIndex == 2) {
+      Future.microtask(() {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => StepsPage(recipeId: widget.recipe['id']),
+          ),
+        ).then((_) {
+          setState(() {
+            selectedTabIndex = 0;
+          });
+        });
+      });
+    }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(recipe['title'] ?? 'Recipe Details'),
+        leading: const BackButton(),
         actions: [
           IconButton(
-            icon: Icon(isSaved ? Icons.favorite : Icons.favorite_border),
-            onPressed: () {
-              setState(() {
-                isSaved = !isSaved;
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.schedule),
-            onPressed: _showScheduleDialog,
+            icon: const Icon(Icons.bookmark_border),
+            onPressed: () {},
           ),
         ],
+        elevation: 0,
+        backgroundColor: Colors.white,
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
         children: [
-          if (recipe['image'] != null)
-            Image.network(recipe['image']),
-          TabBarWidget(
-            selectedIndex: selectedTabIndex,
-            onTabSelected: (index) {
-              setState(() {
-                selectedTabIndex = index;
-              });
-            },
+          Image.network(
+            imageUrl,
+            height: 180,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+            const Center(child: Icon(Icons.broken_image)),
           ),
+          const SizedBox(height: 8),
+          Text(
+            recipe['title'] ?? "Recipe Name",
+            style: const TextStyle(
+                fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _buildTab(0, "Video", Colors.amber[200]!),
+              _buildTab(1, "Ingredients", Colors.green[100]!),
+              _buildTab(2, "Steps", Colors.purple[100]!),
+            ],
+          ),
+          const SizedBox(height: 10),
           Expanded(
-            child: selectedTabIndex == 0
-                ? ListView(
-              padding: const EdgeInsets.all(8),
-              children: ingredients
-                  .map((ingredient) => ListTile(
-                leading: const Icon(Icons.kitchen),
-                title: Text(ingredient),
-              ))
-                  .toList(),
-            )
-                : ListView(
-              padding: const EdgeInsets.all(8),
-              children: steps
-                  .asMap()
-                  .entries
-                  .map((entry) => ListTile(
-                leading: CircleAvatar(
-                  child: Text('${entry.key + 1}'),
-                ),
-                title: Text(entry.value),
-              ))
-                  .toList(),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  selectedTabIndex == 0
+                      ? (youtubeVideoId != null
+                      ? ElevatedButton.icon(
+                    onPressed: () => _launchVideo(
+                        'https://www.youtube.com/watch?v=$youtubeVideoId'),
+                    icon:
+                    const Icon(Icons.play_circle_fill),
+                    label: const Text("Watch Video"),
+                  )
+                      : const Text("No related video found"))
+                      : Container(),
+                  const SizedBox(height: 24),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Nutrition Information",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  GridView.count(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 3,
+                    children: [
+                      _buildNutritionBar("Protein", protein.toInt(), 100,
+                          Colors.orangeAccent),
+                      _buildNutritionBar("Fat", fat.toInt(), 100,
+                          Colors.redAccent),
+                      _buildNutritionBar("Carbs", carbs.toInt(), 100,
+                          Colors.blueAccent),
+                      _buildNutritionBar("Fiber", fiber.toInt(), 100,
+                          Colors.greenAccent),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
+          if (selectedTabIndex == 0)
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange[200],
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 30, vertical: 15),
+                ),
+                onPressed: _showScheduleDialog,
+                child: const Text("Add to Meal Plan"),
+              ),
+            ),
         ],
       ),
     );
   }
-}
 
-class TabBarWidget extends StatelessWidget {
-  final int selectedIndex;
-  final Function(int) onTabSelected;
-
-  const TabBarWidget({
-    super.key,
-    required this.selectedIndex,
-    required this.onTabSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
+  Widget _buildNutritionBar(
+      String label, int value, int maxValue, Color color) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildTab(context, 0, 'Ingredients'),
-        _buildTab(context, 1, 'Steps'),
+        Text("$label: $value g"),
+        const SizedBox(height: 8),
+        Stack(
+          children: [
+            Container(
+              width: (MediaQuery.of(context).size.width - 72) / 2,
+              height: 12,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+            Container(
+              width: (value / maxValue) *
+                  (MediaQuery.of(context).size.width - 72) /
+                  2,
+              height: 12,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
 
-  Widget _buildTab(BuildContext context, int index, String label) {
-    final isSelected = selectedIndex == index;
-
+  Widget _buildTab(int index, String title, Color bgColor) {
     return Expanded(
-      child: GestureDetector(
-        onTap: () => onTabSelected(index),
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            selectedTabIndex = index;
+          });
+        },
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          height: 50,
           decoration: BoxDecoration(
-            color: isSelected ? Colors.green : Colors.grey[300],
-            borderRadius: BorderRadius.circular(8),
+            color: bgColor,
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(5),
           ),
-          child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
+          alignment: Alignment.center,
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
           ),
         ),
