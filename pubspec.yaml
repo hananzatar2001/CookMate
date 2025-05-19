@@ -28,10 +28,20 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  flutter:
-    sdk: flutter
   firebase_core: ^3.13.0
+  cloud_firestore: ^5.6.7
   firebase_auth: ^5.5.3
+  intl: ^0.20.2
+  percent_indicator: ^4.2.3
+  http: ^0.13.6
+  image_picker: ^1.0.4
+  permission_handler: ^11.3.0
+  path: ^1.8.3
+  mime: ^1.0.4
+  sign_in_with_apple: ^7.0.1
+  shared_preferences: ^2.5.3
+
+
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -51,6 +61,7 @@ dev_dependencies:
   shared_preferences: ^2.2.2
   cloud_firestore: ^5.6.7
   uuid: ^4.0.0
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
