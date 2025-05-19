@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,7 +9,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
 import 'add_ingredients_screen.dart';
-import 'package:cook_mate/backend/services/RecipeService.dart';
+import 'package:cookmate/backend/services/RecipeService.dart';
 import '../../frontend/widgets/NavigationBar.dart';
 
 class UploadRecipeScreen extends StatefulWidget {

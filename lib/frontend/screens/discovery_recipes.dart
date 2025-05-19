@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:cook_mate/frontend/widgets/notification-bell.dart';
-import 'recipe_details.dart';
+import 'package:cookmate/frontend/widgets/nutrient_bar.dart';
+import 'package:cookmate/frontend/screens/recipe_details.dart';
 
 class DiscoveryRecipesPage extends StatefulWidget {
   const DiscoveryRecipesPage({super.key});

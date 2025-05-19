@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:cook_mate/backend/services/IngredientService.dart';
 import '../../frontend/widgets/NavigationBar.dart';
+import 'package:cookmate/backend/services/IngredientService.dart';
 
 class AddIngredientsScreen extends StatefulWidget {
   const AddIngredientsScreen({super.key});

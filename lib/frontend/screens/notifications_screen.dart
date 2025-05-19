@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'favorites_recipes_screen.dart';
-import 'package:cook_mate/frontend/widgets/notification-bell.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum NotificationType {
