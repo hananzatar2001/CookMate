@@ -9,7 +9,6 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
-
 import 'add_ingredients_screen.dart';
 import 'package:cook_mate/backend/services/RecipeService.dart';
 import '../../frontend/widgets/NavigationBar.dart';
