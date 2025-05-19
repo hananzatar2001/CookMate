@@ -9,10 +9,9 @@ class AddIngredientsScreen extends StatefulWidget {
   @override
   State<AddIngredientsScreen> createState() => _AddIngredientsScreenState();
 }
-
 class _AddIngredientsScreenState extends State<AddIngredientsScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<String> suggestions = [];
+  List<Map<String, dynamic>> suggestions = [];
   Timer? _debounce;
 
   @override
@@ -37,7 +36,7 @@ class _AddIngredientsScreenState extends State<AddIngredientsScreen> {
       if (query.isNotEmpty) {
         final results = await IngredientService.fetchIngredients(query);
         setState(() {
-          suggestions = results;
+          suggestions = List<Map<String, dynamic>>.from(results);
         });
       } else {
         setState(() {
@@ -75,7 +74,7 @@ class _AddIngredientsScreenState extends State<AddIngredientsScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: ListTile(
                     leading: const Icon(Icons.restaurant_menu),
-                    title: Text(item),
+                    title: Text(item['name'] ?? 'Unknown'),
                     trailing: const Icon(Icons.add_circle_outline),
                     onTap: () {
                       Navigator.pop(context, item);

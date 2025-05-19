@@ -1,21 +1,57 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class IngredientService {
-  static const String _apiKey = 'f688895a1e034a8087ffb5f77f44b38f';
+  static const String _apiKey = '7f501937a7d9438e9119ecf2446a669f';
   static const String _baseUrl = 'https://api.spoonacular.com';
 
-  static Future<List<String>> fetchIngredients(String query) async {
-    final url = Uri.parse('$_baseUrl/food/ingredients/search?query=$query&apiKey=$_apiKey');
-
+  static Future<List<Map<String, dynamic>>> fetchIngredients(String query) async {
+    final url = Uri.parse('$_baseUrl/food/ingredients/search?query=$query&number=5&apiKey=$_apiKey');
     final response = await http.get(url);
+
+    print("Ingredient Search Status: ${response.statusCode}");
+    print("Response Body: ${response.body}");
 
     if (response.statusCode == 200) {
       final List results = jsonDecode(response.body)['results'];
-      return results.map((e) => e['name'].toString()).toList();
+
+      List<Map<String, dynamic>> detailedIngredients = [];
+
+      for (var result in results) {
+        final id = result['id'];
+        final name = result['name'];
+
+        final nutritionUrl = Uri.parse(
+            '$_baseUrl/food/ingredients/$id/information?amount=100&unit=grams&apiKey=$_apiKey'
+        );
+        final nutritionRes = await http.get(nutritionUrl);
+
+        print("Nutrition status for $name: ${nutritionRes.statusCode}");
+
+        if (nutritionRes.statusCode == 200) {
+          final info = jsonDecode(nutritionRes.body);
+          final nutrients = info['nutrition']['nutrients'];
+
+          final protein = nutrients.firstWhere((n) => n['name'] == 'Protein', orElse: () => {'amount': 0.0})['amount'];
+          final fat = nutrients.firstWhere((n) => n['name'] == 'Fat', orElse: () => {'amount': 0.0})['amount'];
+          final carbs = nutrients.firstWhere((n) => n['name'] == 'Carbohydrates', orElse: () => {'amount': 0.0})['amount'];
+          final fiber = nutrients.firstWhere((n) => n['name'] == 'Fiber', orElse: () => {'amount': 0.0})['amount'];
+
+          detailedIngredients.add({
+            'name': name,
+            'protein': protein,
+            'fat': fat,
+            'carbs': carbs,
+            'fiber': fiber,
+          });
+        } else {
+          print("Failed to fetch nutrition for $name: ${nutritionRes.body}");
+        }
+      }
+
+      return detailedIngredients;
     } else {
+      print("Ingredient fetch failed: ${response.body}");
       return [];
     }
   }
