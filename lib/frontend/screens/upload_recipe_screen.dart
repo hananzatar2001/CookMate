@@ -1,17 +1,18 @@
-
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'add_ingredients_screen.dart';
-import 'package:cook_mate/backend/services/RecipeService.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:mime/mime.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
-import 'package:mime/mime.dart';
-import '../../frontend/widgets/NavigationBar.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:uuid/uuid.dart';
 
+import 'add_ingredients_screen.dart';
+import 'package:cook_mate/backend/services/RecipeService.dart';
+import '../../frontend/widgets/NavigationBar.dart';
 
 class UploadRecipeScreen extends StatefulWidget {
   const UploadRecipeScreen({super.key});
@@ -27,10 +28,12 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController stepsController = TextEditingController();
 
-  List<String> selectedIngredients = [];
+  List<Map<String, dynamic>> selectedIngredients = [];
 
   DateTime? selectedDate;
   File? imageFile;
+
+  final RecipeService _recipeService = RecipeService();
 
   Future<void> _pickDate() async {
     final now = DateTime.now();
@@ -47,25 +50,46 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
     }
   }
 
+
+
   Future<void> _addIngredient() async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const AddIngredientsScreen()),
     );
 
-    if (result != null && result is String) {
+    if (result != null && result is Map<String, dynamic>) {
       setState(() {
-        if (!selectedIngredients.contains(result)) {
-          selectedIngredients.add(result);
-        }
+        final exists = selectedIngredients.any((item) => item['name'] == result['name']);
+        if (!exists) selectedIngredients.add(result);
       });
     }
   }
 
-  final RecipeService _recipeService = RecipeService();
+  Future<void> _pickImage() async {
+    final status = await Permission.photos.request(); // iOS
+    final storageStatus = await Permission.storage.request(); // Android
 
+    if (status.isGranted || storageStatus.isGranted) {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-
+      if (pickedFile != null) {
+        setState(() {
+          imageFile = File(pickedFile.path);
+        });
+      }
+    } else if (status.isPermanentlyDenied || storageStatus.isPermanentlyDenied) {
+      openAppSettings();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enable gallery access from settings.')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gallery access denied.')),
+      );
+    }
+  }
 
   Future<String?> uploadImageToCloudinary(File imageFile) async {
     const cloudName = 'dobduqtmi';
@@ -99,7 +123,6 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
     }
   }
 
-
   Future<void> uploadRecipe() async {
     final selectedType = recipeTypes[selectedTypes.indexWhere((e) => e)];
 
@@ -108,57 +131,49 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
 
       if (imageFile != null) {
         imageUrl = await uploadImageToCloudinary(imageFile!);
-        if (imageUrl == null) {
-          throw Exception('Failed to upload image to Supabase');
-        }
+        if (imageUrl == null) throw Exception('Failed to upload image');
       }
 
+      var uuid = Uuid();
+      String recipeId = uuid.v4();
+
+      // Calculate nutrition totals safely
+      double totalProtein = 0, totalFat = 0, totalCarbs = 0, totalFiber = 0;
+      for (var ingredient in selectedIngredients) {
+        totalProtein += (ingredient['protein'] is num) ? ingredient['protein'] as num : 0;
+        totalFat += (ingredient['fat'] is num) ? ingredient['fat'] as num : 0;
+        totalCarbs += (ingredient['carbs'] is num) ? ingredient['carbs'] as num : 0;
+        totalFiber += (ingredient['fiber'] is num) ? ingredient['fiber'] as num : 0;
+      }
+
+      final totalCalories = (totalProtein * 4) + (totalCarbs * 4) + (totalFat * 9);
 
       await _recipeService.uploadRecipe(
-        userId: 'vhanan',
-        recipeId: 'hanan',
+        user_id: 'vhanan',
+        recipeId: recipeId,
         title: nameController.text.trim(),
         steps: stepsController.text
             .split('\n')
             .map((e) => e.trim())
             .where((e) => e.isNotEmpty)
             .toList(),
-        ingredients: selectedIngredients,
+        ingredients: selectedIngredients.map((e) => e['name'].toString()).toList(),
         recipeType: selectedType,
         imageUrl: imageUrl,
+        calories: totalCalories,
+        protein: totalProtein.toDouble(),
+        carbs: totalCarbs.toDouble(),
+        fats: totalFat.toDouble(),
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Recipe uploaded successfully!')),
       );
+
+      // Optionally clear form or navigate away after success
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to upload recipe: $e')),
-      );
-    }
-  }
-
-  Future<void> _pickImage() async {
-    final status = await Permission.photos.request();
-    final storageStatus = await Permission.storage.request();
-
-    if (status.isGranted || storageStatus.isGranted) {
-      final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-      if (pickedFile != null) {
-        setState(() {
-          imageFile = File(pickedFile.path);
-        });
-      }
-    } else if (status.isPermanentlyDenied || storageStatus.isPermanentlyDenied) {
-      openAppSettings();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enable gallery access from settings.')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Gallery access denied.')),
       );
     }
   }
@@ -196,7 +211,7 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
               spacing: 8.0,
               children: selectedIngredients.map((ingredient) {
                 return Chip(
-                  label: Text(ingredient),
+                  label: Text(ingredient['name'] ?? 'Unknown'),
                   onDeleted: () {
                     setState(() {
                       selectedIngredients.remove(ingredient);
@@ -258,18 +273,19 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: uploadRecipe,
-              icon: const Icon(Icons.cloud_upload),
-              label: const Text('Upload Recipe'),
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: (nameController.text.trim().isEmpty ||
+                  stepsController.text.trim().isEmpty ||
+                  selectedIngredients.isEmpty)
+                  ? null
+                  : uploadRecipe,
+              child: const Text('Upload Recipe'),
             ),
           ],
         ),
       ),
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 5),
-
     );
   }
 }
-
