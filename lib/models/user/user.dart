@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class User {
   final String id;
   final String name;
@@ -9,6 +7,7 @@ class User {
   final int dailyProteinTarget;
   final int dailyCarbsTarget;
   final int dailyFatTarget;
+  final int dailyFiberTarget;
 
   final int age;
   final int weight;
@@ -27,6 +26,7 @@ class User {
     required this.dailyProteinTarget,
     required this.dailyCarbsTarget,
     required this.dailyFatTarget,
+    required this.dailyFiberTarget,
     required this.age,
     required this.weight,
     required this.gender,
@@ -46,6 +46,7 @@ class User {
       dailyProteinTarget: json['dailyProteinTarget'] ?? 100,
       dailyCarbsTarget: json['dailyCarbsTarget'] ?? 250,
       dailyFatTarget: json['dailyFatTarget'] ?? 65,
+      dailyFiberTarget: json['dailyFiberTarget'] ?? 25,
       age: json['age'] ?? 18,
       weight: json['weight'] ?? 180,
       gender: json['gender'] ?? 'female',
@@ -66,6 +67,7 @@ class User {
       'dailyProteinTarget': dailyProteinTarget,
       'dailyCarbsTarget': dailyCarbsTarget,
       'dailyFatTarget': dailyFatTarget,
+      'dailyFiberTarget': dailyFiberTarget,
       'age': age,
       'weight': weight,
       'gender': gender,
@@ -85,6 +87,7 @@ class User {
     int? dailyProteinTarget,
     int? dailyCarbsTarget,
     int? dailyFatTarget,
+    int? dailyFiberTarget,
     int? age,
     int? weight,
     String? gender,
@@ -102,6 +105,7 @@ class User {
       dailyProteinTarget: dailyProteinTarget ?? this.dailyProteinTarget,
       dailyCarbsTarget: dailyCarbsTarget ?? this.dailyCarbsTarget,
       dailyFatTarget: dailyFatTarget ?? this.dailyFatTarget,
+      dailyFiberTarget: dailyFiberTarget ?? this.dailyFiberTarget,
       age: age ?? this.age,
       weight: weight ?? this.weight,
       gender: gender ?? this.gender,

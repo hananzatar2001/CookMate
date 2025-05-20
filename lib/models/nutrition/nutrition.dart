@@ -1,15 +1,15 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class NutritionRecord {
   final String date;
   final int consumedCalories;
   final int consumedProtein;
   final int consumedCarbs;
   final int consumedFat;
+  final int consumedFiber;
   final int targetCalories;
   final int targetProtein;
   final int targetCarbs;
   final int targetFat;
+  final int targetFiber;
 
   NutritionRecord({
     required this.date,
@@ -17,10 +17,12 @@ class NutritionRecord {
     required this.consumedProtein,
     required this.consumedCarbs,
     required this.consumedFat,
+    required this.consumedFiber,
     required this.targetCalories,
     required this.targetProtein,
     required this.targetCarbs,
     required this.targetFat,
+    required this.targetFiber,
   });
 
   factory NutritionRecord.fromJson(Map<String, dynamic> json) {
@@ -30,10 +32,12 @@ class NutritionRecord {
       consumedProtein: json['consumedProtein'] ?? 0,
       consumedCarbs: json['consumedCarbs'] ?? 0,
       consumedFat: json['consumedFat'] ?? 0,
+      consumedFiber: json['consumedFiber'] ?? 0,
       targetCalories: json['targetCalories'] ?? 0,
       targetProtein: json['targetProtein'] ?? 0,
       targetCarbs: json['targetCarbs'] ?? 0,
       targetFat: json['targetFat'] ?? 0,
+      targetFiber: json['targetFiber'] ?? 0,
     );
   }
 
@@ -44,10 +48,12 @@ class NutritionRecord {
       'consumedProtein': consumedProtein,
       'consumedCarbs': consumedCarbs,
       'consumedFat': consumedFat,
+      'consumedFiber': consumedFiber,
       'targetCalories': targetCalories,
       'targetProtein': targetProtein,
       'targetCarbs': targetCarbs,
       'targetFat': targetFat,
+      'targetFiber': targetFiber,
     };
   }
 
@@ -56,6 +62,7 @@ class NutritionRecord {
     int? protein,
     int? carbs,
     int? fat,
+    int? fiber,
   }) {
     return NutritionRecord(
       date: date,
@@ -63,10 +70,12 @@ class NutritionRecord {
       consumedProtein: protein ?? consumedProtein,
       consumedCarbs: carbs ?? consumedCarbs,
       consumedFat: fat ?? consumedFat,
+      consumedFiber: fiber ?? consumedFiber,
       targetCalories: targetCalories,
       targetProtein: targetProtein,
       targetCarbs: targetCarbs,
       targetFat: targetFat,
+      targetFiber: targetFiber,
     );
   }
 
@@ -75,6 +84,7 @@ class NutritionRecord {
     int? protein,
     int? carbs,
     int? fat,
+    int? fiber,
   }) {
     return NutritionRecord(
       date: date,
@@ -82,10 +92,12 @@ class NutritionRecord {
       consumedProtein: consumedProtein,
       consumedCarbs: consumedCarbs,
       consumedFat: consumedFat,
+      consumedFiber: consumedFiber,
       targetCalories: calories ?? targetCalories,
       targetProtein: protein ?? targetProtein,
       targetCarbs: carbs ?? targetCarbs,
       targetFat: fat ?? targetFat,
+      targetFiber: fiber ?? targetFiber,
     );
   }
 }
@@ -155,10 +167,12 @@ class Nutrition {
     required int protein,
     required int carbs,
     required int fat,
+    required int fiber,
     int? targetCalories,
     int? targetProtein,
     int? targetCarbs,
     int? targetFat,
+    int? targetFiber,
   }) {
     final dateStr = formatDate(date);
     final existingRecord = getRecordForDate(date);
@@ -170,6 +184,7 @@ class Nutrition {
               protein: protein,
               carbs: carbs,
               fat: fat,
+              fiber: fiber,
             )
             : NutritionRecord(
               date: dateStr,
@@ -177,10 +192,12 @@ class Nutrition {
               consumedProtein: protein,
               consumedCarbs: carbs,
               consumedFat: fat,
+              consumedFiber: fiber,
               targetCalories: targetCalories ?? 0,
               targetProtein: targetProtein ?? 0,
               targetCarbs: targetCarbs ?? 0,
               targetFat: targetFat ?? 0,
+              targetFiber: targetFiber ?? 0,
             );
 
     return updateRecord(newRecord);
@@ -192,6 +209,7 @@ class Nutrition {
     required int protein,
     required int carbs,
     required int fat,
+    required int fiber,
   }) {
     final dateStr = formatDate(date);
     final updatedRecords = <NutritionRecord>[];
@@ -204,6 +222,7 @@ class Nutrition {
             protein: protein,
             carbs: carbs,
             fat: fat,
+            fiber: fiber,
           ),
         );
       } else {
@@ -219,10 +238,12 @@ class Nutrition {
           consumedProtein: 0,
           consumedCarbs: 0,
           consumedFat: 0,
+          consumedFiber: 0,
           targetCalories: calories,
           targetProtein: protein,
           targetCarbs: carbs,
           targetFat: fat,
+          targetFiber: fiber,
         ),
       );
     }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'app_database.dart';
-import 'user.dart';
+import 'user/user.dart';
 
 class SettingsViewModel {
   final AppDatabase _database;
@@ -58,6 +57,7 @@ class SettingsViewModel {
       dailyProteinTarget: _currentUser!.dailyProteinTarget,
       dailyCarbsTarget: _currentUser!.dailyCarbsTarget,
       dailyFatTarget: _currentUser!.dailyFatTarget,
+      dailyFiberTarget: _currentUser!.dailyFiberTarget,
       age: age,
       weight: weight,
       gender: gender,

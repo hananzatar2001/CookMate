@@ -5,6 +5,7 @@ class DailyNutrition {
   final int consumedProtein;
   final int consumedCarbs;
   final int consumedFat;
+  final int consumedFiber;
 
   DailyNutrition({
     required this.id,
@@ -13,6 +14,7 @@ class DailyNutrition {
     required this.consumedProtein,
     required this.consumedCarbs,
     required this.consumedFat,
+    required this.consumedFiber,
   });
 
   Map<String, dynamic> toJson() {
@@ -23,6 +25,7 @@ class DailyNutrition {
       'consumedProtein': consumedProtein,
       'consumedCarbs': consumedCarbs,
       'consumedFat': consumedFat,
+      'consumedFiber': consumedFiber,
     };
   }
 
@@ -34,6 +37,7 @@ class DailyNutrition {
       consumedProtein: json['consumedProtein'],
       consumedCarbs: json['consumedCarbs'],
       consumedFat: json['consumedFat'],
+      consumedFiber: json['consumedFiber'] ?? 0,
     );
   }
 
@@ -44,6 +48,7 @@ class DailyNutrition {
     int? consumedProtein,
     int? consumedCarbs,
     int? consumedFat,
+    int? consumedFiber,
   }) {
     return DailyNutrition(
       id: id ?? this.id,
@@ -52,6 +57,7 @@ class DailyNutrition {
       consumedProtein: consumedProtein ?? this.consumedProtein,
       consumedCarbs: consumedCarbs ?? this.consumedCarbs,
       consumedFat: consumedFat ?? this.consumedFat,
+      consumedFiber: consumedFiber ?? this.consumedFiber,
     );
   }
 
@@ -60,12 +66,14 @@ class DailyNutrition {
     int? protein,
     int? carbs,
     int? fat,
+    int? fiber,
   }) {
     return copyWith(
       consumedCalories: consumedCalories + (calories ?? 0),
       consumedProtein: consumedProtein + (protein ?? 0),
       consumedCarbs: consumedCarbs + (carbs ?? 0),
       consumedFat: consumedFat + (fat ?? 0),
+      consumedFiber: consumedFiber + (fiber ?? 0),
     );
   }
 
@@ -74,6 +82,7 @@ class DailyNutrition {
     int? protein,
     int? carbs,
     int? fat,
+    int? fiber,
   }) {
     return copyWith(
       consumedCalories:
@@ -85,6 +94,8 @@ class DailyNutrition {
       consumedCarbs:
           (consumedCarbs - (carbs ?? 0)).clamp(0, double.infinity).toInt(),
       consumedFat: (consumedFat - (fat ?? 0)).clamp(0, double.infinity).toInt(),
+      consumedFiber:
+          (consumedFiber - (fiber ?? 0)).clamp(0, double.infinity).toInt(),
     );
   }
 }

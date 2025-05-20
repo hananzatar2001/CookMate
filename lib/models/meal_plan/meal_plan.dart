@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class MealPlanRecord {
   final String date;
   final List<String> recipeIds;
