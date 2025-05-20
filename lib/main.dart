@@ -1,5 +1,5 @@
+import 'package:cookmate/pages/ingredient_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'widgets/bottom_navigation_bar.dart';
 import 'pages/daily_nutrition.dart';
 import 'pages/meal_planning.dart';
@@ -42,6 +42,7 @@ class MyApp extends StatelessWidget {
         '/favorites': (context) => const FavoritesRecipesScreen(),
         '/settings': (context) => const SettingsScreen(),
         '/notifications': (context) => const NotificationsScreen(),
+        '/recipe': (context) => const RecipeDetailScreen(),
       },
       initialRoute: '/',
     );
