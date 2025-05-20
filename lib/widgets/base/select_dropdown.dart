@@ -7,12 +7,12 @@ class SelectDropdown extends StatelessWidget {
   final List<String> items;
 
   const SelectDropdown({
-    Key? key,
+    super.key,
     required this.label,
     required this.value,
     required this.onChanged,
     required this.items,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

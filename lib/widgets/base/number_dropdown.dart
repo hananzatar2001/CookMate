@@ -7,12 +7,12 @@ class NumberDropdown extends StatelessWidget {
   final List<int> items;
 
   const NumberDropdown({
-    Key? key,
+    super.key,
     required this.label,
     required this.value,
     required this.onChanged,
     required this.items,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

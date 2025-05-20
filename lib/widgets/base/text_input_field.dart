@@ -7,12 +7,12 @@ class TextInputField extends StatelessWidget {
   final VoidCallback? onEditPressed;
 
   const TextInputField({
-    Key? key,
+    super.key,
     required this.label,
     required this.controller,
     this.isPassword = false,
     this.onEditPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
