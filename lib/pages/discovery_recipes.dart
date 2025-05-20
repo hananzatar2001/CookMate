@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import '../widgets/notification_bell.dart';
-import '../pages/favorites_recipes_screen.dart';
-import '../pages/notifications_screen.dart';
 
 class DiscoveryRecipesPage extends StatefulWidget {
   const DiscoveryRecipesPage({super.key});

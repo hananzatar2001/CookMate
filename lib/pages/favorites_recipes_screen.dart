@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import '../pages/notifications_screen.dart';
 import '../widgets/notification_bell.dart';
-import '../widgets/app_nav_bar.dart';
 
 class Recipe {
   final String title;
@@ -18,7 +16,7 @@ class Recipe {
 }
 
 class FavoritesRecipesScreen extends StatefulWidget {
-  const FavoritesRecipesScreen({Key? key}) : super(key: key);
+  const FavoritesRecipesScreen({super.key});
 
   @override
   _FavoritesRecipesScreenState createState() => _FavoritesRecipesScreenState();

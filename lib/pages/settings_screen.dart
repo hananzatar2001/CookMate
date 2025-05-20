@@ -3,11 +3,15 @@ import '../constants.dart';
 import '../services/database_service.dart';
 import '../models/models.dart';
 import '../widgets/app_bar.dart';
-import '../widgets/base/text_input_field.dart';
 import '../widgets/base/number_dropdown.dart';
 import '../widgets/base/select_dropdown.dart';
 import '../widgets/base/switch_field.dart';
 import '../widgets/base/section_title.dart';
+
+import '../widgets/base/highlighted_text_field.dart';
+import '../widgets/base/option_selector.dart';
+import '../widgets/base/save_button.dart';
+import 'dart:convert';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -26,22 +30,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late TextEditingController _proteinController;
   late TextEditingController _carbsController;
   late TextEditingController _fatController;
+  late TextEditingController _fiberController;
+
+  late TextEditingController _customDiseaseController;
+
+  late TextEditingController _customAllergyController;
 
   late int _age;
   late int _weight;
   late String _gender;
   late int _height;
   late String? _selectedDisease;
-  late String? _selectedAllergy;
+  late bool _hasAllergies = false;
+  late List<String> _selectedAllergies = [];
   late bool _isVegetarian;
+
+  bool _isCustomDiseaseSelected = false;
+
+  bool _hasCustomAllergy = false;
+  String _customAllergyValue = "";
+
+  String _themeMode = 'light';
+
+  String _language = 'English';
 
   late int _dailyCalorieTarget;
   late int _dailyProteinTarget;
   late int _dailyCarbsTarget;
   late int _dailyFatTarget;
+  late int _dailyFiberTarget;
 
   bool _isLoading = true;
   bool _hasChanges = false;
+
+  final List<String> _diseaseOptions = [
+    'None',
+    'Diabetes',
+    'Juvenile Diabetes',
+    'Hypertension',
+    'Atherosclerosis',
+    'Marasmus',
+    'Rickets',
+    'Osteoporosis',
+    'Scurvy',
+    'Beriberi',
+    'Other',
+  ];
+
+  final List<String> _allergyOptions = [
+    'Cow\'s milk',
+    'Wheat',
+    'Gluten',
+    'Eggs',
+    'Fish/Seafood',
+    'Soy',
+    'Nuts/Peanuts',
+    'Barley',
+    'Rice',
+    'Other',
+  ];
 
   @override
   void initState() {
@@ -59,6 +106,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _proteinController = TextEditingController();
     _carbsController = TextEditingController();
     _fatController = TextEditingController();
+    _fiberController = TextEditingController();
+    _customDiseaseController = TextEditingController();
+    _customAllergyController = TextEditingController();
 
     _nameController.addListener(() {
       _markFieldAsChanged('name');
@@ -81,6 +131,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _fatController.addListener(() {
       _markFieldAsChanged('fat');
     });
+    _fiberController.addListener(() {
+      _markFieldAsChanged('fiber');
+    });
+    _customDiseaseController.addListener(() {
+      _markFieldAsChanged('disease');
+    });
+    _customAllergyController.addListener(() {
+      _markFieldAsChanged('allergy');
+      _customAllergyValue = _customAllergyController.text;
+    });
   }
 
   final Set<String> _changedFields = {};
@@ -100,52 +160,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _hasChanges = true;
       });
     }
-  }
-
-  Widget _buildTextField(
-    String label,
-    TextEditingController controller,
-    bool hasChanged, {
-    bool isPassword = false,
-  }) {
-    return Container(
-      decoration:
-          hasChanged
-              ? BoxDecoration(
-                border: Border.all(color: Colors.white.withOpacity(0.5)),
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.white.withOpacity(0.2),
-                    blurRadius: 4,
-                    spreadRadius: 1,
-                  ),
-                ],
-              )
-              : null,
-      child: Stack(
-        children: [
-          TextInputField(
-            label: label,
-            controller: controller,
-            isPassword: isPassword,
-          ),
-          if (hasChanged)
-            Positioned(
-              right: 8,
-              top: 8,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.8),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.edit, color: Colors.white, size: 12),
-              ),
-            ),
-        ],
-      ),
-    );
   }
 
   void _updateUI() {
@@ -172,18 +186,72 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _gender = user.gender;
       _height = user.height;
       _selectedDisease = user.disease;
-      _selectedAllergy = user.allergy;
       _isVegetarian = user.isVegetarian;
+
+      _themeMode = 'light';
+
+      if (_selectedDisease != null &&
+          !_diseaseOptions.contains(_selectedDisease)) {
+        _isCustomDiseaseSelected = true;
+        _customDiseaseController.text = _selectedDisease!;
+        _selectedDisease = 'Other';
+      } else {
+        _isCustomDiseaseSelected = _selectedDisease == 'Other';
+        if (_isCustomDiseaseSelected) {
+          _customDiseaseController.text = '';
+        }
+      }
+
+      if (user.allergy != null) {
+        try {
+          final List<dynamic> allergiesList = jsonDecode(user.allergy!);
+          _selectedAllergies =
+              allergiesList.map((item) => item.toString()).toList();
+          _hasAllergies = _selectedAllergies.isNotEmpty;
+
+          if (_selectedAllergies.contains('Other')) {
+            int otherIndex = _selectedAllergies.indexOf('Other');
+            if (otherIndex < _selectedAllergies.length - 1 &&
+                !_allergyOptions.contains(_selectedAllergies[otherIndex + 1])) {
+              _customAllergyValue = _selectedAllergies[otherIndex + 1];
+              _customAllergyController.text = _customAllergyValue;
+              _hasCustomAllergy = true;
+
+              _selectedAllergies.removeAt(otherIndex + 1);
+            }
+          }
+        } catch (e) {
+          if (user.allergy == "None" || user.allergy!.isEmpty) {
+            _hasAllergies = false;
+            _selectedAllergies = [];
+          } else {
+            _hasAllergies = true;
+            _selectedAllergies = [user.allergy!];
+
+            if (!_allergyOptions.contains(user.allergy)) {
+              _customAllergyValue = user.allergy!;
+              _customAllergyController.text = _customAllergyValue;
+              _hasCustomAllergy = true;
+              _selectedAllergies = ['Other'];
+            }
+          }
+        }
+      } else {
+        _hasAllergies = false;
+        _selectedAllergies = [];
+      }
 
       _dailyCalorieTarget = user.dailyCalorieTarget;
       _dailyProteinTarget = user.dailyProteinTarget;
       _dailyCarbsTarget = user.dailyCarbsTarget;
       _dailyFatTarget = user.dailyFatTarget;
+      _dailyFiberTarget = user.dailyFiberTarget;
 
       _caloriesController.text = _dailyCalorieTarget.toString();
       _proteinController.text = _dailyProteinTarget.toString();
       _carbsController.text = _dailyCarbsTarget.toString();
       _fatController.text = _dailyFatTarget.toString();
+      _fiberController.text = _dailyFiberTarget.toString();
     } else {
       _nameController.text = '';
       _emailController.text = '';
@@ -194,18 +262,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _gender = 'female';
       _height = 180;
       _selectedDisease = null;
-      _selectedAllergy = null;
+      _hasAllergies = false;
+      _selectedAllergies = [];
+      _hasCustomAllergy = false;
+      _customAllergyValue = '';
+      _customAllergyController.text = '';
       _isVegetarian = false;
+      _isCustomDiseaseSelected = false;
+      _customDiseaseController.text = '';
+      _themeMode = 'light';
+      _language = 'English';
 
       _dailyCalorieTarget = 2000;
       _dailyProteinTarget = 100;
       _dailyCarbsTarget = 250;
       _dailyFatTarget = 65;
+      _dailyFiberTarget = 25;
 
       _caloriesController.text = '2000';
       _proteinController.text = '100';
       _carbsController.text = '250';
       _fatController.text = '65';
+      _fiberController.text = '25';
     }
 
     setState(() {
@@ -229,6 +307,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _dailyCarbsTarget =
           int.tryParse(_carbsController.text) ?? _dailyCarbsTarget;
       _dailyFatTarget = int.tryParse(_fatController.text) ?? _dailyFatTarget;
+      _dailyFiberTarget =
+          int.tryParse(_fiberController.text) ?? _dailyFiberTarget;
+
+      final String? diseaseToSave =
+          _selectedDisease == 'Other' &&
+                  _customDiseaseController.text.isNotEmpty
+              ? _customDiseaseController.text
+              : _selectedDisease;
+
+      String? allergiesToSave;
+      if (!_hasAllergies) {
+        allergiesToSave = null;
+      } else {
+        List<String> allergiesList = List.from(_selectedAllergies);
+
+        if (_hasCustomAllergy && _customAllergyController.text.isNotEmpty) {
+          if (!allergiesList.contains('Other')) {
+            allergiesList.add('Other');
+          }
+          allergiesList.add(_customAllergyController.text);
+        }
+        allergiesToSave = jsonEncode(allergiesList);
+      }
 
       final currentUser = _appDatabase.currentUser;
       User updatedUser;
@@ -241,20 +342,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (_changedFields.contains('weight')) changedItems.add("weight");
       if (_changedFields.contains('height')) changedItems.add("height");
       if (_changedFields.contains('gender')) changedItems.add("gender");
-      if (_changedFields.contains('disease'))
+      if (_changedFields.contains('disease')) {
         changedItems.add("health conditions");
+      }
       if (_changedFields.contains('allergy')) changedItems.add("allergies");
-      if (_changedFields.contains('isVegetarian'))
+      if (_changedFields.contains('isVegetarian')) {
         changedItems.add("diet preferences");
+      }
+      if (_changedFields.contains('theme')) changedItems.add("theme");
+      if (_changedFields.contains('language')) changedItems.add("language");
       if (_changedFields.contains('calories') ||
           _changedFields.contains('protein') ||
           _changedFields.contains('carbs') ||
-          _changedFields.contains('fat')) {
+          _changedFields.contains('fat') ||
+          _changedFields.contains('fiber')) {
         changedItems.add("nutrition targets");
       }
 
       String changesSummary =
           changedItems.isEmpty ? "" : "Updated: ${changedItems.join(', ')}.";
+
+      bool isDarkMode = _themeMode == 'dark';
 
       if (currentUser == null) {
         final newUser = User(
@@ -269,12 +377,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           dailyProteinTarget: _dailyProteinTarget,
           dailyCarbsTarget: _dailyCarbsTarget,
           dailyFatTarget: _dailyFatTarget,
+          dailyFiberTarget: _dailyFiberTarget,
           age: _age,
           weight: _weight,
           gender: _gender,
           height: _height,
-          disease: _selectedDisease,
-          allergy: _selectedAllergy,
+          disease: diseaseToSave,
+          allergy: allergiesToSave,
           isVegetarian: _isVegetarian,
         );
 
@@ -302,12 +411,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           dailyProteinTarget: _dailyProteinTarget,
           dailyCarbsTarget: _dailyCarbsTarget,
           dailyFatTarget: _dailyFatTarget,
+          dailyFiberTarget: _dailyFiberTarget,
           age: _age,
           weight: _weight,
           gender: _gender,
           height: _height,
-          disease: _selectedDisease,
-          allergy: _selectedAllergy,
+          disease: diseaseToSave,
+          allergy: allergiesToSave,
           isVegetarian: _isVegetarian,
         );
 
@@ -387,71 +497,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _proteinController.dispose();
     _carbsController.dispose();
     _fatController.dispose();
+    _fiberController.dispose();
+    _customDiseaseController.dispose();
+
+    _customAllergyController.dispose();
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    final bool useColumnLayout = screenWidth < 480;
+
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Settings'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            if (_hasChanges) {
-              _showUnsavedChangesDialog(context);
-            } else {
-              Navigator.pop(context);
-            }
-          },
-        ),
-        actions: [
-          if (_hasChanges)
-            TextButton.icon(
-              icon: const Icon(Icons.save, color: Colors.white),
-              label: const Text(
-                'SAVE',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              onPressed: _saveSettings,
-            ),
-          IconButton(
-            icon: Stack(
-              children: [
-                const Icon(Icons.notifications_none),
-                if (_appDatabase.unreadNotificationsCount > 0)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 14,
-                        minHeight: 14,
-                      ),
-                      child: Text(
-                        '${_appDatabase.unreadNotificationsCount}',
-                        style: const TextStyle(
-                          fontSize: 8,
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            onPressed: () {},
-          ),
-        ],
+      appBar: CommonAppBar(
+        title: 'Settings',
+        showBackButton: true,
+        notificationCount: _appDatabase.unreadNotificationsCount,
       ),
       body:
           _isLoading
@@ -465,116 +530,308 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 16),
                       const SectionTitle(title: 'My Account'),
                       const SizedBox(height: 16),
-                      _buildTextField(
-                        'Name',
-                        _nameController,
-                        _changedFields.contains('name'),
+
+                      HighlightedTextField(
+                        label: 'Name',
+                        controller: _nameController,
+                        highlight: _changedFields.contains('name'),
                       ),
                       const SizedBox(height: 8),
-                      _buildTextField(
-                        'Email',
-                        _emailController,
-                        _changedFields.contains('email'),
+                      HighlightedTextField(
+                        label: 'Email',
+                        controller: _emailController,
+                        highlight: _changedFields.contains('email'),
                       ),
                       const SizedBox(height: 8),
-                      _buildTextField(
-                        'Password',
-                        _passwordController,
-                        _changedFields.contains('password'),
+                      HighlightedTextField(
+                        label: 'Password',
+                        controller: _passwordController,
+                        highlight: _changedFields.contains('password'),
                         isPassword: true,
                       ),
                       const SizedBox(height: 24),
                       const SectionTitle(title: 'Personal information'),
                       const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: NumberDropdown(
-                              label: 'Age',
-                              value: _age,
-                              onChanged: (value) {
-                                setState(() {
-                                  _age = value;
-                                  _hasChanges = true;
-                                });
-                              },
-                              items: List.generate(100, (index) => index + 1),
-                            ),
+
+                      useColumnLayout
+                          ? Column(
+                            children: [
+                              NumberDropdown(
+                                label: 'Age',
+                                value: _age,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _age = value;
+                                    _hasChanges = true;
+                                    _changedFields.add('age');
+                                  });
+                                },
+                                items: List.generate(100, (index) => index + 1),
+                              ),
+                              const SizedBox(height: 8),
+                              NumberDropdown(
+                                label: 'Weight',
+                                value: _weight,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _weight = value;
+                                    _hasChanges = true;
+                                    _changedFields.add('weight');
+                                  });
+                                },
+                                items: List.generate(
+                                  300,
+                                  (index) => index + 50,
+                                ),
+                              ),
+                            ],
+                          )
+                          : Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: NumberDropdown(
+                                  label: 'Age',
+                                  value: _age,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _age = value;
+                                      _hasChanges = true;
+                                      _changedFields.add('age');
+                                    });
+                                  },
+                                  items: List.generate(
+                                    100,
+                                    (index) => index + 1,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: NumberDropdown(
+                                  label: 'Weight',
+                                  value: _weight,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _weight = value;
+                                      _hasChanges = true;
+                                      _changedFields.add('weight');
+                                    });
+                                  },
+                                  items: List.generate(
+                                    300,
+                                    (index) => index + 50,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: NumberDropdown(
-                              label: 'Weight',
-                              value: _weight,
-                              onChanged: (value) {
-                                setState(() {
-                                  _weight = value;
-                                  _hasChanges = true;
-                                });
-                              },
-                              items: List.generate(300, (index) => index + 50),
-                            ),
-                          ),
-                        ],
-                      ),
+
                       const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: SelectDropdown(
-                              label: 'Gender',
-                              value: _gender,
-                              onChanged: (value) {
-                                setState(() {
-                                  _gender = value!;
-                                  _hasChanges = true;
-                                });
-                              },
-                              items: const ['male', 'female'],
-                            ),
+
+                      useColumnLayout
+                          ? Column(
+                            children: [
+                              SelectDropdown(
+                                label: 'Gender',
+                                value: _gender,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _gender = value!;
+                                    _hasChanges = true;
+                                    _changedFields.add('gender');
+                                  });
+                                },
+                                items: const ['male', 'female'],
+                              ),
+                              const SizedBox(height: 8),
+                              NumberDropdown(
+                                label: 'Height',
+                                value: _height,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _height = value;
+                                    _hasChanges = true;
+                                    _changedFields.add('height');
+                                  });
+                                },
+                                items: List.generate(
+                                  120,
+                                  (index) => index + 100,
+                                ),
+                              ),
+                            ],
+                          )
+                          : Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: SelectDropdown(
+                                  label: 'Gender',
+                                  value: _gender,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _gender = value!;
+                                      _hasChanges = true;
+                                      _changedFields.add('gender');
+                                    });
+                                  },
+                                  items: const ['male', 'female'],
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: NumberDropdown(
+                                  label: 'Height',
+                                  value: _height,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _height = value;
+                                      _hasChanges = true;
+                                      _changedFields.add('height');
+                                    });
+                                  },
+                                  items: List.generate(
+                                    120,
+                                    (index) => index + 100,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: NumberDropdown(
-                              label: 'Height',
-                              value: _height,
-                              onChanged: (value) {
-                                setState(() {
-                                  _height = value;
-                                  _hasChanges = true;
-                                });
-                              },
-                              items: List.generate(120, (index) => index + 100),
-                            ),
-                          ),
-                        ],
-                      ),
+
                       const SizedBox(height: 8),
+
                       SelectDropdown(
-                        label: 'Diseases',
+                        label: 'Health Conditions',
                         value: _selectedDisease,
                         onChanged: (value) {
                           setState(() {
                             _selectedDisease = value;
+                            _isCustomDiseaseSelected = value == 'Other';
                             _changedFields.add('disease');
                             _hasChanges = true;
                           });
                         },
-                        items: const ['None', 'A', 'B', 'C', 'Other'],
+                        items: _diseaseOptions,
                       ),
-                      const SizedBox(height: 8),
-                      SelectDropdown(
-                        label: 'Specific allergies',
-                        value: _selectedAllergy,
+
+                      if (_isCustomDiseaseSelected)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: HighlightedTextField(
+                            label: 'Specify',
+                            controller: _customDiseaseController,
+                            highlight: _changedFields.contains('disease'),
+                          ),
+                        ),
+
+                      const SizedBox(height: 16),
+
+                      SwitchField(
+                        label: 'Do you have allergies?',
+                        value: _hasAllergies,
                         onChanged: (value) {
                           setState(() {
-                            _selectedAllergy = value;
+                            _hasAllergies = value;
+                            if (!value) {
+                              _selectedAllergies = [];
+                              _hasCustomAllergy = false;
+                            }
                             _changedFields.add('allergy');
                             _hasChanges = true;
                           });
                         },
-                        items: const ['None', 'A', 'B', 'C', 'Other'],
                       ),
+
+                      if (_hasAllergies)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0, left: 16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Select your allergies:',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+
+                              ...List.generate(_allergyOptions.length, (index) {
+                                final allergyOption = _allergyOptions[index];
+
+                                if (allergyOption == 'Other') {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      CheckboxListTile(
+                                        title: const Text('Other'),
+                                        value: _hasCustomAllergy,
+                                        controlAffinity:
+                                            ListTileControlAffinity.leading,
+                                        contentPadding: EdgeInsets.zero,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _hasCustomAllergy = value ?? false;
+                                            _changedFields.add('allergy');
+                                            _hasChanges = true;
+                                          });
+                                        },
+                                      ),
+                                      if (_hasCustomAllergy)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 16.0,
+                                            top: 4.0,
+                                            bottom: 8.0,
+                                          ),
+                                          child: HighlightedTextField(
+                                            label: 'Specify',
+                                            controller:
+                                                _customAllergyController,
+                                            highlight: _changedFields.contains(
+                                              'allergy',
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  );
+                                }
+
+                                return CheckboxListTile(
+                                  title: Text(allergyOption),
+                                  value: _selectedAllergies.contains(
+                                    allergyOption,
+                                  ),
+                                  controlAffinity:
+                                      ListTileControlAffinity.leading,
+                                  contentPadding: EdgeInsets.zero,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      if (value == true) {
+                                        if (!_selectedAllergies.contains(
+                                          allergyOption,
+                                        )) {
+                                          _selectedAllergies.add(allergyOption);
+                                        }
+                                      } else {
+                                        _selectedAllergies.remove(
+                                          allergyOption,
+                                        );
+                                      }
+                                      _changedFields.add('allergy');
+                                      _hasChanges = true;
+                                    });
+                                  },
+                                );
+                              }),
+                            ],
+                          ),
+                        ),
+
                       const SizedBox(height: 8),
                       SwitchField(
                         label: 'Are you a vegetarian?',
@@ -587,90 +844,82 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           });
                         },
                       ),
+
+                      const SizedBox(height: 24),
+                      const SectionTitle(title: 'Application Settings'),
+                      const SizedBox(height: 16),
+
+                      OptionSelector(
+                        label: 'Theme Mode',
+                        selectedValue: _themeMode,
+                        options: const {'light': 'Light', 'dark': 'Dark'},
+                        primaryColor: buttonsPrimaryColor,
+                        onChanged: (value) {
+                          setState(() {
+                            _themeMode = value;
+                            _changedFields.add('theme');
+                            _hasChanges = true;
+                          });
+                        },
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      OptionSelector(
+                        label: 'Language',
+                        selectedValue: _language,
+                        options: const {
+                          'English': 'English',
+                          'Arabic': 'العربية',
+                        },
+                        primaryColor: buttonsPrimaryColor,
+                        onChanged: (value) {
+                          setState(() {
+                            _language = value;
+                            _changedFields.add('language');
+                            _hasChanges = true;
+                          });
+                        },
+                      ),
+
                       const SizedBox(height: 16),
                       const SectionTitle(title: 'Nutrition Targets'),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildTextField(
-                              'Calories',
-                              _caloriesController,
-                              _changedFields.contains('calories'),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildTextField(
-                              'Protein (g)',
-                              _proteinController,
-                              _changedFields.contains('protein'),
-                            ),
-                          ),
-                        ],
+
+                      HighlightedTextField(
+                        label: 'Calories',
+                        controller: _caloriesController,
+                        highlight: _changedFields.contains('calories'),
                       ),
                       const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildTextField(
-                              'Carbs (g)',
-                              _carbsController,
-                              _changedFields.contains('carbs'),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildTextField(
-                              'Fat (g)',
-                              _fatController,
-                              _changedFields.contains('fat'),
-                            ),
-                          ),
-                        ],
+                      HighlightedTextField(
+                        label: 'Protein (g)',
+                        controller: _proteinController,
+                        highlight: _changedFields.contains('protein'),
+                      ),
+                      const SizedBox(height: 8),
+                      HighlightedTextField(
+                        label: 'Carbs (g)',
+                        controller: _carbsController,
+                        highlight: _changedFields.contains('carbs'),
+                      ),
+                      const SizedBox(height: 8),
+                      HighlightedTextField(
+                        label: 'Fat (g)',
+                        controller: _fatController,
+                        highlight: _changedFields.contains('fat'),
+                      ),
+                      const SizedBox(height: 8),
+                      HighlightedTextField(
+                        label: 'Fiber (g)',
+                        controller: _fiberController,
+                        highlight: _changedFields.contains('fiber'),
                       ),
                       const SizedBox(height: 32),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: _hasChanges ? _saveSettings : null,
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: const Size(double.infinity, 50),
-                                backgroundColor: Colors.white,
-                                disabledBackgroundColor: Colors.grey.shade300,
-                              ),
-                              child:
-                                  _isLoading
-                                      ? const SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: CircularProgressIndicator(
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                      : const Text(
-                                        'Save Changes',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                            ),
-                          ),
-                          if (_hasChanges)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 16.0),
-                              child: FloatingActionButton(
-                                backgroundColor: Colors.white,
-                                onPressed: _saveSettings,
-                                child: const Icon(
-                                  Icons.save,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                        ],
+
+                      SaveButton(
+                        isEnabled: _hasChanges,
+                        primaryColor: buttonsPrimaryColor,
+                        onPressed: _saveSettings,
                       ),
 
                       if (_hasChanges)

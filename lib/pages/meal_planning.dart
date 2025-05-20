@@ -66,14 +66,6 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
         title: 'cookmate',
         showBackButton: false,
         notificationCount: _appDatabase.unreadNotificationsCount,
-        onNotificationPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Notifications accessed'),
-              duration: Duration(seconds: 1),
-            ),
-          );
-        },
       ),
       body: Column(
         children: [
@@ -233,8 +225,8 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
                       scrollbarOrientation: ScrollbarOrientation.right,
                       child: ScrollbarTheme(
                         data: ScrollbarThemeData(
-                          thumbColor: MaterialStateProperty.all(
-                            Colors.black.withOpacity(0.6),
+                          thumbColor: WidgetStateProperty.all(
+                            Colors.black.withValues(alpha: 0.6),
                           ),
                         ),
                         child: ListView.builder(
