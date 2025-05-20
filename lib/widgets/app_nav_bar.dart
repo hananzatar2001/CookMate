@@ -4,7 +4,7 @@ import './bottom_navigation_bar.dart';
 class AppNavBar extends StatelessWidget {
   final int currentIndex;
 
-  const AppNavBar({Key? key, required this.currentIndex}) : super(key: key);
+  const AppNavBar({super.key, required this.currentIndex});
 
   final List<IconData> _icons = const [
     Icons.home,
@@ -12,6 +12,7 @@ class AppNavBar extends StatelessWidget {
     Icons.add_box,
     Icons.favorite,
     Icons.person,
+    Icons.logo_dev,
   ];
 
   static const Color iconColor = Color(0xFF333333);

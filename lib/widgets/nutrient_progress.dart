@@ -48,7 +48,7 @@ class NutrientProgress extends StatelessWidget {
           child: LinearProgressIndicator(
             value: progress,
             minHeight: 10,
-            backgroundColor: Colors.grey.withOpacity(0.1),
+            backgroundColor: Colors.grey.withValues(alpha: 0.1),
             valueColor: AlwaysStoppedAnimation<Color>(progressColor),
           ),
         ),
@@ -82,7 +82,7 @@ class NutrientProgress extends StatelessWidget {
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: progress,
-            backgroundColor: Colors.grey.withOpacity(0.1),
+            backgroundColor: Colors.grey.withValues(alpha: 0.1),
             valueColor: AlwaysStoppedAnimation<Color>(progressColor),
             minHeight: 6,
           ),
@@ -106,6 +106,8 @@ class NutrientCard extends StatelessWidget {
   final int totalCarbs;
   final int consumedFat;
   final int totalFat;
+  final int consumedFiber;
+  final int totalFiber;
   final VoidCallback? onTap;
 
   const NutrientCard({
@@ -118,6 +120,8 @@ class NutrientCard extends StatelessWidget {
     required this.totalCarbs,
     required this.consumedFat,
     required this.totalFat,
+    required this.consumedFiber,
+    required this.totalFiber,
     this.onTap,
   });
 
@@ -131,7 +135,7 @@ class NutrientCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               spreadRadius: 1,
               blurRadius: 4,
               offset: const Offset(0, 2),
@@ -176,15 +180,31 @@ class NutrientCard extends StatelessWidget {
                     compactMode: true,
                   ),
                 ),
+              ],
+            ),
 
-                const SizedBox(width: 16),
+            const SizedBox(height: 16),
 
+            Row(
+              children: [
                 Expanded(
                   child: NutrientProgress(
                     nutrientType: 'Carbs',
                     consumed: consumedCarbs,
                     total: totalCarbs,
                     progressColor: Colors.amber,
+                    compactMode: true,
+                  ),
+                ),
+
+                const SizedBox(width: 16),
+
+                Expanded(
+                  child: NutrientProgress(
+                    nutrientType: 'Fiber',
+                    consumed: consumedFiber,
+                    total: totalFiber,
+                    progressColor: Colors.purple.shade400,
                     compactMode: true,
                   ),
                 ),

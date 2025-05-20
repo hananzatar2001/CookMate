@@ -15,26 +15,42 @@ class MealTypeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    final fontSize = screenWidth < 360 ? 14.0 : 16.0;
+
+    final horizontalPadding = screenWidth < 360 ? 2.0 : 8.0;
+
     return plainMode
         ? Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          padding: EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+            vertical: 8.0,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children:
                 mealTypes
-                    .map((mealType) => _buildMealTypeButton(mealType, context))
+                    .map(
+                      (mealType) =>
+                          _buildMealTypeButton(mealType, context, fontSize),
+                    )
                     .toList(),
           ),
         )
         : Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          padding: EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+            vertical: 8.0,
+          ),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(50.0),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withValues(alpha: 0.3),
+                  color: Colors.grey.withOpacity(0.3),
+
                   spreadRadius: 1,
                   blurRadius: 5,
                   offset: const Offset(0, 2),
@@ -42,8 +58,8 @@ class MealTypeSelector extends StatelessWidget {
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8.0,
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
                 vertical: 4.0,
               ),
               child: Row(
@@ -51,7 +67,8 @@ class MealTypeSelector extends StatelessWidget {
                 children:
                     mealTypes
                         .map(
-                          (mealType) => _buildMealTypeButton(mealType, context),
+                          (mealType) =>
+                              _buildMealTypeButton(mealType, context, fontSize),
                         )
                         .toList(),
               ),
@@ -60,7 +77,11 @@ class MealTypeSelector extends StatelessWidget {
         );
   }
 
-  Widget _buildMealTypeButton(String mealType, BuildContext context) {
+  Widget _buildMealTypeButton(
+    String mealType,
+    BuildContext context,
+    double fontSize,
+  ) {
     final isSelected = selectedMealType == mealType;
     return Expanded(
       child: GestureDetector(
@@ -77,7 +98,10 @@ class MealTypeSelector extends StatelessWidget {
         child:
             plainMode
                 ? Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12.0,
+                    horizontal: 2.0,
+                  ),
                   child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -90,8 +114,10 @@ class MealTypeSelector extends StatelessWidget {
                                 isSelected
                                     ? FontWeight.bold
                                     : FontWeight.normal,
-                            fontSize: 16,
+                            fontSize: fontSize,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         if (isSelected)
                           Container(
@@ -107,7 +133,10 @@ class MealTypeSelector extends StatelessWidget {
                 : AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
-                  padding: const EdgeInsets.symmetric(vertical: 12.0),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12.0,
+                    horizontal: 2.0,
+                  ),
                   decoration: BoxDecoration(
                     color: isSelected ? Colors.white : Colors.transparent,
                     borderRadius: BorderRadius.circular(50.0),
@@ -115,7 +144,8 @@ class MealTypeSelector extends StatelessWidget {
                         isSelected
                             ? [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.6),
+                                color: Colors.black.withOpacity(0.6),
+
                                 spreadRadius: 1,
                                 blurRadius: 8,
                                 offset: const Offset(0, 3),
@@ -136,8 +166,10 @@ class MealTypeSelector extends StatelessWidget {
                         color: Colors.black,
                         fontWeight:
                             isSelected ? FontWeight.bold : FontWeight.normal,
-                        fontSize: 16,
+                        fontSize: fontSize,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),

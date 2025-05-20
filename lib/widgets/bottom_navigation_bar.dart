@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../pages/daily_nutrition.dart';
-import '../pages/discovery_recipes.dart';
 import '../pages/meal_planning.dart';
-import '../pages/calorie_tracking.dart';
 import '../pages/favorites_recipes_screen.dart';
 import '../pages/settings_screen.dart';
 

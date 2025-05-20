@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../constants.dart';
-import '../models/recipe.dart';
+import '../models/recipe/recipe.dart';
 import 'nutrient_indicator.dart';
 
 class RecipeCard extends StatelessWidget {
   final Recipe recipe;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
+
   final VoidCallback onFavoriteToggle;
   final bool showMacros;
   final bool compactDesign;
@@ -15,6 +17,8 @@ class RecipeCard extends StatelessWidget {
     super.key,
     required this.recipe,
     required this.onTap,
+    this.onLongPress,
+
     required this.onFavoriteToggle,
     this.showMacros = false,
     this.compactDesign = false,
@@ -28,22 +32,16 @@ class RecipeCard extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Recipe: ${recipe.name} selected'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-        onTap();
-      },
+      onTap: onTap,
+      onLongPress: onLongPress,
+
       child: Container(
         margin: const EdgeInsets.only(bottom: 8.0),
         decoration: BoxDecoration(
           color: Colors.grey.shade200,
           borderRadius: BorderRadius.circular(12.0),
           border: Border.all(
-            color: sectionBackgroundsCardsColor.withOpacity(0.5),
+            color: sectionBackgroundsCardsColor.withValues(alpha: 0.5),
             width: 1.0,
           ),
         ),
@@ -65,7 +63,7 @@ class RecipeCard extends StatelessWidget {
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          Image.asset(
+                          Image.network(
                             recipe.imageUrl,
                             fit: BoxFit.cover,
                             width: 50,
@@ -169,15 +167,17 @@ class RecipeCard extends StatelessWidget {
   Widget _buildCompactCard(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
+
       child: Container(
         width: 140,
         margin: const EdgeInsets.only(right: 16),
         decoration: BoxDecoration(
-          color: sectionBackgroundsCardsColor.withOpacity(0.5),
+          color: sectionBackgroundsCardsColor.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
+              color: Colors.grey.withValues(alpha: 0.2),
               spreadRadius: 1,
               blurRadius: 3,
               offset: const Offset(0, 1),
@@ -189,7 +189,7 @@ class RecipeCard extends StatelessWidget {
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset(
+                child: Image.network(
                   recipe.imageUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
@@ -217,7 +217,7 @@ class RecipeCard extends StatelessWidget {
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Colors.black.withOpacity(0.7),
+                        Colors.black.withValues(alpha: 0.7),
                         Colors.transparent,
                       ],
                     ),

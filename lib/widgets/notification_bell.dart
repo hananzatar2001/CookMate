@@ -4,8 +4,7 @@ import '../pages/notifications_screen.dart';
 class NotificationBell extends StatelessWidget {
   final int unreadCount;
 
-  const NotificationBell({Key? key, required this.unreadCount})
-    : super(key: key);
+  const NotificationBell({super.key, required this.unreadCount});
 
   @override
   Widget build(BuildContext context) {
