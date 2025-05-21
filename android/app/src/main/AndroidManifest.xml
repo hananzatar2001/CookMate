@@ -1,8 +1,27 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application
+
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+
+        <application
         android:label="cook_mate"
+<<<<<<< HEAD
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher"
+        android:requestLegacyExternalStorage="true">
+
+
+
+            <activity
+=======
         android:icon="@mipmap/ic_launcher">
         <activity
+>>>>>>> Shopping-list-page
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
