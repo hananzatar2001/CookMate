@@ -219,7 +219,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ),
         backgroundColor: const Color(0x80F8FEDA),
         actions: [
-          NotificationBell(unreadCount: _unreadCount),
+          //NotificationBell(unreadCount: _unreadCount),
           IconButton(
             icon: const Icon(Icons.done_all, color: Colors.black87),
             tooltip: 'Mark all as read',

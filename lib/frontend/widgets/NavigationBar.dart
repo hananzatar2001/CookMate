@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../screens/splash1_screen.dart';
-import '../screens/user_profile_screen.dart';
-import '../screens/saved_recipess_screen.dart';
-
+import '../../frontend/screens/add_ingredients_screen.dart';
+import '../../frontend/screens/upload_recipe_screen.dart';
+//import 'package:cook_mate/frontend/screens/calorie_tracking_screen.dart';
+import '../../frontend/screens/ProfilePage.dart';
+import '../../frontend/screens/SavedRecipesScreen.dart';
+import '../../frontend/screens/SplashScreen.dart';
 class CustomBottomNavBar extends StatefulWidget {
   final int currentIndex;
 
@@ -59,13 +61,18 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                 onTap: () {
                   if (widget.currentIndex != index) {
                     switch (index) {
-
+                      case 0:
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SplashScreen()),
+                        );
+                        break;
                       case 1:
                         if (userId.isNotEmpty) {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => SavedRecipesScreen(),
+                              builder: (_) =>  SavedRecipesScreen(),
                             ),
                           );
                         } else {
@@ -98,18 +105,18 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                   child: Transform.scale(
                     scale: 1.5,
                     child: Container(
-                      decoration: BoxDecoration(
-                        boxShadow: isSelected
-                            ? [
+                      decoration: isSelected
+                          ? BoxDecoration(
+                        boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.27),
                             blurRadius: 3,
                             spreadRadius: -1,
                             offset: const Offset(3, 3),
                           ),
-                        ]
-                            : [],
-                      ),
+                        ],
+                      )
+                          : null,
                       child: Icon(
                         icons[index],
                         color: const Color(0xFF333333),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:cook_mate/frontend/widgets/notification_bell.dart';
+import '../../frontend/widgets/notification_bell.dart';
 
 class IngredientsPage extends StatefulWidget {
   final int recipeId;
@@ -69,7 +69,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
       appBar: AppBar(
         title: const Text('Ingredients'),
         actions: [
-          NotificationBell(unreadCount: unreadCount),
+          //NotificationBell(unreadCount: unreadCount),
         ],
       ),
       body: isLoading

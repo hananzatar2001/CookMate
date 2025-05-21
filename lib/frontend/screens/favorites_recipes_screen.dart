@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cook_mate/frontend/widgets/notification_bell.dart';
+import '../../frontend/widgets/notification_bell.dart';
 
 class Recipe {
   final String title;
@@ -72,7 +72,7 @@ class _FavoritesRecipesScreenState extends State<FavoritesRecipesScreen> {
         ),
         centerTitle: true,
         actions: [
-          NotificationBell(unreadCount: 3),
+          //NotificationBell(unreadCount: 3),
         ],
       ),
       body: favoriteRecipes.isEmpty

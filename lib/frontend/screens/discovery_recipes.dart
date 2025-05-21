@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:cookmate/frontend/widgets/nutrient_bar.dart';
-import 'package:cookmate/frontend/screens/recipe_details.dart';
+import '../../frontend/widgets/nutrient_bar.dart';
+import '../../frontend/screens/recipe_details.dart';
 
 class DiscoveryRecipesPage extends StatefulWidget {
   const DiscoveryRecipesPage({super.key});
@@ -100,10 +100,10 @@ class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
               ),
               Padding(
                 padding: const EdgeInsets.only(right: 16.0),
-                child: NotificationBell(
+              /*  child: NotificationBell(
                   unreadCount: unreadCount,
                   onTap: () => print("Notifications bell tapped!"),
-                ),
+                ),*/
               ),
             ],
           ),

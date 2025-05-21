@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,8 +9,9 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
+
 import 'add_ingredients_screen.dart';
-import 'package:cookmate/backend/services/RecipeService.dart';
+import '../../backend/services/RecipeService.dart';
 import '../../frontend/widgets/NavigationBar.dart';
 
 class UploadRecipeScreen extends StatefulWidget {
@@ -147,7 +149,7 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
       final totalCalories = (totalProtein * 4) + (totalCarbs * 4) + (totalFat * 9);
 
       await _recipeService.uploadRecipe(
-        user_id: 'vhanan',
+        userId: 'vhanan',
         recipeId: recipeId,
         title: nameController.text.trim(),
         steps: stepsController.text
