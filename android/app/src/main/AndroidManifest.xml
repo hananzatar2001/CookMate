@@ -8,20 +8,15 @@
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
 
-        <application
+    <application
         android:label="cook_mate"
-<<<<<<< HEAD
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:requestLegacyExternalStorage="true">
 
 
 
-            <activity
-=======
-        android:icon="@mipmap/ic_launcher">
         <activity
->>>>>>> Shopping-list-page
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
