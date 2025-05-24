@@ -5,7 +5,7 @@ class RecipeService {
   FirebaseFirestore.instance.collection('Recipes');
 
   Future<void> uploadRecipe({
-    required String user_id,
+    required String userId,
     required String recipeId,
     required String title,
     required List<String> steps,
@@ -16,20 +16,23 @@ class RecipeService {
     required double protein,
     required double carbs,
     required double fats,
+    required String Type,
+    String? description,
   }) async {
     final recipeData = {
-      'user_id': user_id,
-      'recipeId': recipeId,
+      'user_id': FirebaseFirestore.instance.doc('User/$userId'),
+      'recipe_id': FirebaseFirestore.instance.doc('Recipes/$recipeId'), // reference
       'title': title,
-      'steps': steps,
-      'ingredients': ingredients,
-      'recipeType': recipeType,
-      'imageUrl': imageUrl,
+      'description': description ?? '', // optional description
       'calories': calories,
-      'protein': protein,
-      'carbs': carbs,
-      'fats': fats,
-      'createdAt': FieldValue.serverTimestamp(),
+      'Protein': protein,
+      'Carbs': carbs,
+      'Fats': fats,
+      'steps': steps,
+      'Ingredients': ingredients,
+      'image_url': imageUrl,
+      'created_at': FieldValue.serverTimestamp(),
+      'Type': Type,
     };
 
     await recipesCollection.doc(recipeId).set(recipeData);

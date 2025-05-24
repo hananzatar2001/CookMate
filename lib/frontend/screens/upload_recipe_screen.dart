@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,10 +8,12 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
-
 import 'add_ingredients_screen.dart';
 import '../../backend/services/RecipeService.dart';
-import '../../frontend/widgets/NavigationBar.dart';
+import '../widgets/NavigationBar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../widgets/notification_bell.dart';
+
 
 class UploadRecipeScreen extends StatefulWidget {
   const UploadRecipeScreen({super.key});
@@ -32,6 +33,30 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
 
   DateTime? selectedDate;
   File? imageFile;
+  String? userId;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserId();
+  }
+
+  Future<void> loadUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getString('userId');  // just *read* the user ID here
+
+    if (id == null || id.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User ID does not exist. Please login again.')),
+      );
+    } else {
+      print('Loaded userId: $id');
+    }
+
+    setState(() {
+      userId = id;
+    });
+  }
 
   final RecipeService _recipeService = RecipeService();
 
@@ -133,6 +158,13 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
         imageUrl = await uploadImageToCloudinary(imageFile!);
         if (imageUrl == null) throw Exception('Failed to upload image');
       }
+      if (userId == null || userId!.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User ID is missing. Please log in again.')),
+        );
+
+        return;
+      }
 
       var uuid = Uuid();
       String recipeId = uuid.v4();
@@ -149,7 +181,7 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
       final totalCalories = (totalProtein * 4) + (totalCarbs * 4) + (totalFat * 9);
 
       await _recipeService.uploadRecipe(
-        userId: 'vhanan',
+        userId: userId!,
         recipeId: recipeId,
         title: nameController.text.trim(),
         steps: stepsController.text
@@ -162,13 +194,24 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
         imageUrl: imageUrl,
         calories: totalCalories,
         protein: totalProtein.toDouble(),
+        Type: selectedType,
         carbs: totalCarbs.toDouble(),
         fats: totalFat.toDouble(),
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Recipe uploaded successfully!')),
+
       );
+// Reset all fields after success
+      setState(() {
+        nameController.clear();
+        stepsController.clear();
+        selectedIngredients.clear();
+        selectedTypes = [true, false, false, false]; // default to Breakfast
+        selectedDate = null;
+        imageFile = null;
+      });
 
       // Optionally clear form or navigate away after success
     } catch (e) {
@@ -184,7 +227,12 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
       appBar: AppBar(
         title: const Text('Upload Recipe'),
         centerTitle: true,
+          actions: [
+            NotificationBell(unreadCount: 5),
+          ]
       ),
+
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
@@ -277,15 +325,17 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
             ElevatedButton(
               onPressed: (nameController.text.trim().isEmpty ||
                   stepsController.text.trim().isEmpty ||
-                  selectedIngredients.isEmpty)
+                  selectedIngredients.isEmpty ||
+                  userId == null)
                   ? null
                   : uploadRecipe,
+
               child: const Text('Upload Recipe'),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 5),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 2),
     );
   }
 }

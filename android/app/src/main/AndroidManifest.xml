@@ -9,19 +9,11 @@
 
 
         <application
-        android:label="cook_mate"
-<<<<<<< HEAD
-        android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
-        android:requestLegacyExternalStorage="true">
-
-
-
-            <activity
-=======
-        android:icon="@mipmap/ic_launcher">
+            android:label="cook_mate"
+            android:name="${applicationName}"
+            android:icon="@mipmap/ic_launcher"
+            android:requestLegacyExternalStorage="true">
         <activity
->>>>>>> Shopping-list-page
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
