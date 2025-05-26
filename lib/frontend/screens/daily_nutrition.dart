@@ -1,4 +1,4 @@
-import 'package:cookmate/frontend/screens/ingredient_screen.dart';
+// import 'package:cookmate/pages/ingredient_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../constants.dart';
@@ -9,7 +9,7 @@ import '../widgets/meal_type_selector.dart';
 import '../widgets/empty_state_widget.dart';
 import '../widgets/recipe_card.dart';
 import '../widgets/nutrient_progress.dart';
-import 'calorie_tracking.dart';
+// import '../pages/calorie_tracking.dart';
 
 class DailyNutritionScreen extends StatefulWidget {
   const DailyNutritionScreen({super.key});
@@ -149,12 +149,12 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
                 consumedFiber: _consumedFiber,
                 totalFiber: _totalFiber,
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CalorieTrackingPage(),
-                    ),
-                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => const CalorieTrackingPage(),
+                  //   ),
+                  // );
                 },
               ),
               const SizedBox(height: 24),
@@ -274,12 +274,12 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
               },
 
               onLongPress: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RecipeDetailScreen(recipe: recipe),
-                  ),
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => RecipeDetailScreen(recipe: recipe),
+                //   ),
+                // );
               },
               onFavoriteToggle: () {
                 _appDatabase.toggleFavorite(recipe.id);

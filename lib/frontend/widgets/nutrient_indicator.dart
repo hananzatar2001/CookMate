@@ -5,7 +5,6 @@ class NutrientIndicator extends StatelessWidget {
   final String value;
   final String label;
   final Color indicatorColor;
-
   const NutrientIndicator({
     super.key,
     required this.value,
