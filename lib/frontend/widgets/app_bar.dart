@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// import '../pages/notifications_screen.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -89,9 +90,9 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
                     () {
                       // Navigator.push(
                       //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => const NotificationsScreen(),
-                      //   ),
+                      //   // MaterialPageRoute(
+                      //   //   // builder: (context) => const NotificationsScreen(),
+                      //   // ),
                       // );
                     },
               ),
