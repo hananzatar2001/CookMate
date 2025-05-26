@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../constants.dart';
-import '../models/recipe/recipe.dart';
+import '../../constants.dart';
+import '../../backend/models/recipe/recipe.dart';
 import 'nutrient_indicator.dart';
 
 class RecipeCard extends StatelessWidget {

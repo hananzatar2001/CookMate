@@ -1,6 +1,6 @@
-import 'package:cookmate/widgets/calorie_progress_indicator.dart';
+import 'package:cookmate/frontend/widgets/calorie_progress_indicator.dart';
 import 'package:flutter/material.dart';
-import '../constants.dart';
+import '../../constants.dart';
 
 class NutrientProgress extends StatelessWidget {
   final String nutrientType;

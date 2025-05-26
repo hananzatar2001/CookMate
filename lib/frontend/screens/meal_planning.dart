@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../constants.dart';
-import '../services/database_service.dart';
-import '../models/models.dart';
+import '../../constants.dart';
+import '../../backend/services/database_service.dart';
+import '../../backend/models/models.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/table_calendar.dart';
 import '../widgets/meal_type_selector.dart';

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../pages/daily_nutrition.dart';
-import '../pages/meal_planning.dart';
-import '../pages/favorites_recipes_screen.dart';
-import '../pages/settings_screen.dart';
+import '../screens/daily_nutrition.dart';
+import '../screens/meal_planning.dart';
+import '../screens/settings_screen.dart';
+import '../screens/ingredient_screen.dart';
 
 class BottomNavBar extends StatefulWidget {
   final int initialIndex;
@@ -25,17 +25,15 @@ class _BottomNavBarState extends State<BottomNavBar> {
   final List<Widget> _pages = const [
     DailyNutritionScreen(),
     MealPlanningScreen(),
-    Scaffold(),
-    FavoritesRecipesScreen(),
+    RecipeDetailScreen(),
     SettingsScreen(),
   ];
 
   final List<IconData> _icons = const [
     Icons.home,
     Icons.bookmark_rounded,
-    Icons.add_box,
-    Icons.favorite,
-    Icons.person,
+    Icons.receipt,
+    Icons.settings,
   ];
 
   static const Color iconColor = Color(0xFF333333);

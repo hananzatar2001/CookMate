@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../constants.dart';
-import '../services/database_service.dart';
-import '../models/models.dart';
+import '../../constants.dart';
+import '../../backend/services/database_service.dart';
+import '../../backend/models/models.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/base/number_dropdown.dart';
 import '../widgets/base/select_dropdown.dart';

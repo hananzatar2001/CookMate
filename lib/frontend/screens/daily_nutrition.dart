@@ -1,15 +1,15 @@
-import 'package:cookmate/pages/ingredient_screen.dart';
+import 'package:cookmate/frontend/screens/ingredient_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../constants.dart';
-import '../services/database_service.dart';
-import '../models/models.dart';
+import '../../constants.dart';
+import '../../backend/services/database_service.dart';
+import '../../backend/models/models.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/meal_type_selector.dart';
 import '../widgets/empty_state_widget.dart';
 import '../widgets/recipe_card.dart';
 import '../widgets/nutrient_progress.dart';
-import '../pages/calorie_tracking.dart';
+import 'calorie_tracking.dart';
 
 class DailyNutritionScreen extends StatefulWidget {
   const DailyNutritionScreen({super.key});

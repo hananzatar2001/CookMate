@@ -1,13 +1,11 @@
-import 'package:cookmate/pages/ingredient_screen.dart';
+import 'package:cookmate/frontend/screens/ingredient_screen.dart';
 import 'package:flutter/material.dart';
-import 'widgets/bottom_navigation_bar.dart';
-import 'pages/daily_nutrition.dart';
-import 'pages/meal_planning.dart';
-import 'pages/calorie_tracking.dart';
-import 'pages/favorites_recipes_screen.dart';
-import 'pages/settings_screen.dart';
-import 'pages/notifications_screen.dart';
-import 'services/database_service.dart';
+import 'frontend/widgets/bottom_navigation_bar.dart';
+import 'frontend/screens/daily_nutrition.dart';
+import 'frontend/screens/meal_planning.dart';
+import 'frontend/screens/calorie_tracking.dart';
+import 'frontend/screens/settings_screen.dart';
+import 'backend/services/database_service.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -39,9 +37,8 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const DailyNutritionScreen(),
         '/meal-planning': (context) => const MealPlanningScreen(),
         '/calorie-tracking': (context) => const CalorieTrackingPage(),
-        '/favorites': (context) => const FavoritesRecipesScreen(),
+        '/recipe2': (context) => const RecipeDetailScreen(),
         '/settings': (context) => const SettingsScreen(),
-        '/notifications': (context) => const NotificationsScreen(),
         '/recipe': (context) => const RecipeDetailScreen(),
       },
       initialRoute: '/',

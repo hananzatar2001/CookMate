@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../constants.dart';
+import '../../constants.dart';
 
 const Color selectionColor = Color(0xFF9575CD);
 const Color headerTextColor = Colors.black;

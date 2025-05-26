@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import '../constants.dart';
+import '../../constants.dart';
 
 class CalorieProgressIndicator extends StatelessWidget {
   final int consumedCalories;

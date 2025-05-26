@@ -3,7 +3,7 @@ import '../widgets/app_bar.dart';
 import '../widgets/base/section_title.dart';
 import '../widgets/ingredient_card.dart';
 import '../widgets/nutrient_progress.dart';
-import '../models/recipe/recipe.dart';
+import '../../backend/models/recipe/recipe.dart';
 
 class RecipeDetailScreen extends StatelessWidget {
   final Recipe? recipe;
