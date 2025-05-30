@@ -1,5 +1,5 @@
 
- users
+User
 {
   "user_id": "string ",
   "name": "string",
@@ -16,13 +16,12 @@
   "Are you a vegetarian?":"boolean"
   
 }
- 
- recipes
+
+Recipes
 {
   "user_id": "reference to users/{userId}",
   "recipe_id": "reference to recipes/{recipeId}",
   "title": "string",
-  "description": "string",
   "calories": "number",
   "Protein": "number",
   "Carbs": "number",
@@ -34,7 +33,7 @@
   "created_at": "timestamp"
 }
 
- favorites
+Favorites
 {
   "favorite_id": "string ",
   "user_id": "reference to users/{userId}",
@@ -42,7 +41,7 @@
   "favorited_at": "timestamp"
 }
 
- mealPlans
+MealPlans
 {
  "plan_id": "string ",
   "user_id": "reference to users/{userId}",
@@ -51,9 +50,8 @@
   "date_scheduled": "timestamp"
 }
 
- calorieLogs
+ CalorieLogs
 {
-  "log_id": "reference to users/{userId}",
   "recipe_id": "reference to recipes/{recipeId}",
   "meal_type": "string (breakfast | lunch | dinner | snack)",
   "Calories taken": "number",
@@ -61,9 +59,11 @@
   "log_id": "string",
   "log_date": "timestamp",
   "created_at": "timestamp"
+  "user_id": /users/user_id
+
 }
 
- notifications
+Notifications
 {
  "notification_id": "string ",
   "user_id": "reference to users/{userId}",
@@ -73,7 +73,7 @@
   "sent_at": "timestamp"
 }
 
- userCaloriesNeeded
+UserCaloriesNeeded
 
 {
   "user_id": "reference to users/{userId}",
@@ -88,4 +88,12 @@
 {
   "user_id": "reference to users/{userId}",
   "products": ["string"]
+}
+SaveRecipes
+
+{
+"user_id": "reference to users/{userId}",
+"recipe_id": "reference to recipes/{recipeId}"
+"save_at": "timestamp",
+"save_id": "string "
 }
