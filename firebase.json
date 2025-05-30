@@ -1,0 +1,21 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "cookmate-cad6d",
+          "appId": "1:288385935631:android:d16f90c275335ddea0767a",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "cookmate-cad6d",
+          "configurations": {
+            "android": "1:288385935631:android:d16f90c275335ddea0767a"
+          }
+        }
+      }
+    }
+  }
+}
