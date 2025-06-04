@@ -4,7 +4,6 @@ class ShoppingListService {
   final CollectionReference shoppingList =
   FirebaseFirestore.instance.collection('ShoppingList');
 
-// Get user's shopping list
   Future<List<String>> getShoppingList(String userId) async {
     final doc = await shoppingList.doc(userId).get();
     if (doc.exists && doc.data() != null) {
@@ -18,16 +17,14 @@ class ShoppingListService {
     final regex = RegExp(r'^[a-zA-Z0-9 ]+$');
     return regex.hasMatch(input);
   }
-// Add item
   Future<void> addItem(String userId, String item) async {
     final docRef = shoppingList.doc(userId);
     await docRef.set({
       'products': FieldValue.arrayUnion([item]),
-      'user_id': FirebaseFirestore.instance.doc('users/$userId'),
+      'user_id': userId,
     }, SetOptions(merge: true));
-  }
 
-// Remove item
+  }
   Future<void> removeItem(String userId, String item) async {
     final docRef = shoppingList.doc(userId);
     await docRef.update({
