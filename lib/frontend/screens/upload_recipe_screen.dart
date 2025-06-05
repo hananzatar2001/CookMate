@@ -27,7 +27,7 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
   List<Map<String, dynamic>> selectedIngredients = [];
   DateTime? selectedDate;
   File? imageFile;
-  String? userId;
+  String? user_id;
 
   final RecipeController _recipeController = RecipeController();
 
@@ -46,7 +46,7 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
       );
     } else {
       setState(() {
-        userId = id;
+        user_id = id;
       });
     }
   }
@@ -103,7 +103,7 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
   Future<void> uploadRecipe() async {
     final selectedType = recipeTypes[selectedTypes.indexWhere((e) => e)];
 
-    if (userId == null || userId!.isEmpty) {
+    if (user_id == null || user_id!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('User ID is missing. Please log in again.')),
       );
@@ -111,7 +111,7 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
     }
 
     final recipe = Recipe(
-      userId: userId!,
+      user_id: user_id!,
       title: nameController.text.trim(),
       steps: stepsController.text
           .split('\n')
@@ -252,7 +252,7 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
               onPressed: (nameController.text.trim().isEmpty ||
                   stepsController.text.trim().isEmpty ||
                   selectedIngredients.isEmpty ||
-                  userId == null)
+                  user_id == null)
                   ? null
                   : uploadRecipe,
               child: const Text('Upload Recipe'),
