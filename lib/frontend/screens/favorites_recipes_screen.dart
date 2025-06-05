@@ -72,7 +72,7 @@ class _FavoritesRecipesScreenState extends State<FavoritesRecipesScreen> {
         ),
         centerTitle: true,
         actions: [
-          //NotificationBell(unreadCount: 3),
+          NotificationBell(unreadCount: 3),
         ],
       ),
       body: favoriteRecipes.isEmpty

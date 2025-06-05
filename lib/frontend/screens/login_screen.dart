@@ -8,6 +8,7 @@ import 'signup_screen.dart';
 import '../../frontend/screens/user_profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../frontend/screens/HomePage.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -131,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const ProfilePage(),
+                            builder: (context) => const HomePage(),
                           ),
                         );
                       } else {

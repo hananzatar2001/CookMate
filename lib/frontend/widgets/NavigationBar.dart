@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../frontend/screens/add_ingredients_screen.dart';
 import '../../frontend/screens/upload_recipe_screen.dart';
-//import 'package:cook_mate/frontend/screens/calorie_tracking_screen.dart';
-import '../../frontend/screens/ProfilePage.dart';
+import '../../frontend/screens/user_profile_screen.dart';
 import '../../frontend/screens/SavedRecipesScreen.dart';
 import '../../frontend/screens/SplashScreen.dart';
+
 class CustomBottomNavBar extends StatefulWidget {
   final int currentIndex;
 
@@ -73,6 +73,20 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                             context,
                             MaterialPageRoute(
                               builder: (_) =>  SavedRecipesScreen(),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("User ID not found")),
+                          );
+                        }
+                        break;
+                      case 2:
+                        if (userId.isNotEmpty) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>  UploadRecipeScreen(),
                             ),
                           );
                         } else {

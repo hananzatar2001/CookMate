@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../frontend/widgets/NavigationBar.dart';
 import '../../backend/services/shopping_list_service.dart';
-import 'package:cookmate/frontend/widgets/NavigationBar.dart';
 
 class ShoppingListScreen extends StatefulWidget {
   const ShoppingListScreen({super.key});

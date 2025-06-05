@@ -1,7 +1,3 @@
-class Recipe {
-  final String? recipeId;
-  final String userId;
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Recipe {
@@ -20,7 +16,6 @@ class Recipe {
 
   Recipe({
     this.recipeId,
-    required this.userId,
     required this.user_id,
     required this.title,
     required this.steps,
@@ -33,7 +28,6 @@ class Recipe {
     required this.carbs,
     required this.fats,
   });
-
 
   factory Recipe.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
@@ -52,5 +46,4 @@ class Recipe {
       fats: data['fats'] ?? 0,
     );
   }
-
 }
