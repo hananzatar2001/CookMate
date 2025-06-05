@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
-  final String hintText;
+  final String labelText;
   final bool obscureText;
   final TextInputType keyboardType;
   final Function(String)? onChanged;
@@ -10,7 +10,7 @@ class CustomTextField extends StatelessWidget {
   const CustomTextField({
     super.key,
     required this.controller,
-    required this.hintText,
+    required this.labelText,
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
     this.onChanged,
@@ -18,37 +18,29 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 430,
-      height: 42,
-      decoration: BoxDecoration(
-        color: const Color(0x80D9D9D9),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 3,
-            offset: const Offset(2, 2),
-          ),
-        ],
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: obscureText,
-        keyboardType: keyboardType,
-        onChanged: onChanged,
-        style: const TextStyle(
-          color: Color(0x80000000),
-          fontSize: 20,
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      onChanged: onChanged,
+      style: const TextStyle(fontSize: 18),
+      decoration: InputDecoration(
+        labelText: labelText, // ✅ الليبل بيكون فوق الخط
+        labelStyle: const TextStyle(
+          color: Colors.grey,
+          fontSize: 16,
         ),
-        decoration: InputDecoration(
-          hintText: hintText,
-          filled: true,
-          fillColor: Colors.transparent,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          border: InputBorder.none,
+        floatingLabelBehavior: FloatingLabelBehavior.auto,
+        border: const OutlineInputBorder(), // ✅ يظهر خط واضح
+        focusedBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.black),
+
         ),
+        enabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
     );
   }
 }
-//h

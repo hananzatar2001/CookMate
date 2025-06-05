@@ -23,6 +23,8 @@ dependencies:
   google_sign_in: ^6.2.0
   firebase_app_check: ^0.3.2+5
   flutter_facebook_auth: ^6.0.4
+  crypto: ^3.0.3
+  mailer: ^6.0.0
   uuid: ^4.5.1
   url_launcher: ^6.3.1
 

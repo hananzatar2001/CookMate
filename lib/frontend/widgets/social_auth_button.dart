@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../backend/controllers/social_auth_controller.dart';
 import 'dart:io';
 
 class SocialAuthButtons extends StatelessWidget {
