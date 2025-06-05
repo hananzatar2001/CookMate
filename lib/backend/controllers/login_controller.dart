@@ -1,7 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginService {
-  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
 
   Future<String?> loginUser({
     required String email,
@@ -9,23 +10,17 @@ class LoginService {
   }) async {
     try {
 
-      final querySnapshot = await firestore
-          .collection('User')
-          .where('email', isEqualTo: email)
-          .where('password_hash', isEqualTo: password)
-          .get();
+      final UserCredential userCredential =
+      await auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-      if (querySnapshot.docs.isNotEmpty) {
-        print('Login successful');
-        return null; // success
-      } else {
-        print(' Invalid email or password');
-        return 'Invalid email or password';
-      }
+      print('✅ Login successful for ${userCredential.user?.uid}');
+      return null;
     } catch (e) {
-      print(' Firestore Error during login: $e');
-      return 'An error occurred during login: $e';
+      print(' Login failed:$e');
+      return 'Invalid email or password';
     }
   }
 }
-//s

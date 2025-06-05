@@ -1,70 +1,61 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class ForgotPasswordService {
-  static final FirebaseFirestore firestore = FirebaseFirestore.instance;
+class ResetPasswordService {
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  static Future<String?> sendResetLink({required String email}) async {
+  Future<String?> resetPasswordWithToken({
+    required String email,
+    required String newPassword,
+    required String token,
+  }) async {
     try {
+      print(' started resetPasswordWithToken');
 
-      final userQuery = await firestore
+      final query = await firestore
           .collection('User')
           .where('email', isEqualTo: email)
+          .limit(1)
           .get();
 
-      if (userQuery.docs.isEmpty) {
-        return '❗ هذا الإيميل غير مسجل في النظام';
+      print(' Firestore query complete');
+
+      if (query.docs.isEmpty) {
+        print(' No user found with that email');
+        return 'User not found';
       }
 
-      // ✅ 2. توليد resetToken (كود عشوائي)
-      final resetToken = DateTime.now().millisecondsSinceEpoch.toString();
+      final userDoc = query.docs.first;
+      final data = userDoc.data();
 
-      // ✅ 3. تحديث Firestore بالـ token و تاريخ الانتهاء
-      final userDocId = userQuery.docs.first.id;
+      final storedToken = data['resetToken'];
+      final expiry = DateTime.tryParse(data['resetTokenExpiry'] ?? '');
 
-      await firestore.collection('User').doc(userDocId).update({
-        'resetToken': resetToken,
-        'resetTokenExpiry': DateTime.now().add(Duration(minutes: 30)).toIso8601String(),
-      });
-
-      // ✅ 4. إرسال إيميل يدوي عبر SendGrid
-      final response = await http.post(
-        Uri.parse('https://api.sendgrid.com/v3/mail/send'),
-        headers: {
-          'Authorization': 'Bearer YOUR_SENDGRID_API_KEY', // 🔴 بدله بالـ API Key الحقيقي
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'personalizations': [
-            {
-              'to': [{'email': email}],
-              'subject': 'Reset your CookMate password',
-            }
-          ],
-          'from': {'email': 'noreply@cookmate.com'},  // ✅ لازم يكون Verified Sender
-          'content': [
-            {
-              'type': 'text/plain',
-              'value':
-              'Hello,\n\nClick the link below to reset your password:\n\nhttps://cookmate.com/reset-password?token=$resetToken\n\nThis link expires in 30 minutes.\n\nBest,\nCookMate Team'
-            }
-          ],
-        }),
-      );
-
-      if (response.statusCode != 202) {
-        print(' SendGrid Error: ${response.body}');
-        return 'Failed to send the password reset link.';
+      if (storedToken != token) {
+        print(' Invalid token');
+        return 'Invalid reset token';
       }
 
-      print('The password reset link has been sent to $email');
-      return null;  // success
+      if (expiry == null || DateTime.now().isAfter(expiry)) {
+        print(' Token expired');
+        return 'Reset token has expired';
+      }
 
+      final currentUser = auth.currentUser;
+      if (currentUser == null) {
+        print(' No user logged in');
+        return 'You must be logged in to reset password.';
+      }
+
+      print(' Trying to update password in FirebaseAuth...');
+      await currentUser.updatePassword(newPassword);
+      print(' Firebase password updated');
+
+      return null;
     } catch (e) {
-      print('Error while sending the password reset link: $e');
-      return 'An unexpected error occurred. Please try again..';
+      print(' Error during password reset: $e');
+      return 'Password reset failed:$e';
     }
   }
 }
-//hs

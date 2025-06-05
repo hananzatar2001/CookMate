@@ -36,7 +36,7 @@ void showForgotPasswordDialog(BuildContext context) {
             CustomTextField(
               controller: emailController,
               labelText: 'Email',
-              // hintText: 'Enter your email',
+             // hintText: 'Enter your email',
               keyboardType: TextInputType.emailAddress,
             ),
           ],

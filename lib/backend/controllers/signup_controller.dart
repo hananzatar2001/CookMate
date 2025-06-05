@@ -1,8 +1,18 @@
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:crypto/crypto.dart';
 
 class UserService {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
+
+  String hashPassword(String password) {
+    final bytes = utf8.encode(password);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
+  }
 
   Future<String?> addUserWithCheck({
     required String userId,
@@ -23,11 +33,20 @@ class UserService {
       }
 
 
+      await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: passwordHash,
+      );
+
+
+      final encryptedPassword = hashPassword(passwordHash);
+
+
       await firestore.collection('User').doc(userId).set({
         'user_id': userId,
         'name': name,
         'email': email,
-        'password_hash': passwordHash,
+        'password_hash': encryptedPassword,
         'profile_picture': '',
         'Age': 0,
         'Weight': 0.0,
@@ -38,14 +57,13 @@ class UserService {
         'Are you a vegetarian?': false,
       });
 
-      print(' User added to Firestore');
+      print(' User added to Firebase Auth & Firestore');
       return null;
     } catch (e) {
-      print(' Firestore Error: $e');
-      return 'Failed to add user: $e';
+      print('Registration Error: $e');
+      return 'Failed to register user: $e';
     }
   }
-
 
   Future<String?> getUserIdByEmail(String email) async {
     try {
@@ -60,9 +78,8 @@ class UserService {
       }
       return null;
     } catch (e) {
-      print(' Error fetching user ID: $e');
+      print(' Error fetching user ID:$e');
       return null;
     }
   }
 }
-//s
