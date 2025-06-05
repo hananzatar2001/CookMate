@@ -1,18 +1,14 @@
-import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mime/mime.dart';
-import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:uuid/uuid.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import '../widgets/NavigationBar.dart';
+import '../widgets/notification_bell.dart';
+import '../../backend/models/recipe_model.dart';
 import 'add_ingredients_screen.dart';
-import '../../backend/services/RecipeService.dart';
-import '../../frontend/widgets/NavigationBar.dart';
+import '../../backend/controllers/upload_recipe_controller.dart';
 
 class UploadRecipeScreen extends StatefulWidget {
   const UploadRecipeScreen({super.key});
@@ -29,11 +25,31 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
   final TextEditingController stepsController = TextEditingController();
 
   List<Map<String, dynamic>> selectedIngredients = [];
-
   DateTime? selectedDate;
   File? imageFile;
+  String? user_id;
 
-  final RecipeService _recipeService = RecipeService();
+  final RecipeController _recipeController = RecipeController();
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserId();
+  }
+
+  Future<void> loadUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getString('userId');
+    if (id == null || id.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User ID does not exist. Please login again.')),
+      );
+    } else {
+      setState(() {
+        user_id = id;
+      });
+    }
+  }
 
   Future<void> _pickDate() async {
     final now = DateTime.now();
@@ -50,8 +66,6 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
     }
   }
 
-
-
   Future<void> _addIngredient() async {
     final result = await Navigator.push(
       context,
@@ -67,8 +81,8 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
   }
 
   Future<void> _pickImage() async {
-    final status = await Permission.photos.request(); // iOS
-    final storageStatus = await Permission.storage.request(); // Android
+    final status = await Permission.photos.request();
+    final storageStatus = await Permission.storage.request();
 
     if (status.isGranted || storageStatus.isGranted) {
       final picker = ImagePicker();
@@ -79,11 +93,6 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
           imageFile = File(pickedFile.path);
         });
       }
-    } else if (status.isPermanentlyDenied || storageStatus.isPermanentlyDenied) {
-      openAppSettings();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enable gallery access from settings.')),
-      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Gallery access denied.')),
@@ -91,86 +100,50 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
     }
   }
 
-  Future<String?> uploadImageToCloudinary(File imageFile) async {
-    const cloudName = 'dobduqtmi';
-    const uploadPreset = 'CookMate';
-
-    final url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
-
-    final mimeTypeData = lookupMimeType(imageFile.path)?.split('/');
-
-    final imageUploadRequest = http.MultipartRequest('POST', url)
-      ..fields['upload_preset'] = uploadPreset
-      ..files.add(
-        await http.MultipartFile.fromPath(
-          'file',
-          imageFile.path,
-          contentType: mimeTypeData != null
-              ? MediaType(mimeTypeData[0], mimeTypeData[1])
-              : null,
-        ),
-      );
-
-    final response = await imageUploadRequest.send();
-
-    if (response.statusCode == 200) {
-      final resString = await response.stream.bytesToString();
-      final Map<String, dynamic> resData = json.decode(resString);
-      return resData['secure_url'];
-    } else {
-      print('Cloudinary upload failed: ${response.statusCode}');
-      return null;
-    }
-  }
-
   Future<void> uploadRecipe() async {
     final selectedType = recipeTypes[selectedTypes.indexWhere((e) => e)];
 
-    try {
-      String? imageUrl;
-
-      if (imageFile != null) {
-        imageUrl = await uploadImageToCloudinary(imageFile!);
-        if (imageUrl == null) throw Exception('Failed to upload image');
-      }
-
-      var uuid = Uuid();
-      String recipeId = uuid.v4();
-
-      // Calculate nutrition totals safely
-      double totalProtein = 0, totalFat = 0, totalCarbs = 0, totalFiber = 0;
-      for (var ingredient in selectedIngredients) {
-        totalProtein += (ingredient['protein'] is num) ? ingredient['protein'] as num : 0;
-        totalFat += (ingredient['fat'] is num) ? ingredient['fat'] as num : 0;
-        totalCarbs += (ingredient['carbs'] is num) ? ingredient['carbs'] as num : 0;
-        totalFiber += (ingredient['fiber'] is num) ? ingredient['fiber'] as num : 0;
-      }
-
-      final totalCalories = (totalProtein * 4) + (totalCarbs * 4) + (totalFat * 9);
-
-      await _recipeService.uploadRecipe(
-        userId: 'vhanan',
-        recipeId: recipeId,
-        title: nameController.text.trim(),
-        steps: stepsController.text
-            .split('\n')
-            .map((e) => e.trim())
-            .where((e) => e.isNotEmpty)
-            .toList(),
-        ingredients: selectedIngredients.map((e) => e['name'].toString()).toList(),
-        recipeType: selectedType,
-        imageUrl: imageUrl,
-        calories: totalCalories,
-        protein: totalProtein.toDouble(),
-        carbs: totalCarbs.toDouble(),
-        fats: totalFat.toDouble(),
+    if (user_id == null || user_id!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User ID is missing. Please log in again.')),
       );
+      return;
+    }
+
+    final recipe = Recipe(
+      user_id: user_id!,
+      title: nameController.text.trim(),
+      steps: stepsController.text
+          .split('\n')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList(),
+      Ingredients: selectedIngredients,
+      type: selectedType,
+      date: selectedDate,
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fats: 0,
+
+
+    );
+
+    try {
+      await _recipeController.uploadRecipe(recipe, imageFile);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Recipe uploaded successfully!')),
       );
 
-      // Optionally clear form or navigate away after success
+      setState(() {
+        nameController.clear();
+        stepsController.clear();
+        selectedIngredients.clear();
+        selectedTypes = [true, false, false, false];
+        selectedDate = null;
+        imageFile = null;
+      });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to upload recipe: $e')),
@@ -184,6 +157,7 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
       appBar: AppBar(
         title: const Text('Upload Recipe'),
         centerTitle: true,
+        actions: [NotificationBell(unreadCount: 5)],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -277,7 +251,8 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
             ElevatedButton(
               onPressed: (nameController.text.trim().isEmpty ||
                   stepsController.text.trim().isEmpty ||
-                  selectedIngredients.isEmpty)
+                  selectedIngredients.isEmpty ||
+                  user_id == null)
                   ? null
                   : uploadRecipe,
               child: const Text('Upload Recipe'),
@@ -285,7 +260,7 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 5),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 2),
     );
   }
 }

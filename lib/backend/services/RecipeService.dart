@@ -21,6 +21,7 @@ class RecipeService {
       'created_at': FieldValue.serverTimestamp(),
     };
 
+    await _firestore.collection('Recipes').add(recipeData);
     await _firestore.collection('Recipes').doc(recipe.recipeId).set(recipeData);
   }
 
