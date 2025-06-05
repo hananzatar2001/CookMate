@@ -25,6 +25,7 @@ dependencies:
   flutter_facebook_auth: ^6.0.4
   uuid: ^4.5.1
   url_launcher: ^6.3.1
+  shelf: ^1.4.2
 
 dev_dependencies:
   flutter_test:
