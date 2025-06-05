@@ -22,5 +22,36 @@ class RecipeService {
     };
 
     await _firestore.collection('Recipes').add(recipeData);
+    await _firestore.collection('Recipes').doc(recipe.recipeId).set(recipeData);
+  }
+
+  Future<List<Recipe>> fetchRecipesByDateAndType(DateTime date, String type, String userId) async {
+    final String selectedDate = date.toIso8601String().split('T').first;
+
+    final querySnapshot = await _firestore
+        .collection('Recipes')
+        .where('type', isEqualTo: type)
+        .where('user_id', isEqualTo: userId)
+        .get();
+
+    return querySnapshot.docs.where((doc) {
+      final docDate = (doc['date'] ?? '').toString().split('T').first;
+      return docDate == selectedDate;
+    }).map((doc) {
+      return Recipe(
+        recipeId: doc['recipeId'] ?? doc.id,
+        user_id: doc['user_id'] ?? '',
+        title: doc['title'] ?? '',
+        steps: List<String>.from(doc['steps'] ?? []),
+        Ingredients: [],
+        type: doc['type'] ?? '',
+        image_url: doc['image_url'] ?? '',
+        date: DateTime.tryParse(doc['date'] ?? ''),
+        calories: doc['calories'] ?? 0,
+        protein: doc['Protein'] ?? 0,
+        carbs: doc['Carbs'] ?? 0,
+        fats: doc['Fats'] ?? 0,
+      );
+    }).toList();
   }
 }
