@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:uuid/uuid.dart';
 import '../models/recipe_model.dart';
 import '../services/RecipeService.dart';
 import '../services/CloudinaryService.dart';
@@ -28,7 +29,11 @@ class RecipeController {
       imageUrl = await CloudinaryService.uploadImage(imageFile);
     }
 
+    // توليد recipeId
+    final recipeId = "${recipe.userId}_${const Uuid().v4()}";
+
     final updatedRecipe = Recipe(
+      recipeId: recipeId,
       userId: recipe.userId,
       title: recipe.title,
       steps: recipe.steps,
@@ -41,7 +46,6 @@ class RecipeController {
       carbs: totalCarbs,
       fats: totalFats,
     );
-
     await _recipeService.uploadRecipe(updatedRecipe);
   }
 }
