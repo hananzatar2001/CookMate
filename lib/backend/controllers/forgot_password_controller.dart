@@ -55,7 +55,7 @@ class ResetPasswordService {
       return null;
     } catch (e) {
       print(' Error during password reset: $e');
-      return 'Password reset failed: $e';
+      return 'Password reset failed:$e';
     }
   }
 }

@@ -78,7 +78,7 @@ class UserService {
       }
       return null;
     } catch (e) {
-      print(' Error fetching user ID: $e');
+      print(' Error fetching user ID:$e');
       return null;
     }
   }

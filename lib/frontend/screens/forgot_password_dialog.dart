@@ -85,7 +85,7 @@ void showForgotPasswordDialog(BuildContext context) {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             child: const Text(
-              'Continue',
+              'Continue' ,
               style: TextStyle(color: Colors.black),
             ),
           ),

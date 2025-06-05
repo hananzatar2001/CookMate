@@ -155,7 +155,7 @@ class _SignupPageState extends State<SignupPage> {
                     shadowColor: Colors.black,
                   ),
                   child: const Text(
-                    'Continue',
+                    'Continue ',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF333333),

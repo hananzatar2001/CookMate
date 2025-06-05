@@ -19,7 +19,7 @@ class LoginService {
       print('✅ Login successful for ${userCredential.user?.uid}');
       return null;
     } catch (e) {
-      print(' Login failed: $e');
+      print(' Login failed:$e');
       return 'Invalid email or password';
     }
   }

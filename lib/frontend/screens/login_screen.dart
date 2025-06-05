@@ -358,7 +358,7 @@ class _LoginPageState extends State<LoginPage> {
                     shadowColor: Colors.black,
                   ),
                   child: const Text(
-                    'Continue',
+                    'Continue ',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF333333),

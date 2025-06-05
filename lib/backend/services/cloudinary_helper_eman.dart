@@ -11,7 +11,7 @@ class CloudinaryHelperEman {
 
       final request = http.MultipartRequest('POST', uri)
         ..fields['upload_preset'] = _uploadPreset
-        ..files.add(await http.MultipartFile.fromPath('file', file.path));
+        ..files.add(await http.MultipartFile.fromPath('file',file.path));
 
       final response = await request.send();
 

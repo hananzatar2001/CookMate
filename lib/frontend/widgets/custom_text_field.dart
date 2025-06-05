@@ -25,13 +25,13 @@ class CustomTextField extends StatelessWidget {
       onChanged: onChanged,
       style: const TextStyle(fontSize: 18),
       decoration: InputDecoration(
-        labelText: labelText, // ✅ الليبل بيكون فوق الخط
+        labelText: labelText,
         labelStyle: const TextStyle(
           color: Colors.grey,
           fontSize: 16,
         ),
         floatingLabelBehavior: FloatingLabelBehavior.auto,
-        border: const OutlineInputBorder(), // ✅ يظهر خط واضح
+        border: const OutlineInputBorder(),
         focusedBorder: const OutlineInputBorder(
           borderSide: BorderSide(color: Colors.black),
 

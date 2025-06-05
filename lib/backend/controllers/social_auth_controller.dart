@@ -126,7 +126,7 @@ class SocialAuth {
       await FacebookAuth.instance.logOut();
       print(' Signed out from Firebase + Google + Facebook');
     } catch (e) {
-      print(' Sign out error: $e');
+      print(' Sign out error:$e');
     }
   }
 
