@@ -1,37 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/recipe_model.dart';
 
 class RecipeService {
-  final CollectionReference recipesCollection =
-  FirebaseFirestore.instance.collection('Recipes');
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> uploadRecipe({
-    required String user_id,
-    required String recipeId,
-    required String title,
-    required List<String> steps,
-    required List<String> ingredients,
-    required String recipeType,
-    required String? imageUrl,
-    required double calories,
-    required double protein,
-    required double carbs,
-    required double fats,
-  }) async {
+  Future<void> uploadRecipe(Recipe recipe) async {
     final recipeData = {
-      'user_id': user_id,
-      'recipeId': recipeId,
-      'title': title,
-      'steps': steps,
-      'ingredients': ingredients,
-      'recipeType': recipeType,
-      'imageUrl': imageUrl,
-      'calories': calories,
-      'protein': protein,
-      'carbs': carbs,
-      'fats': fats,
-      'createdAt': FieldValue.serverTimestamp(),
+      'userId': recipe.userId,
+      'title': recipe.title,
+      'steps': recipe.steps,
+      'Ingredients': recipe.Ingredients.map((e) => e['name']).toList(),
+      'type': recipe.type,
+      'calories': recipe.calories,
+      'Protein': recipe.protein,
+      'Carbs': recipe.carbs,
+      'Fats': recipe.fats,
+      'image_url': recipe.image_url ?? '',
+      'date': recipe.date?.toIso8601String() ?? '',
+      'created_at': FieldValue.serverTimestamp(),
     };
 
-    await recipesCollection.doc(recipeId).set(recipeData);
+    await _firestore.collection('Recipes').add(recipeData);
   }
 }
