@@ -1,37 +1,56 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/recipe_model.dart';
 
 class RecipeService {
-  final CollectionReference recipesCollection =
-  FirebaseFirestore.instance.collection('Recipes');
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> uploadRecipe({
-    required String user_id,
-    required String recipeId,
-    required String title,
-    required List<String> steps,
-    required List<String> ingredients,
-    required String recipeType,
-    required String? imageUrl,
-    required double calories,
-    required double protein,
-    required double carbs,
-    required double fats,
-  }) async {
+  Future<void> uploadRecipe(Recipe recipe) async {
     final recipeData = {
-      'user_id': user_id,
-      'recipeId': recipeId,
-      'title': title,
-      'steps': steps,
-      'ingredients': ingredients,
-      'recipeType': recipeType,
-      'imageUrl': imageUrl,
-      'calories': calories,
-      'protein': protein,
-      'carbs': carbs,
-      'fats': fats,
-      'createdAt': FieldValue.serverTimestamp(),
+      'recipeId': recipe.recipeId,
+      'user_id': recipe.user_id,
+      'title': recipe.title,
+      'steps': recipe.steps,
+      'Ingredients': recipe.Ingredients.map((e) => e['name']).toList(),
+      'type': recipe.type,
+      'calories': recipe.calories,
+      'Protein': recipe.protein,
+      'Carbs': recipe.carbs,
+      'Fats': recipe.fats,
+      'image_url': recipe.image_url ?? '',
+      'date': recipe.date != null ? Timestamp.fromDate(recipe.date!) : null,
+      'created_at': FieldValue.serverTimestamp(),
     };
 
-    await recipesCollection.doc(recipeId).set(recipeData);
+    await _firestore.collection('Recipes').doc(recipe.recipeId).set(recipeData);
+  }
+
+  Future<List<Recipe>> fetchRecipesByDateAndType(DateTime date, String type, String userId) async {
+    final String selectedDate = date.toIso8601String().split('T').first;
+
+    final querySnapshot = await _firestore
+        .collection('Recipes')
+        .where('type', isEqualTo: type)
+        .where('user_id', isEqualTo: userId)
+        .get();
+
+    return querySnapshot.docs.where((doc) {
+      final docDate = (doc['date'] ?? '').toString().split('T').first;
+      return docDate == selectedDate;
+    }).map((doc) {
+      return Recipe(
+        recipeId: doc['recipeId'] ?? doc.id,
+        user_id: doc['user_id'] ?? '',
+        title: doc['title'] ?? '',
+        steps: List<String>.from(doc['steps'] ?? []),
+        Ingredients: [],
+        type: doc['type'] ?? '',
+        image_url: doc['image_url'] ?? '',
+        date: DateTime.tryParse(doc['date'] ?? ''),
+        calories: doc['calories'] ?? 0,
+        protein: doc['Protein'] ?? 0,
+        carbs: doc['Carbs'] ?? 0,
+        fats: doc['Fats'] ?? 0,
+      );
+    }).toList();
   }
 }
