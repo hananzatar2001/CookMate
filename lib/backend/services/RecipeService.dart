@@ -6,7 +6,8 @@ class RecipeService {
 
   Future<void> uploadRecipe(Recipe recipe) async {
     final recipeData = {
-      'userId': recipe.userId,
+      'recipeId': recipe.recipeId,
+      'user_id': recipe.user_id,
       'title': recipe.title,
       'steps': recipe.steps,
       'Ingredients': recipe.Ingredients.map((e) => e['name']).toList(),
