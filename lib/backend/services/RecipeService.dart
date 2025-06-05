@@ -17,7 +17,7 @@ class RecipeService {
       'Carbs': recipe.carbs,
       'Fats': recipe.fats,
       'image_url': recipe.image_url ?? '',
-      'date': recipe.date?.toIso8601String() ?? '',
+      'date': recipe.date != null ? Timestamp.fromDate(recipe.date!) : null,
       'created_at': FieldValue.serverTimestamp(),
     };
 
