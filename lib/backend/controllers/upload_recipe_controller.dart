@@ -29,12 +29,12 @@ class RecipeController {
       imageUrl = await CloudinaryService.uploadImage(imageFile);
     }
 
-    // توليد recipeId
-    final recipeId = "${recipe.userId}_${const Uuid().v4()}";
+
+    final recipeId = "${recipe.user_id}_${const Uuid().v4()}";
 
     final updatedRecipe = Recipe(
       recipeId: recipeId,
-      userId: recipe.userId,
+      user_id: recipe.user_id,
       title: recipe.title,
       steps: recipe.steps,
       Ingredients: recipe.Ingredients,
