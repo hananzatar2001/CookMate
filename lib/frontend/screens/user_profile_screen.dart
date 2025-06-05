@@ -5,7 +5,7 @@ import '../../backend/services/profile_service.dart';
 import '../widgets/recipe_grid_view.dart';
 import '../widgets/NavigationBar.dart';
 import '../screens/edit_profile_dialog.dart';
-//import '../screens/Settingscreen.dart';
+import '../screens/Settingscreen.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -70,12 +70,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 color: Colors.black,
                 size: 37,
               ),
-              onPressed: () {}
-              /*  Navigator.push(
+              onPressed: () {
+                Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const SettingsScreen()),
-                );*/
-             // },
+                );
+             },
 
             ),
           ),

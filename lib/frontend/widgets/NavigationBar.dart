@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../frontend/screens/add_ingredients_screen.dart';
 import '../../frontend/screens/upload_recipe_screen.dart';
 import '../../frontend/screens/user_profile_screen.dart';
 import '../../frontend/screens/SavedRecipesScreen.dart';
-import '../../frontend/screens/SplashScreen.dart';
-
+import '../../frontend/screens/HomePage.dart';
 class CustomBottomNavBar extends StatefulWidget {
   final int currentIndex;
 
@@ -64,7 +62,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                       case 0:
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (_) => const SplashScreen()),
+                          MaterialPageRoute(builder: (_) => const HomePage()),
                         );
                         break;
                       case 1:
