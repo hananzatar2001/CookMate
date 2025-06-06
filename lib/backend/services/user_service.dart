@@ -40,6 +40,24 @@ class UserService {
       'Calories': Calories.round(),
     });
   }
+  Future<UserModel?> getUserByEmail(String email) async {
+    try {
+      final snapshot = await _firestore
+          .collection('User')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isEmpty) return null;
+
+      final doc = snapshot.docs.first;
+      return UserModel.fromMap(doc.data(), doc.id);
+    } catch (e) {
+      print("Error getting user by email: $e");
+      return null;
+    }
+  }
+
 
 }
 
