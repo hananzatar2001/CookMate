@@ -64,7 +64,7 @@ class SettingsView extends StatelessWidget {
                 Expanded(
                   child: CustomDropdown(
                     label: "Age",
-                    items: List.generate(83, (index) => (18 + index).toString()),
+                    items: List.generate(83, (index) => (1 + index).toString()),
                     selectedValue: controller.selectedAge,
                     onChanged: controller.isEditing ? (val) => controller.selectedAge = val : null,
                     backgroundColor: yellowColor,
@@ -74,7 +74,7 @@ class SettingsView extends StatelessWidget {
                 Expanded(
                   child: CustomDropdown(
                     label: "Weight",
-                    items: List.generate(100, (index) => (40 + index).toString()),
+                    items: List.generate(100, (index) => (1 + index).toString()),
                     selectedValue: controller.selectedWeight,
                     onChanged: controller.isEditing ? (val) => controller.selectedWeight = val : null,
                     backgroundColor: yellowColor,
@@ -98,7 +98,7 @@ class SettingsView extends StatelessWidget {
                 Expanded(
                   child: CustomDropdown(
                     label: "Height",
-                    items: List.generate(61, (index) => (140 + index).toString()),
+                    items: List.generate(61, (index) => (100 + index).toString()),
                     selectedValue: controller.selectedHeight,
                     onChanged: controller.isEditing ? (val) => controller.selectedHeight = val : null,
                     backgroundColor: yellowColor,
