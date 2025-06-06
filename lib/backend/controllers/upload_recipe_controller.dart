@@ -30,10 +30,10 @@ class RecipeController {
     }
 
 
-    final recipeId = "${recipe.user_id}_${const Uuid().v4()}";
+    final recipe_id = "${recipe.user_id}_${const Uuid().v4()}";
 
     final updatedRecipe = Recipe(
-      recipeId: recipeId,
+      recipe_id: recipe_id,
       user_id: recipe.user_id,
       title: recipe.title,
       steps: recipe.steps,

@@ -6,7 +6,7 @@ class RecipeService {
 
   Future<void> uploadRecipe(Recipe recipe) async {
     final recipeData = {
-      'recipeId': recipe.recipeId,
+      'recipe_id': recipe.recipe_id,
       'user_id': recipe.user_id,
       'title': recipe.title,
       'steps': recipe.steps,
@@ -21,8 +21,7 @@ class RecipeService {
       'created_at': FieldValue.serverTimestamp(),
     };
 
-    await _firestore.collection('Recipes').add(recipeData);
-    await _firestore.collection('Recipes').doc(recipe.recipeId).set(recipeData);
+    await _firestore.collection('Recipes').doc(recipe.recipe_id).set(recipeData);
   }
 
   Future<List<Recipe>> fetchRecipesByDateAndType(DateTime date, String type, String userId) async {
@@ -39,7 +38,7 @@ class RecipeService {
       return docDate == selectedDate;
     }).map((doc) {
       return Recipe(
-        recipeId: doc['recipeId'] ?? doc.id,
+        recipe_id: doc['recipe_id'] ?? doc.id,
         user_id: doc['user_id'] ?? '',
         title: doc['title'] ?? '',
         steps: List<String>.from(doc['steps'] ?? []),

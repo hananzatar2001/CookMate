@@ -30,6 +30,7 @@ Recipes
   "Ingredients": ["string"],
   "image_url": "string (URL)",
   "video_url": "string (URL)",
+  "type": "string",
   "created_at": "timestamp"
 }
 

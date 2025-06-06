@@ -129,7 +129,7 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
               itemCount: meals.length,
               itemBuilder: (_, i) {
                 final meal = meals[i];
-                final isFavorite = favoriteRecipeIds.contains(meal.recipeId);
+                final isFavorite = favoriteRecipeIds.contains(meal.recipe_id);
 
                 return Card(
                   margin: const EdgeInsets.all(8),
@@ -160,9 +160,9 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
 
                         if (isFavorite) {
                           // حذف من المفضلة
-                          await _favoriteService.removeFavorite(user_id!, meal.recipeId!);
+                          await _favoriteService.removeFavorite(user_id!, meal.recipe_id!);
                           setState(() {
-                            favoriteRecipeIds.remove(meal.recipeId);
+                            favoriteRecipeIds.remove(meal.recipe_id);
                           });
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Removed from favorites')),
@@ -171,10 +171,10 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
                           // إضافة للمفضلة
                           await _favoriteService.addFavorite(
                             user_id: user_id!,
-                            recipeId: meal.recipeId!,
+                            recipeId: meal.recipe_id!,
                           );
                           setState(() {
-                            favoriteRecipeIds.add(meal.recipeId!);
+                            favoriteRecipeIds.add(meal.recipe_id!);
                           });
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Added to favorites')),

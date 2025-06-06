@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Recipe {
-  final String? recipeId;
+  final String? recipe_id;
   final String user_id;
   final String title;
   final List<String> steps;
@@ -15,7 +15,7 @@ class Recipe {
   final num fats;
 
   Recipe({
-    this.recipeId,
+    this.recipe_id,
     required this.user_id,
     required this.title,
     required this.steps,
@@ -32,7 +32,7 @@ class Recipe {
   factory Recipe.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return Recipe(
-      recipeId: doc.id,
+      recipe_id: doc.id,
       user_id: data['user_id'] ?? '',
       title: data['title'] ?? '',
       steps: List<String>.from(data['steps'] ?? []),

@@ -17,7 +17,7 @@ class MealPlanningController {
     return querySnapshot.docs.map((doc) {
       final data = doc.data();
       return Recipe(
-        recipeId: data['recipeId'] ?? doc.id,
+        recipe_id: data['recipeId'] ?? doc.id,
         user_id: data['user_id'] ?? '',
         title: data['title'] ?? '',
         steps: List<String>.from(data['steps'] ?? []),
