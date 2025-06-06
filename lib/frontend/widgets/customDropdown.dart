@@ -27,7 +27,7 @@ class CustomDropdown extends StatelessWidget {
       ),
       child: DropdownButtonFormField<String>(
         value: selectedValue,
-        onChanged: onChanged, // ممكن تكون null الآن بدون مشاكل
+        onChanged: onChanged,
         decoration: InputDecoration(
           labelText: label,
           border: InputBorder.none,
