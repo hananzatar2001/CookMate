@@ -1,28 +1,39 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../frontend/screens/notifications_screen.dart';
 
 class NotificationBell extends StatelessWidget {
-  final int unreadCount;
-  final VoidCallback? onTap;
-
-  const NotificationBell({
-    Key? key,
-    required this.unreadCount,
-    this.onTap,
-  }) : super(key: key);
+  const NotificationBell({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Stack(
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return const SizedBox();
+    }
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('notifications')
+          .where('userId', isEqualTo: user.uid)
+          .where('isRead', isEqualTo: false)
+          .snapshots(),
+      builder: (context, snapshot) {
+        int unreadCount = 0;
+        if (snapshot.hasData) {
+          unreadCount = snapshot.data!.docs.length;
+        }
+
+        return Stack(
           clipBehavior: Clip.none,
           children: [
             IconButton(
-              icon: Icon(
-                unreadCount > 0 ? Icons.notifications : Icons.notifications_none,
+              icon: const Icon(
+                Icons.notifications, // حالة واحدة فقط
                 color: Colors.black,
-                size: 38,
+                size: 38,  // تصحيح هنا
               ),
               onPressed: () {
                 Navigator.push(
@@ -37,35 +48,31 @@ class NotificationBell extends StatelessWidget {
               Positioned(
                 right: 6,
                 top: 6,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: Container(
-                    key: ValueKey<int>(unreadCount),
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 16,
-                      minHeight: 16,
-                    ),
-                    child: Center(
-                      child: Text(
-                        '$unreadCount',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                        ),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 16,
+                    minHeight: 16,
+                  ),
+                  child: Center(
+                    child: Text(
+                      '$unreadCount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
               ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 }
