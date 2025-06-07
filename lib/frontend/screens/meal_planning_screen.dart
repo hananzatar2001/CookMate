@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../frontend/widgets/NavigationBar.dart';
 import '../../frontend/widgets/notification_bell.dart';
 import '../../frontend/widgets/RecipeTypeSelector.dart';
-import '../../backend/controllers/meal_planning_controller.dart';
+import '../../backend/services/RecipeService.dart';
 import '../../backend/models/recipe_model.dart';
 import '../../backend/services/favorite_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,7 +14,7 @@ class MealPlanningScreen extends StatefulWidget {
 }
 
 class _MealPlanningScreenState extends State<MealPlanningScreen> {
-  final MealPlanningController _controller = MealPlanningController();
+  final RecipeService _recipeService = RecipeService();
   final FavoriteService _favoriteService = FavoriteService();
 
   final List<String> recipeTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
@@ -25,7 +24,6 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
   List<Recipe> meals = [];
   String? user_id;
 
-  // حفظ وصفات المستخدم المفضلة (recipeIds)
   Set<String> favoriteRecipeIds = {};
 
   @override
@@ -73,8 +71,11 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
     if (user_id == null) return;
 
     final selectedType = recipeTypes[selectedTypes.indexWhere((e) => e)];
-    final results =
-    await _controller.fetchRecipesByDateAndType(selectedDate, selectedType, user_id!);
+    final results = await _recipeService.fetchRecipesByDateAndType(
+      selectedDate,
+      selectedType,
+      user_id!,
+    );
 
     await fetchFavorites();
 
@@ -159,7 +160,6 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
                         }
 
                         if (isFavorite) {
-                          // حذف من المفضلة
                           await _favoriteService.removeFavorite(user_id!, meal.recipe_id!);
                           setState(() {
                             favoriteRecipeIds.remove(meal.recipe_id);
@@ -168,7 +168,6 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
                             const SnackBar(content: Text('Removed from favorites')),
                           );
                         } else {
-                          // إضافة للمفضلة
                           await _favoriteService.addFavorite(
                             user_id: user_id!,
                             recipeId: meal.recipe_id!,

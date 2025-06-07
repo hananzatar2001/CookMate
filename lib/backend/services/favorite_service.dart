@@ -15,7 +15,7 @@ class FavoriteService {
 
     final favoriteData = {
       'favorite_id': docRef.id,
-      'user_id': userRef,
+      'user_id': user_id,
       'recipe_id': recipeRef,
       'favorited_at': FieldValue.serverTimestamp(),
     };
