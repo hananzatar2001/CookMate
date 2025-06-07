@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../frontend/widgets/hamburger_menu.dart';
-// تأكدي إنك مستوردة ملف الـ CustomDrawer إذا كان بملف مختلف
-// import 'path_to_custom_drawer.dart';
+import '../../frontend/widgets/NavigationBar.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -16,6 +15,9 @@ class HomePage extends StatelessWidget {
       body: const Center(
         child: Text('Welcome to the Home Page!'),
       ),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 2),
+
     );
+
   }
 }

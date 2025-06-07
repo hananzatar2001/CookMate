@@ -217,6 +217,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 */
+import 'package:cookmate/frontend/screens/HomePage.dart';
 import 'package:flutter/material.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/social_auth_button.dart';
@@ -224,10 +225,9 @@ import '../../backend/controllers/login_controller.dart';
 import '../../backend/controllers/social_auth_controller.dart';
 import 'forgot_password_dialog.dart';
 import 'signup_screen.dart';
-import '../../frontend/screens/user_profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '.../../HomePage.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -282,7 +282,7 @@ class _LoginPageState extends State<LoginPage> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const ProfilePage()),
+          MaterialPageRoute(builder: (context) => const HomePage()),
         );
       } else {
         _showError("User not found in Firestore");

@@ -1,9 +1,11 @@
+import 'package:cookmate/backend/services/favorite_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../frontend/screens/upload_recipe_screen.dart';
 import '../../frontend/screens/user_profile_screen.dart';
-import '../../frontend/screens/SavedRecipesScreen.dart';
+import '../../frontend/screens/saved_recipess_screen.dart';
 import '../../frontend/screens/HomePage.dart';
+import '../../frontend/screens/favorites_recipes_screen.dart';
 class CustomBottomNavBar extends StatefulWidget {
   final int currentIndex;
 
@@ -107,7 +109,20 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                           );
                         }
                         break;
-
+                      case 5:
+                        if (userId.isNotEmpty) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const FavoritesRecipesScreen(),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("User ID not found")),
+                          );
+                        }
+                        break;
                     // باقي الحالات يمكن إضافتها هنا لاحقًا
                     }
                   }

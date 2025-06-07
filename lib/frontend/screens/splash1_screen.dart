@@ -37,62 +37,64 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(height: 45),
-                const Text(
-                  'cookmate',
-                  style: TextStyle(
-                    fontSize: 40,
-                    color: Colors.black,
+        child: SingleChildScrollView(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 40),
+                  const Text(
+                    'cookmate',
+                    style: TextStyle(
+                      fontSize: 40,
+                      color: Colors.black,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Personalized recipes, smart\nmeal planning, and nutrition\ntracking - all in one app.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                    height: 1.5,
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Personalized recipes, smart\nmeal planning, and nutrition\ntracking - all in one app.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                      height: 1.5,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 30),
-                Image.asset(
-                  'assets/cookmate_logo.jpeg',
-                  height: 375,
-                ),
-                const SizedBox(height: 95),
-
-
-                if (!_hideCTA)
-                  SizedBox(
-                    width: 209,
-                    height: 39,
-                    child: ElevatedButton(
-                      onPressed: _showQuoteOverlay,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0x99CDE26D),
-                        elevation: 3,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(0),
+                  const SizedBox(height: 30),
+                  Image.asset(
+                    'assets/cookmate_logo.jpeg',
+                    height: 375,
+                  ),
+                  const SizedBox(height: 20),
+          
+          
+                  if (!_hideCTA)
+                    SizedBox(
+                      width: 209,
+                      height: 39,
+                      child: ElevatedButton(
+                        onPressed: _showQuoteOverlay,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0x99CDE26D),
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(0),
+                          ),
                         ),
-                      ),
-                      child: const Text(
-                        'Call-to-Action',
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Color(0xFF333333),
+                        child: const Text(
+                          'Call-to-Action',
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Color(0xFF333333),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
