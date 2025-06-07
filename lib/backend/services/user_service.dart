@@ -20,26 +20,8 @@ class UserService {
   }
 
   Future<void> updateUser(UserModel user) async {
-    await _firestore.collection('User').doc(user.userId).update(user.toMap());
+    await _firestore.collection('User').doc(user.user_id).update(user.toMap());
   }
-/*
-  Future<void> saveUserCalories(UserModel user) async {
-    final int age = int.tryParse(user.Age.toString()) ?? 0;
-    final int Weight = int.tryParse(user.Weight.toString()) ?? 0;
-    final int height = int.tryParse(user.Height.toString()) ?? 0;
-
-    double Calories;
-    if (user.Gender.toLowerCase() == 'male') {
-      Calories = 10 * Weight + 6.25 * height - 5 * age + 5;
-    } else {
-      Calories = 10 * Weight + 6.25 * height - 5 * age - 161;
-    }
-
-    await _firestore.collection('User').doc(user.userId).update({
-      'Calories': Calories.round(),
-    });
-  }
-*/
 
   Future<void> saveUserCalories(UserModel user) async {
     final int age = int.tryParse(user.Age.toString()) ?? 0;
@@ -57,8 +39,8 @@ class UserService {
     double fats = (calories * 0.25) / 9;
     double carbs = (calories - (protein * 4 + fats * 9)) / 4;
 
-    await _firestore.collection('UserCaloriesNeeded').doc(user.userId).set({
-      'user_id': _firestore.collection('User').doc(user.userId),
+    await _firestore.collection('UserCaloriesNeeded').doc(user.user_id).set({
+      'user_id': user.user_id,
       'calories': calories.round(),
       'protein': protein.round(),
       'fats': fats.round(),

@@ -1,5 +1,5 @@
 class UserModel {
-  final String userId;
+  final String user_id;
   final String name;
   final String email;
   final String Bio;
@@ -15,7 +15,7 @@ class UserModel {
 
 
   UserModel({
-    required this.userId,
+    required this.user_id,
     required this.name,
     required this.email,
     required this.Bio,
@@ -32,7 +32,7 @@ class UserModel {
 
   factory UserModel.fromMap(Map<String, dynamic> data, String docId) {
     return UserModel(
-      userId: data['user_id'] ?? docId,
+      user_id: data['user_id'] ?? docId,
       name: data['name'] ?? '',
       email: data['email'] ?? '',
       Bio: data['Bio'] ?? '',
@@ -57,7 +57,7 @@ class UserModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'user_id': userId,
+      'user_id': user_id,
       'name': name,
       'email': email,
       'Bio': Bio,

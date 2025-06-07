@@ -24,32 +24,34 @@ class RecipeService {
     await _firestore.collection('Recipes').doc(recipe.recipe_id).set(recipeData);
   }
 
+
   Future<List<Recipe>> fetchRecipesByDateAndType(DateTime date, String type, String userId) async {
-    final String selectedDate = date.toIso8601String().split('T').first;
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = startOfDay.add(const Duration(days: 1));
 
     final querySnapshot = await _firestore
         .collection('Recipes')
         .where('type', isEqualTo: type)
         .where('user_id', isEqualTo: userId)
+        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+        .where('date', isLessThan: Timestamp.fromDate(endOfDay))
         .get();
 
-    return querySnapshot.docs.where((doc) {
-      final docDate = (doc['date'] ?? '').toString().split('T').first;
-      return docDate == selectedDate;
-    }).map((doc) {
+    return querySnapshot.docs.map((doc) {
+      final data = doc.data();
       return Recipe(
-        recipe_id: doc['recipe_id'] ?? doc.id,
-        user_id: doc['user_id'] ?? '',
-        title: doc['title'] ?? '',
-        steps: List<String>.from(doc['steps'] ?? []),
+        recipe_id: data['recipe_id'] ?? doc.id,
+        user_id: data['user_id'] ?? '',
+        title: data['title'] ?? '',
+        steps: List<String>.from(data['steps'] ?? []),
         Ingredients: [],
-        type: doc['type'] ?? '',
-        image_url: doc['image_url'] ?? '',
-        date: DateTime.tryParse(doc['date'] ?? ''),
-        calories: doc['calories'] ?? 0,
-        protein: doc['Protein'] ?? 0,
-        carbs: doc['Carbs'] ?? 0,
-        fats: doc['Fats'] ?? 0,
+        type: data['type'] ?? '',
+        image_url: data['image_url'] ?? '',
+        date: data['date'] != null ? (data['date'] as Timestamp).toDate() : null,
+        calories: data['calories'] ?? 0,
+        protein: data['Protein'] ?? 0,
+        carbs: data['Carbs'] ?? 0,
+        fats: data['Fats'] ?? 0,
       );
     }).toList();
   }

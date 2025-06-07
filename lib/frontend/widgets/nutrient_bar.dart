@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 class NutrientBar extends StatelessWidget {
   final String label;
-  final int value;
-  final int target;
+  final double  value;
+  final double  target;
   final Color color;
 
   const NutrientBar({
@@ -32,7 +32,7 @@ class NutrientBar extends StatelessWidget {
                 color: color,
                 strokeWidth: 4,
               ),
-              Text('$value', style: const TextStyle(fontSize: 12)),
+              Text('${value.toStringAsFixed(0)}', style: const TextStyle(fontSize: 11)),
             ],
           ),
         ),

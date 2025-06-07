@@ -11,7 +11,9 @@ class SettingsController extends ChangeNotifier {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController bioController = TextEditingController();
 
-  String? userId;
+
+  String? user_id;
+
   String? selectedAge;
   String? selectedWeight;
   String? selectedHeight;
@@ -35,25 +37,30 @@ class SettingsController extends ChangeNotifier {
   String? _oldPasswordHash;
 
   SettingsController() {
-    loadUserId();
+    loadUserId(); // load from SharedPreferences
   }
 
   Future<void> loadUserId() async {
     isLoading = true;
     notifyListeners();
+
     final prefs = await SharedPreferences.getInstance();
-    userId = prefs.getString('userId');
-    if (userId == null || userId!.isEmpty) {
+    user_id = prefs.getString('userId'); // Stored as string from FirebaseAuth
+
+    if (user_id?.isEmpty ?? true) {
       isLoading = false;
       notifyListeners();
       return;
     }
+
     await fetchUser();
   }
 
   Future<void> fetchUser() async {
-    if (userId == null) return;
-    final user = await _userService.getUserById(userId!);
+    if (user_id == null) return;
+
+    final user = await _userService.getUserById(user_id!);
+
     if (user == null) {
       isLoading = false;
       notifyListeners();
@@ -80,7 +87,7 @@ class SettingsController extends ChangeNotifier {
   }
 
   Future<void> saveUserData(BuildContext context) async {
-    if (userId == null) return;
+    if (user_id == null) return;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -105,7 +112,7 @@ class SettingsController extends ChangeNotifier {
           : _oldPasswordHash ?? '';
 
       final user = UserModel(
-        userId: userId!,
+        user_id: user_id!,
         name: nameController.text,
         email: emailController.text,
         Bio: bioController.text,
@@ -124,10 +131,15 @@ class SettingsController extends ChangeNotifier {
 
       isVegetarianOriginal = isVegetarianTemp;
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Changes saved successfully")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Changes saved successfully")),
+      );
+
       isEditing = false;
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
     } finally {
       isLoading = false;
       notifyListeners();
@@ -135,7 +147,7 @@ class SettingsController extends ChangeNotifier {
   }
 
   String hashPassword(String password) {
-    return password;
+    return password; // Stub for now
   }
 
   void toggleEditing() {

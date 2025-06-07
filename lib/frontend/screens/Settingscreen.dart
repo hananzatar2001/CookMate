@@ -98,7 +98,7 @@ class SettingsView extends StatelessWidget {
                 Expanded(
                   child: CustomDropdown(
                     label: "Height",
-                    items: List.generate(61, (index) => (100 + index).toString()),
+                    items: List.generate(150, (index) => (100 + index).toString()),
                     selectedValue: controller.selectedHeight,
                     onChanged: controller.isEditing ? (val) => controller.selectedHeight = val : null,
                     backgroundColor: yellowColor,
