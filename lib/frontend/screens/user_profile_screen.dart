@@ -1,35 +1,56 @@
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../backend/services/profile_service.dart';
-import '../widgets/recipe_grid_view.dart';
 import '../widgets/NavigationBar.dart';
-import '../screens/edit_profile_dialog.dart';
-import '../screens/Settingscreen.dart';
-
+import '../widgets/Profile/Profile_recipes_section.dart';
+import '../widgets/Profile/profile_collections_section.dart';
+import '../screens/change_profile_picture.dart';
+import '../../backend/services/profile_counter_service.dart';
 class ProfilePage extends StatefulWidget {
+
   const ProfilePage({Key? key}) : super(key: key);
+
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
-
 class _ProfilePageState extends State<ProfilePage> {
   final profileService = ProfileRecipeService();
   String userId = '';
+  int recipesProfileCount = 0;
+  int savedRecipesProfileCount = 0;
+  int favoriteRecipesProfileCount = 0;
 
   @override
   void initState() {
     super.initState();
     _loadUserId();
   }
-
   void _loadUserId() async {
     final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getString('userId') ?? '';
+
     setState(() {
-      userId = prefs.getString('userId') ?? '';
+      userId = id;
     });
+
+
+
+    if (id.isNotEmpty) {
+      final counts = await ProfileCounterService.fetchProfileCounts(id);
+      setState(() {
+        recipesProfileCount = counts['recipes'] ?? 0;
+        savedRecipesProfileCount = counts['saved'] ?? 0;
+        favoriteRecipesProfileCount = counts['favorites'] ?? 0;
+      });
+    }
+
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -40,16 +61,18 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        scrolledUnderElevation: 0, // ✅ يمنع أي ظل أثناء السحب
+        surfaceTintColor: Colors.white, // ✅ يثبّت اللون الأبيض في Material 3
         title: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
           stream: profileService.getUserProfileStream(userId),
           builder: (context, snapshot) {
             final data = snapshot.data?.data() ?? {};
             final name = data['name']?.toString() ?? 'No Name';
-
-
 
             return Text(
               name,
@@ -65,18 +88,8 @@ class _ProfilePageState extends State<ProfilePage> {
           Padding(
             padding: const EdgeInsets.only(right: 9.0),
             child: IconButton(
-              icon: const Icon(
-                Icons.settings,
-                color: Colors.black,
-                size: 37,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
-                );
-             },
-
+              icon: const Icon(Icons.settings, color: Colors.black, size: 37),
+              onPressed: () {},
             ),
           ),
         ],
@@ -120,26 +133,40 @@ class _ProfilePageState extends State<ProfilePage> {
                     Positioned(
                       right: 0,
                       bottom: 0,
-                      child: Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.black),
+                      child: GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => ChangeProfilePicture(
+                              userId: userId,
+                              profileService: profileService,
+                            ),
+                          );
+                        },
+
+
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.black),
+                          ),
+                          child: const Icon(Icons.add, size: 20),
                         ),
-                        child: const Icon(Icons.add, size: 20),
                       ),
                     ),
+
                   ],
                 ),
                 Expanded(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildStatColumn('0', 'Recipes'),
-                      _buildStatColumn('0', 'Saved'),
-                      _buildStatColumn('0', 'Favorite'),
+                      _buildStatColumn(recipesProfileCount.toString(), 'Recipes'),
+                      _buildStatColumn(savedRecipesProfileCount.toString(), 'Saved'),
+                      _buildStatColumn(favoriteRecipesProfileCount.toString(), 'Favorite'),
                     ],
                   ),
                 ),
@@ -167,28 +194,14 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.edit, size: 20),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => EditProfileDialog(
-                            currentBio: bio,
-                            userId: userId,
-                            onSave: (userId, newBio) async {
-                              await profileService.updateUserBio(userId, newBio);
-                            },
-                          ),
-                        );
-                      },
-                    ),
+
+
                   ],
                 ),
               );
             },
           ),
-          const TabBarSection(),
-          RecipeGridView(userId: userId),
+          Expanded(child: TabBarSection(userId: userId)),
         ],
       ),
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 4),
@@ -200,24 +213,23 @@ class _ProfilePageState extends State<ProfilePage> {
       children: [
         Text(
           count,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.black54,
-          ),
-        ),
+        Text(label, style: const TextStyle(color: Colors.black54)),
       ],
     );
   }
 }
 
+
+
+
+
+
 class TabBarSection extends StatefulWidget {
-  const TabBarSection({Key? key}) : super(key: key);
+  final String userId;
+
+  const TabBarSection({Key? key, required this.userId}) : super(key: key);
 
   @override
   State<TabBarSection> createState() => _TabBarSectionState();
@@ -237,6 +249,11 @@ class _TabBarSectionState extends State<TabBarSection> {
           ],
         ),
         const Divider(height: 1),
+        Expanded(
+          child: _selectedIndex == 0
+              ? ProfileRecipesSection(userId: widget.userId)
+              : ProfileCollectionSection(userId: widget.userId),
+        ),
       ],
     );
   }
