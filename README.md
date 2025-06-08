@@ -40,27 +40,26 @@ CookMate 🍽️ is a mobile app for your personal cooking. It offers smart reci
 -  The nutrition taken from meals that day is also shown.
    
 **Meal planning**
--  **4- Run the app:**:
--  `flutter run`
+-  This page displays the meals the user consumed on any day they specify using the calendar and the type.
 
 **Recipe Upload**
--  **4- Run the app:**:
--  `flutter run`
+-  On this page, the user can attach any recipe they want. The recipe image can be uploaded from the album.
+-  Select the ingredients from the API.
+-  This API was used.
+  `https://spoonacular.com/food-api`
+-  Then, select the type of meal.
+-  And the date the meal was consumed.
+-  Then, you can upload it.
+-  
 **Setting screen**
--  **4- Run the app:**:
--  `flutter run`
+- On the settings page, user data is saved and can also be modified.
 
 **hamburger menu**
--  **4- Run the app:**:
--  `flutter run`
+- In the burger menu, navigation to several pages is facilitated. You can also log out.
+  
 **Shopping List**
--  **4- Run the app:**:
--  `flutter run`
-
-**Add Ingredients**
--  **4- Run the app:**:
--  `flutter run`
-
+-  It allows the user to add the purchases he needs on this page, with the ability to mark the purchases that have been brought.
+  
 **Authentication**
 -  **4- Run the app:**:
 -  `flutter run`
@@ -68,9 +67,28 @@ CookMate 🍽️ is a mobile app for your personal cooking. It offers smart reci
 -  **4- Run the app:**:
 -  `flutter run`
 
+**Splash1 Screen**
+-  **4- Run the app:**:
+-  `flutter run`
+**Splash2 Screen**
+-  **4- Run the app:**:
+-  `flutter run`
+
+**saved recipes**
+-  **4- Run the app:**:
+-  `flutter run`
+  
+**User Profile**
+-  **4- Run the app:**:
+-  `flutter run`
+**NavigationBar**
+-  **4- Run the app:**:
+-  `flutter run`
+
 **name page**
 -  **4- Run the app:**:
 -  `flutter run`
+  
 **name page**
 -  **4- Run the app:**:
 -  `flutter run`
@@ -78,11 +96,32 @@ CookMate 🍽️ is a mobile app for your personal cooking. It offers smart reci
 **name page**
 -  **4- Run the app:**:
 -  `flutter run`
+  
+**name page**
+-  **4- Run the app:**:
+-  `flutter run`
+
+**name page**
+-  **4- Run the app:**:
+-  `flutter run`
+  
+**name page**
+-  **4- Run the app:**:
+-  `flutter run`
+
+**name page**
+-  **4- Run the app:**:
+-  `flutter run`
+  
+**name page**
+-  **4- Run the app:**:
+-  `flutter run`
+
 
 ## Team
-- Hanan Zatar – Database ,Calorie Tracking ,Meal planning ,Recipe Upload ,Setting screen ,hamburger menu ,Shopping List and Add Ingredients 
+- Hanan Zatar – Database ,Calorie Tracking ,Meal planning ,Recipe Upload ,Setting screen ,hamburger menu and Shopping List 
 
-- Eman – - Eman – Splash1 Screen, Splash2 Screen, Authentication(Log in, Signup) , Home page, saved recipes , User Profile , NavigationBar
+- Eman – Splash1 Screen, Splash2 Screen, Authentication(Log in, Signup) , Home page, saved recipes , User Profile , NavigationBar
 
 - Rahaf – Calorie Tracker, Planner & Settings
 
