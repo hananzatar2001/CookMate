@@ -1,8 +1,19 @@
 # CookMate
 CookMate 🍽️ is a mobile app for your personal cooking. It offers smart recipe suggestions, ingredient substitutions, meal planning, and calorie tracking. Users can filter recipes based on their needs, upload their own, and receive notifications of new recipes. Cook smart, eat healthy!
 
-## Features
+## Features:
 
+-  **Authentication**:A secure login and registration system with Firebase Authentication and encrypted password storage. Sessions are maintained using SharedPreferences.
+-  **Sign Up Page**:Allows users to create an account by entering their name, email, and password. It prevents duplicate emails and securely stores user information.
+-  **Login Page**:Authenticates users via email/password, validates entries, and redirects to the home screen if successful.
+-  **Session Handler**:Automatically validates a stored user session upon launch and redirects to the appropriate screen without repeating logins.
+-  **Forgot Password Dialog**:Allows users to reset their password by entering their email. It sends a reset link via Firebase and displays the status via the SnackBar.
+-  **Home Screen**:Serves as the main dashboard after login, displaying the current date, greeting, daily calorie goal via a radial gauge, and personalized food recommendations.
+-  **Splash1 Screen**:The app's first welcome screen. It displays the CookMate branding and a description with a call to action that transitions to the quote screen.
+-  **Splash2 Screen**:An animated motivational quote layer displayed before logging in. It features a call to action button that leads to the authentication process.
+-  **Saved Recipes Screen**:Displays the user's saved recipes. It includes filtering by category and a tap-to-view feature for detailed recipe information.
+-  **User Profile**:View and edit user information through settings and a profile picture. It categorizes uploaded, saved, and favorite recipes, with counters.
+-  **Navigation Bar**:A bottom navigation bar that provides seamless access to the Home, Saved Recipes, and Profile sections. Highlight the current page with custom icons.
 -  **Recipe Discovery**: Browse and search personalized recipe suggestions.
 -  **Upload Your Recipes**: Add your own meals with ingredients, steps, and nutritional info.
 -  **Meal Planner**: Schedule recipes into daily meal plans.
@@ -107,37 +118,108 @@ A full recipe view showing:
 **name page**
 -  Recipe explanation:
 -  `Code or link`
-
+  ---------------------------------------------------------
+**Emanr**
   
 **Authentication**
--  **4- Run the app:**:
-  `flutter run`
+-SignupPage
+Function:
+Enables new users to create an account using Firebase services.
+Includes:
+Fields for name, email, and password
+Email duplication check
+User creation in Firebase Auth and Firestore
+Password encryption using SHA256
+
+-LoginPage
+Function:
+Allows users to log in using email/password or Google/Facebook authentication.
+Includes:
+Input validation for email and password
+Firebase Auth integration
+Fetching userId from Firestore
+Saving session using SharedPreferences
+Navigates to HomeScreen upon successful login
+
+-ForgotPasswordDialog
+Function:
+A dialog box that allows users to reset their password.
+Includes:
+Email input only
+Sends a reset password link using Firebase Auth
+Displays success or error messages via SnackBar
 
 **Home Screen**
--  **4- Run the app:**:
-   `flutter run`
+-HomeScreen
+Function:
+Main dashboard displayed after user login.
+Includes:
+Displays current date and greeting
+Shows remaining daily calories via a radial gauge
+Fetches personalized meal suggestions from API
+Displays protein, carbs, and fat using calculated values from a custom widget
+
 
 **Splash1 Screen**
--  **4- Run the app:**:
-   `flutter run`
+-Splash1 Screen
+Function:
+The initial welcome screen shown when the app launches for the first time.
+Includes:
+Display of the CookMate app logo
+A short description: "Personalized recipes, smart meal planning..."
+A Call-to-Action button that navigates to the next screen
+
+
   
 **Splash2 Screen**
--  **4- Run the app:**:
-   `flutter run`
+-Splash2 Screen (CookingQuoteScreen)
+Function:
+An animated motivational quote screen layered transparently over Splash1 before login.
+Includes:
+Animated quote: "Cooking is an art..."
+“Let’s start cooking” button that leads to the LoginPage
 
 **saved recipes**
--  **4- Run the app:**:
-   `flutter run`
+-SavedRecipesScreen
+Function:
+Displays all recipes the user has saved.
+Includes:
+Retrieves data from Firestore using SavedRecipeService
+Category filtering (All, Breakfast, Lunch, etc.)
+Navigates to detailed recipe view on tap
+
+
   
 **User Profile**
--  **4- Run the app:**:
--  `flutter run`
-
+-User Profile Screen
+Function:
+Displays and allows editing of user account details.
+Includes:
+Shows user's name, bio, and profile picture
+Uploads profile image to Cloudinary
+Updates Firestore data on edit
+Displays uploaded, saved, and favorited recipes by category
+Counters show the number of recipes per type
   
 **NavigationBar**
--  **4- Run the app:**:
--  `flutter run`
+-NavigationBar
+Function:
+Custom bottom navigation bar for page navigation.
+Includes:
+Navigation between Home, Saved Recipes, and Profile
+Highlights the active screen using currentIndex
+Icon-only design with no labels
 
+**SessionHandler**
+-SessionHandler (in Splash)
+Function:
+Checks for an active user session on app startup.
+Includes:
+Uses SharedPreferences to check for a saved userId
+If found, navigates directly to HomeScreen
+If not, shows Splash1 → Splash2 → LoginPage
+
+----------------------------------------------------------------------------
 ## **Notifications Screen**
 - **4- Run the app:**  
   `flutter run`
@@ -190,8 +272,8 @@ flutter run`
 ## Team
 - Hanan Zatar – Database ,Calorie Tracking ,Meal planning ,Recipe Upload ,Setting screen ,hamburger menu and Shopping List 
 
-- Eman – Splash1 Screen, Splash2 Screen, Authentication(Log in, Signup) , Home page, saved recipes , User Profile , NavigationBar
+- Eman – Splash1 Screen, Splash2 Screen, LoginPage, SignupPage, Home Screen, Saved Recipes Screen, User Profile Screen, Forgot PasswordDialog, Session Handler (in Splash), NavigationBar
 
-# Rahaf – Notifications Screen, Favorites Page, Discovery Recipes Page, Ingredients Recipe Page, Steps Page,recipe_details
+- Rahaf – Notifications Screen, Favorites Page, Discovery Recipes Page, Ingredients Recipe Page, Steps Page,recipe_details
 
 - Dana – Settings ,Meal planning ,Calorie Tracking ,Ingredient Substitution ,Home Screen
