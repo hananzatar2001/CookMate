@@ -50,7 +50,7 @@ CookMate 🍽️ is a mobile app for your personal cooking. It offers smart reci
 -  Then, select the type of meal.
 -  And the date the meal was consumed.
 -  Then, you can upload it.
--  
+  
 **Setting screen**
 - On the settings page, user data is saved and can also be modified.
 
