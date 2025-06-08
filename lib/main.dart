@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'frontend/screens/session_handler_screen.dart';
 import 'frontend/screens/splash1_screen.dart';
 
 
@@ -26,7 +27,8 @@ class CookMateApp extends StatelessWidget {
         useMaterial3: true,
       ),
       //drawer
-      home: SplashScreen() ,
+      home: SessionHandlerScreen(),
+
     );
   }
 }

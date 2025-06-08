@@ -1,3 +1,4 @@
+import 'package:cookmate/frontend/screens/recipe_details.dart';
 import 'package:flutter/material.dart';
 import '../widgets/NavigationBar.dart';
 import '../widgets/saved_page_recipe_card.dart';
@@ -94,10 +95,26 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
                         RecipeCard(
                           title: recipe['title'] ?? 'No title',
                           imageUrl: recipe['image_url'] ?? '',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => RecipeDetailsPage(
+                                  recipe: {
+                                    'id': recipe['id'],
+                                    'title': recipe['title'],
+                                    'image_url': recipe['image_url'],
+
+                                  },
+                                ),
+                              ),
+                            );
+                          },
                         ),
                         const SizedBox(height: 20),
                       ],
                     );
+
                   },
 
                 );

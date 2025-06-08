@@ -9,6 +9,7 @@ import 'forgot_password_dialog.dart';
 import 'signup_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../backend/services/session_manager.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -53,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
       if (snapshot.docs.isNotEmpty) {
         final userId = snapshot.docs.first.id;
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('userId', userId);
+        await SessionManager.saveUserId(userId);
 
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
