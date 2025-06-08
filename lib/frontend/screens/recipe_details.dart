@@ -512,6 +512,7 @@ import 'package:flutter/material.dart';
 import 'package:cookmate/frontend/widgets/custom_save_button.dart';
 import 'package:cookmate/frontend/widgets/NavigationBar.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
 import 'Ingredients_Page.dart';
 import 'Steps_Page.dart';
 import '../../backend/controllers/recipe_controller.dart';
@@ -628,20 +629,20 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                   mainAxisSpacing: 16,
                   childAspectRatio: 3,
                   children: [
-                    _buildNutritionBar("Protein", controller.protein.toInt(), 100, Colors.orangeAccent),
-                    _buildNutritionBar("Fat", controller.fat.toInt(), 100, Colors.redAccent),
-                    _buildNutritionBar("Carbs", controller.carbs.toInt(), 100, Colors.blueAccent),
-                    _buildNutritionBar("Fiber", controller.fiber.toInt(), 100, Colors.greenAccent),
+                    _buildNutritionBar(
+                        "Protein", controller.protein.toInt(), 100, Colors.orangeAccent),
+                    _buildNutritionBar(
+                        "Fat", controller.fat.toInt(), 100, Colors.redAccent),
+                    _buildNutritionBar(
+                        "Carbs", controller.carbs.toInt(), 100, Colors.blueAccent),
+                    _buildNutritionBar(
+                        "Fiber", controller.fiber.toInt(), 100, Colors.greenAccent),
                   ],
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () async {
-                    final result = await controller.addToMealPlan();
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Meal Plan: $result')),
-                    );
+                  onPressed: () {
+                    showMealPlanBottomSheet(context);
                   },
                   child: const Text("Add to Meal Plan"),
                   style: ElevatedButton.styleFrom(
@@ -706,8 +707,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (_) =>
-                        IngredientsPage(recipeId: widget.recipe['id'])),
+                    builder: (_) => IngredientsPage(recipeId: widget.recipe['id'])),
               ).then((_) {
                 setState(() => selectedTabIndex = 0);
               });
@@ -715,8 +715,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (_) =>
-                        StepsPage(recipeId: widget.recipe['id'])),
+                    builder: (_) => StepsPage(recipeId: widget.recipe['id'])),
               ).then((_) {
                 setState(() => selectedTabIndex = 0);
               });
@@ -752,4 +751,117 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
       );
     }
   }
+
+  void showMealPlanBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // التاريخ
+              Row(
+                children: [
+                  const Icon(Icons.calendar_today),
+                  const SizedBox(width: 8),
+                  Text("Date: ${DateFormat.yMMMd().format(controller.selectedDate)}"),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: () async {
+                      final pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: controller.selectedDate,
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime.now().add(const Duration(days: 365)),
+                      );
+                      if (pickedDate != null) {
+                        setState(() => controller.selectedDate = pickedDate);
+                      }
+                    },
+                    child: const Text("Change"),
+                  ),
+                ],
+              ),
+
+              // الوقت
+              Row(
+                children: [
+                  const Icon(Icons.access_time),
+                  const SizedBox(width: 8),
+                  Text("Time: ${controller.selectedTime.format(context)}"),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: () async {
+                      final pickedTime = await showTimePicker(
+                        context: context,
+                        initialTime: controller.selectedTime,
+                      );
+                      if (pickedTime != null) {
+                        setState(() => controller.selectedTime = pickedTime);
+                      }
+                    },
+                    child: const Text("Change"),
+                  ),
+                ],
+              ),
+
+              // نوع الوجبة
+              DropdownButtonFormField<String>(
+                value: controller.selectedMeal,
+                items: const [
+                  DropdownMenuItem(value: "Breakfast", child: Text("Breakfast")),
+                  DropdownMenuItem(value: "Lunch", child: Text("Lunch")),
+                  DropdownMenuItem(value: "Dinner", child: Text("Dinner")),
+                  DropdownMenuItem(value: "Snack", child: Text("Snack")),
+                ],
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() => controller.selectedMeal = val);
+                  }
+                },
+                decoration: const InputDecoration(
+                  labelText: "Meal Type",
+                  prefixIcon: Icon(Icons.restaurant_menu),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              ElevatedButton.icon(
+                icon: const Icon(Icons.save),
+                label: const Text("Save to Meal Plan"),
+                onPressed: () async {
+                  final result = await controller.addToMealPlan();
+                  if (!context.mounted) return;
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Meal Plan: $result")),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF47551),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
+
