@@ -59,6 +59,11 @@ CookMate 🍽️ is a mobile app for your personal cooking. It offers smart reci
   
 **Shopping List**
 -  It allows the user to add the purchases he needs on this page, with the ability to mark the purchases that have been brought.
+
+**name page**
+-  Recipe explanation:
+-  `Code or link`
+
   
 **Authentication**
 -  **4- Run the app:**:
