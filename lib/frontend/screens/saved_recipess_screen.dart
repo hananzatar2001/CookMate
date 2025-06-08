@@ -34,12 +34,14 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
               children: [
                 // CustomBackButton(navigateTo: const ()),
 
+/*
                 NotificationBell(
                   unreadCount: 5,
                   onTap: () {
                     print("Tapped notification bell");
                   },
                 ),
+*/
               ],
             ),
           ),

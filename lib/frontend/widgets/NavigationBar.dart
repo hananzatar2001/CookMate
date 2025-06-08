@@ -72,7 +72,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (_) =>  SavedRecipesScreen(),
+                              builder: (_) =>  SavedRecipesScreen(userId: userId),
                             ),
                           );
                         } else {
