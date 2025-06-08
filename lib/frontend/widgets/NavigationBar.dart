@@ -123,12 +123,12 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                           );
                         }
                         break;
-                    // باقي الحالات يمكن إضافتها هنا لاحقًا
+
                     }
                   }
                 },
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 40),
+                  padding: const EdgeInsets.only(bottom: 3),
                   child: Transform.scale(
                     scale: 1.5,
                     child: Container(

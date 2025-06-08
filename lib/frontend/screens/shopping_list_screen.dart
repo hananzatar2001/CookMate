@@ -127,7 +127,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         centerTitle: true,
         leading: const Icon(Icons.arrow_back_ios),
         actions: [
-          NotificationBell(unreadCount: 5),
+          //NotificationBell(unreadCount: 5),
         ],
       ),
       body: Padding(

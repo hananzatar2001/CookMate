@@ -3,6 +3,7 @@ import '../../backend/services/logout-service.dart';
 import '../../frontend/screens/shopping_list_screen.dart';
 import '../../frontend/screens/meal_planning_screen.dart';
 import '../../frontend/screens/calorie_tracking_screen.dart';
+import '../../frontend/screens/discovery_recipes.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -41,7 +42,18 @@ class CustomDrawer extends StatelessWidget {
               );
             },
           ),
-
+          ListTile(
+            leading: const Icon(Icons.explore),
+            title: const Text('Discovery Recipes'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const DiscoveryRecipesPage(),
+                ),
+              );
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.local_fire_department),
             title: const Text('Calorie Tracker'),

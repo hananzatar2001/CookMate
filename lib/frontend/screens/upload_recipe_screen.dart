@@ -157,7 +157,9 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
       appBar: AppBar(
         title: const Text('Upload Recipe'),
         centerTitle: true,
+/*
         actions: [NotificationBell(unreadCount: 5)],
+*/
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

@@ -1,10 +1,11 @@
+/*
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
 class CalorieLogService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // استرجاع جميع سجلات المستخدم من CalorieLogs
+  // استرجاع جميع السجلات من CalorieLogs لمستخدم معين
   Future<List<Map<String, dynamic>>> getLogsByUser(String userId) async {
     try {
       final snapshot = await _firestore
@@ -19,122 +20,25 @@ class CalorieLogService {
     }
   }
 
-  Future<void> uploadRecipeAndUpdateCalories({
-    required String userId,
-    required String recipeName,
-    required int recipeCalories,
-    double protein = 0,
-    double fats = 0,
-    double carbs = 0,
-    String type = "Other",
-  })
-  async {
-    final now = DateTime.now();
-    print('📝 Uploading recipe: $recipeName with $recipeCalories kcal at $now');
-
-    try {
-      await _firestore.collection('Recipes').add({
-        'user_id': userId,
-        'recipe_name': recipeName,
-        'calories': recipeCalories,
-        'Protein': protein,
-        'Fats': fats,
-        'Carbs': carbs,
-        'date': now,
-        'type': type,
-      });
-      print('Recipe uploaded successfully.');
-
-      await saveDailyNutritionSummary(userId, now);
-    } catch (e) {
-      print('Error uploading recipe: $e');
-    }
-  }
-
-
-  Future<List<Map<String, dynamic>>> getLogsFromMealPlans(
-      String userId, DateTime date, String type)
-  async {
-    final start = DateTime(date.year, date.month, date.day);
-    final end = start.add(Duration(days: 1));
-    final snapshot = await _firestore
-        .collection('MealPlans')
-        .where('user_id', isEqualTo: userId)
-        .where('mealType', isEqualTo: type)
-        .get();
-
-    return snapshot.docs.map((doc) {
-      final data = doc.data();
-      final dt = DateTime.tryParse(data['dateTime'] ?? '');
-
-      // استخراج ID من المرجع
-      String? extractedRecipeId;
-      if (data['recipe_id'] is DocumentReference) {
-        extractedRecipeId = (data['recipe_id'] as DocumentReference).id;
-      } else if (data['recipe_id'] is String) {
-        extractedRecipeId = data['recipe_id'];
-      }
-
-      return {
-        'source': 'MealPlans',
-        'id': doc.id,
-        'recipe_id': extractedRecipeId,
-        'title': data['title'],
-        'calories': (data['calories'] ?? 0).toDouble(),
-        'Protein': (data['protein'] ?? 0).toDouble(),
-        'Fats': (data['fat'] ?? 0).toDouble(),
-        'Carbs': (data['carbs'] ?? 0).toDouble(),
-        'image_url': (data['image_url'] ?? '').trim(),
-        'date': dt,
-      };
-    }).where((e) {
-      final dt = e['date'] as DateTime?;
-      return dt != null && dt.isAfter(start) && dt.isBefore(end);
-    }).toList();
-
-
-
-  }
-  // حساب وتحديث ملخص التغذية اليومي في CalorieLogs
+  // حفظ ملخص التغذية اليومي من MealPlans فقط
   Future<void> saveDailyNutritionSummary(String userId, DateTime date) async {
     final startOfDay = DateTime(date.year, date.month, date.day);
     final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
 
     try {
-      // جلب الوصفات ضمن اليوم
-      final recipeSnapshot = await _firestore
-          .collection('Recipes')
-          .where('user_id', isEqualTo: userId)
-          .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
-          .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
-          .get();
-
-      // جلب وجبات الخطط (MealPlans) كاملة للمستخدم (لاحقاً نفلتر حسب التاريخ)
       final mealPlanSnapshot = await _firestore
           .collection('MealPlans')
           .where('user_id', isEqualTo: userId)
           .get();
 
-      // نجمع كل العناصر من الوصفات ووجبات الخطط في قائمة واحدة مع استخراج recipe_id
-      List<Map<String, dynamic>> combinedItems = [];
+      List<Map<String, dynamic>> items = [];
 
-      // إضافة الوصفات
-      for (var doc in recipeSnapshot.docs) {
-        final data = doc.data();
-        combinedItems.add({
-          'id': doc.id,  // استخدم الـ doc id كمعرف
-          'calories': (data['calories'] ?? 0).toDouble(),
-          'protein': (data['Protein'] ?? 0).toDouble(),
-          'fats': (data['Fats'] ?? 0).toDouble(),
-          'carbs': (data['Carbs'] ?? 0).toDouble(),
-        });
-      }
-
-      // إضافة وجبات الخطط ضمن نفس اليوم
       for (var doc in mealPlanSnapshot.docs) {
         final data = doc.data();
-        final dateTimeString = data['dateTime'] ?? '';
-        final dt = DateTime.tryParse(dateTimeString);
+        final Timestamp? ts = data['addedAt'];
+        final dt = ts?.toDate();
+
+
         if (dt != null && !dt.isBefore(startOfDay) && !dt.isAfter(endOfDay)) {
           String recipeId = '';
           if (data['recipe_id'] is DocumentReference) {
@@ -142,182 +46,342 @@ class CalorieLogService {
           } else if (data['recipe_id'] is String) {
             recipeId = data['recipe_id'];
           }
+
           if (recipeId.isNotEmpty) {
-            combinedItems.add({
+            items.add({
               'id': recipeId,
               'calories': (data['calories'] ?? 0).toDouble(),
               'protein': (data['protein'] ?? 0).toDouble(),
-              'fats': (data['fat'] ?? 0).toDouble(),
-              'carbs': (data['carbs'] ?? 0).toDouble(),
+              'Fatsss': (data['Fatss'] ?? 0).toDouble(),
+              'Carbs': (data['Carbs'] ?? 0).toDouble(),
             });
           }
         }
       }
 
-      // حذف التكرار بحسب الـ id (recipe_id)
-      final uniqueItemsMap = <String, Map<String, dynamic>>{};
-      for (var item in combinedItems) {
-        uniqueItemsMap[item['id']] = item; // لو نفس الـ id موجود، يتم استبداله (يبقي واحد فقط)
+      // حذف التكرارات بناء على ID
+      final uniqueItems = <String, Map<String, dynamic>>{};
+      for (var item in items) {
+        uniqueItems[item['id']] = item;
       }
-      final uniqueItems = uniqueItemsMap.values.toList();
 
-      // حساب القيم الكلية بدون تكرار
       double totalCalories = 0;
       double totalProtein = 0;
-      double totalFats = 0;
+      double totalFatss = 0;
       double totalCarbs = 0;
 
-      for (var item in uniqueItems) {
+      for (var item in uniqueItems.values) {
         totalCalories += item['calories'];
-        totalProtein += item['protein'];
-        totalFats += item['fats'];
-        totalCarbs += item['carbs'];
+        totalProtein += item['Protein'];
+        totalFatss += item['Fatss'];
+        totalCarbs += item['Carbs'];
       }
 
-      // حفظ الملخص اليومي
       final logDocId = '${userId}_${DateFormat('yyyy-MM-dd').format(startOfDay)}';
+
+      print('🧮 Summary values before saving:');
+      print('Calories taken: $totalCalories');
+      print('Protein taken: $totalProtein');
+      print('Fatss taken: $totalFatss');
+      print('Carbs taken: $totalCarbs');
+      print('Recipe count: ${uniqueItems.length}');
+
       await _firestore.collection('CalorieLogs').doc(logDocId).set({
         'user_id': userId,
         'log_date': Timestamp.fromDate(startOfDay),
         'Calories taken': totalCalories,
         'protein taken': totalProtein,
-        'fats taken': totalFats,
-        'carbs taken': totalCarbs,
-        'recipe_count': uniqueItems.length, // عدد الوصفات/الوجبات الفريدة فقط
+        'Fatss taken': totalFatss,
+        'Carbs taken': totalCarbs,
+        'recipe_count': uniqueItems.length,
       });
 
-      print('✅ Daily nutrition summary saved (without duplicates) for $userId on $startOfDay');
+
+      print('✅ Daily summary saved from MealPlans only.');
     } catch (e) {
-      print('❌ Error in saveDailyNutritionSummary: $e');
+      print('❌ Error in saveDailyNutritionSummary (MealPlans only): $e');
     }
   }
 
+  // استرجاع البيانات المجمعة من MealPlans فقط
   Future<List<Map<String, dynamic>>> getCombinedRecipesAndMealPlans(
-      String userId, DateTime date) async {
+      String userId, DateTime date)
+  async {
+    try {
+      final mealPlans = await getLogsFromMealPlans(userId, date, "");
 
+      List<Map<String, dynamic>> combinedList = [];
+
+      for (var mp in mealPlans) {
+        combinedList.add({
+          'recipe_id': mp['recipe_id'] ?? '',
+          'title': mp['title'] ?? '',
+          'calories': mp['calories'] ?? 0,
+          'Protein': mp['Protein'] ?? 0,
+          'Fatss': mp['Fatss'] ?? 0,
+          'Carbs': mp['Carbs'] ?? 0,
+          'image_url': mp['image_url'] ?? '',
+          'type': 'MealPlan',
+          'date': mp['date'],
+          'source': 'MealPlans',
+        });
+      }
+
+      return combinedList;
+    } catch (e) {
+      print('Error combining MealPlans: $e');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getLogsFromMealPlans(
+      String userId, DateTime date, String type)
+  async {
+
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = startOfDay.add(Duration(days: 1));
+
+    try {
+      final snapshot = await _firestore
+          .collection('MealPlans')
+          .where('user_id', isEqualTo: userId)
+          .where('mealType', isEqualTo: type) // تصفية حسب نوع الوجبة
+          .get();
+
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+
+        // تحويل التاريخ من Timestamp أو String إلى DateTime
+        DateTime? dt;
+        final rawDate = data['dateTime'];
+        if (rawDate is Timestamp) {
+          dt = rawDate.toDate();
+        } else if (rawDate is String) {
+          dt = DateTime.tryParse(rawDate);
+        }
+
+        // تجاهل البيانات التي خارج تاريخ اليوم المحدد
+        if (dt == null || dt.isBefore(startOfDay) || dt.isAfter(endOfDay)) {
+          return null;
+        }
+
+        // استخراج ID الوصفة
+        String? recipeId;
+        if (data['recipe_id'] is DocumentReference) {
+          recipeId = (data['recipe_id'] as DocumentReference).id;
+        } else if (data['recipe_id'] is String) {
+          recipeId = data['recipe_id'];
+        }
+
+        return {
+          'source': 'MealPlans',
+          'id': doc.id,
+          'recipe_id': recipeId,
+          'title': data['title'],
+          'calories': (data['calories'] ?? 0).toDouble(),
+          'Protein': (data['Protein'] ?? 0).toDouble(),
+          'Fatss': (data['Fats'] ?? 0).toDouble(),
+          'Carbs': (data['Carbs'] ?? 0).toDouble(),
+          'image_url': (data['image_url'] ?? '').trim(),
+          'date': dt,
+        };
+      }).where((e) => e != null).cast<Map<String, dynamic>>().toList();
+
+    } catch (e) {
+      print('❌ Error fetching MealPlans by type: $e');
+      return [];
+    }
+  }
+
+}
+*/
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+
+class CalorieLogService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // استرجاع جميع السجلات من CalorieLogs لمستخدم معين
+  Future<List<Map<String, dynamic>>> getLogsByUser(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('CalorieLogs')
+          .where('user_id', isEqualTo: userId)
+          .get();
+
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e) {
+      print('Error fetching calorie logs: $e');
+      return [];
+    }
+  }
+
+  // حفظ ملخص التغذية اليومي من MealPlans فقط
+  Future<void> saveDailyNutritionSummary(String userId, DateTime date) async {
     final startOfDay = DateTime(date.year, date.month, date.day);
     final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
 
     try {
-      // جلب وصفات Recipes لليوم
-      final recipes = await getRecipesForDate(userId, date);
+      final mealPlanSnapshot = await _firestore
+          .collection('MealPlans')
+          .where('user_id', isEqualTo: userId)
+          .get();
 
-      // جلب وصفات MealPlans لليوم (بدون نوع محدد، تقدر تعدل لو تحتاج)
-      final mealPlans = await getLogsFromMealPlans(userId, date, "");
+      List<Map<String, dynamic>> items = [];
 
-      // دمج القائمتين
-      List<Map<String, dynamic>> combinedList = [];
+      for (var doc in mealPlanSnapshot.docs) {
+        final data = doc.data();
+        final Timestamp? ts = data['addedAt'];
+        final dt = ts?.toDate();
 
-      combinedList.addAll(recipes);
+        if (dt != null && !dt.isBefore(startOfDay) && !dt.isAfter(endOfDay)) {
+          String recipeId = '';
+          if (data['recipe_id'] is DocumentReference) {
+            recipeId = (data['recipe_id'] as DocumentReference).id;
+          } else if (data['recipe_id'] is String) {
+            recipeId = data['recipe_id'];
+          }
 
-      // من MealPlans نحول العناصر عشان تكون نفس صيغة Recipes للعرض
-      for (var mp in mealPlans) {
-        // استخراج الـ recipe_id بشكل صحيح
-        String? mpRecipeId;
-        if (mp['recipe_id'] is DocumentReference) {
-          mpRecipeId = (mp['recipe_id'] as DocumentReference).id;
-        } else if (mp['recipe_id'] is String) {
-          mpRecipeId = mp['recipe_id'];
-        } else {
-          mpRecipeId = null;
-        }
+          if (recipeId.isNotEmpty) {
+            final calories = (data['calories'] ?? 0).toDouble();
+            final protein = (data['protein'] ?? 0).toDouble();
+            final fat = (data['fat'] ?? 0).toDouble();
+            final carbs = (data['carbs'] ?? 0).toDouble();
 
-        if (mpRecipeId != null) {
-          bool existsInRecipes = recipes.any((r) => r['recipe_id'] == mpRecipeId);
-          if (!existsInRecipes) {
-            combinedList.add({
-              'recipe_id': mpRecipeId,
-              'title': mp['title'] ?? '',
-              'calories': mp['calories'] ?? 0,
-              'Protein': mp['Protein'] ?? 0,
-              'Fats': mp['Fats'] ?? 0,
-              'Carbs': mp['Carbs'] ?? 0,
-              'image_url': mp['image_url'] ?? '',
-              'type': 'MealPlan',
-              'date': mp['date'],
-              'source': 'MealPlans',
+            print('Recipe ID: $recipeId \t Calories: $calories \t Protein: $protein \t Fat: $fat \t Carbs: $carbs');
+
+            items.add({
+              'id': recipeId,
+              'calories': calories,
+              'protein': protein,
+              'fat': fat,
+              'carbs': carbs,
             });
           }
         }
       }
 
-      return combinedList;
 
+      // حذف التكرارات بناءً على ID
+      final uniqueItems = <String, Map<String, dynamic>>{};
+      for (var item in items) {
+        uniqueItems[item['id']] = item;
+      }
+
+      double totalCalories = 0;
+      double totalProtein = 0;
+      double totalFat = 0;
+      double totalCarbs = 0;
+
+      for (var item in uniqueItems.values) {
+        totalCalories += item['calories'];
+        totalProtein += item['protein'];
+        totalFat += item['fat'];
+        totalCarbs += item['carbs'];
+      }
+
+      final logDocId = '${userId}_${DateFormat('yyyy-MM-dd').format(startOfDay)}';
+
+      print('🧮 Summary values before saving:');
+      print('Calories taken: $totalCalories');
+      print('Protein taken: $totalProtein');
+      print('Fat taken: $totalFat');
+      print('Carbs taken: $totalCarbs');
+      print('Recipe count: ${uniqueItems.length}');
+
+      await _firestore.collection('CalorieLogs').doc(logDocId).set({
+        'user_id': userId,
+        'log_date': Timestamp.fromDate(startOfDay),
+        'calories_taken': totalCalories,
+        'protein_taken': totalProtein,
+        'fat_taken': totalFat,
+        'carbs_taken': totalCarbs,
+        'recipe_count': uniqueItems.length,
+      });
+
+      print('✅ Daily summary saved from MealPlans only.');
     } catch (e) {
-      print('Error combining recipes and meal plans: $e');
+      print('❌ Error in saveDailyNutritionSummary (MealPlans only): $e');
+    }
+  }
+
+  // استرجاع البيانات المجمعة من MealPlans فقط
+  Future<List<Map<String, dynamic>>> getCombinedRecipesAndMealPlans(
+      String userId, DateTime date)
+  async {
+    try {
+      final mealPlans = await getLogsFromMealPlans(userId, date, "");
+
+      return mealPlans.map((mp) => {
+        'recipe_id': mp['recipe_id'] ?? '',
+        'title': mp['title'] ?? '',
+        'calories': mp['calories'] ?? 0,
+        'protein': mp['protein'] ?? 0,
+        'fat': mp['fat'] ?? 0,
+        'carbs': mp['carbs'] ?? 0,
+        'image_url': mp['image_url'] ?? '',
+        'type': 'MealPlan',
+        'date': mp['date'],
+        'source': 'MealPlans',
+      }).toList();
+    } catch (e) {
+      print('Error combining MealPlans: $e');
       return [];
     }
   }
 
-  // استرجاع وصفات يوم معين
-  Future<List<Map<String, dynamic>>> getRecipesForDate(String userId, DateTime date) async {
+  // استرجاع وجبات يوم معين حسب النوع
+  Future<List<Map<String, dynamic>>> getLogsFromMealPlans(
+      String userId, DateTime date, String type)
+  async {
     final startOfDay = DateTime(date.year, date.month, date.day);
-    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
+    final endOfDay = startOfDay.add(Duration(days: 1));
 
     try {
       final snapshot = await _firestore
-          .collection('Recipes')
+          .collection('MealPlans')
           .where('user_id', isEqualTo: userId)
-          .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
-          .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
+          .where('mealType', isEqualTo: type)
           .get();
 
       return snapshot.docs.map((doc) {
         final data = doc.data();
+
+        DateTime? dt;
+        final rawDate = data['dateTime'];
+        if (rawDate is Timestamp) {
+          dt = rawDate.toDate();
+        } else if (rawDate is String) {
+          dt = DateTime.tryParse(rawDate);
+        }
+
+        if (dt == null || dt.isBefore(startOfDay) || dt.isAfter(endOfDay)) {
+          return null;
+        }
+
+        String? recipeId;
+        if (data['recipe_id'] is DocumentReference) {
+          recipeId = (data['recipe_id'] as DocumentReference).id;
+        } else if (data['recipe_id'] is String) {
+          recipeId = data['recipe_id'];
+        }
+
         return {
-          'recipe_id': doc.id,
-          'title': data['title'] ?? '',
+          'source': 'MealPlans',
+          'id': doc.id,
+          'recipe_id': recipeId,
+          'title': data['title'],
           'calories': (data['calories'] ?? 0).toDouble(),
-          'Protein': (data['Protein'] ?? 0).toDouble(),
-          'Fats': (data['Fats'] ?? 0).toDouble(),
-          'Carbs': (data['Carbs'] ?? 0).toDouble(),
+          'protein': (data['protein'] ?? 0).toDouble(),
+          'fat': (data['fat'] ?? 0).toDouble(),
+          'carbs': (data['carbs'] ?? 0).toDouble(),
           'image_url': (data['image_url'] ?? '').trim(),
-          'type': data['type'] ?? '',
-          'date': (data['date'] as Timestamp?)?.toDate(),
-          'source': 'Recipes',
+          'date': dt,
         };
-      }).toList();
+      }).where((e) => e != null).cast<Map<String, dynamic>>().toList();
     } catch (e) {
-      print('Error fetching recipes for date: $e');
+      print('❌ Error fetching MealPlans by type: $e');
       return [];
     }
   }
-
-  Future<List<Map<String, dynamic>>> getRecipesForDateAndType(String userId, DateTime date, String type) async {
-    final startOfDay = DateTime(date.year, date.month, date.day);
-    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
-
-    try {
-      print('Fetching recipes for $type between $startOfDay and $endOfDay for user $userId');
-      final snapshot = await _firestore
-          .collection('Recipes')
-          .where('user_id', isEqualTo: userId)
-          .where('type', isEqualTo: type)
-          .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
-          .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
-          .get();
-
-      print('Found ${snapshot.docs.length} $type recipes.');
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        return {
-          'recipe_id': doc.id,
-          'title': data['title'] ?? '',
-          'calories': (data['calories'] ?? 0).toDouble(),
-          'Protein': (data['Protein'] ?? 0).toDouble(),
-          'Fats': (data['Fats'] ?? 0).toDouble(),
-          'Carbs': (data['Carbs'] ?? 0).toDouble(),
-          'image_url': (data['image_url'] ?? '').trim(),
-          'type': data['type'] ?? '',
-          'date': (data['date'] as Timestamp?)?.toDate(),
-          'source': 'Recipes',
-        };
-      }).toList();
-    } catch (e) {
-      print('Error fetching recipes for type "$type": $e');
-      return [];
-    }
-  }
-
-
 }

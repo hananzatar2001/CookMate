@@ -88,7 +88,7 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
         leading: BackButton(),
         title: const Text("Meal Planning"),
         actions: [
-          NotificationBell(unreadCount: 3),
+         // NotificationBell(unreadCount: 3),
         ],
       ),
       body: Column(

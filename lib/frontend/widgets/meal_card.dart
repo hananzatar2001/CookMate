@@ -3,26 +3,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MealCard extends StatelessWidget {
   final String title;
+  final Widget subtitle;
   final double calories;
   final double protein;
   final double fats;
   final double carbs;
   final String imageUrl;
   final VoidCallback onDelete;
-  final Widget? subtitle;
 
   const MealCard({
     super.key,
     required this.title,
+    required this.subtitle,
     required this.calories,
     required this.protein,
     required this.fats,
     required this.carbs,
     required this.imageUrl,
     required this.onDelete,
-    this.subtitle,
   });
-
   @override
   Widget build(BuildContext context) {
     return Card(

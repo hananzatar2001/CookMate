@@ -45,9 +45,9 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
         final data = doc.data()!;
         setState(() {
           userCaloriesGoal = (data['calories'] ?? 0).toDouble();
-          userProteinGoal = (data['protein'] ?? 0).toDouble();
-          userFatsGoal = (data['fats'] ?? 0).toDouble();
-          userCarbsGoal = (data['carbs'] ?? 0).toDouble();
+          userProteinGoal = (data['Protein'] ?? 0).toDouble();
+          userFatsGoal = (data['Fats'] ?? 0).toDouble();
+          userCarbsGoal = (data['Carbs'] ?? 0).toDouble();
         });
       }
     } catch (e) {
@@ -110,8 +110,9 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
         setState(() {
           totalCaloriesTaken = (data['Calories taken'] ?? 0).toDouble();
           totalProteinTaken = (data['protein taken'] ?? 0).toDouble();
-          totalFatsTaken = (data['fats taken'] ?? 0).toDouble();
-          totalCarbsTaken = (data['carbs taken'] ?? 0).toDouble();
+          totalFatsTaken = (data['Fatss taken'] ?? 0).toDouble(); // ← صح
+          totalCarbsTaken = (data['Carbs taken'] ?? 0).toDouble(); // ← صح
+
         });
       } else {
         print('No log found for today.');
@@ -126,38 +127,14 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
     if (percent < 0.8) return Colors.orange;
     return Colors.red;
   }
-
-/*
   Future<void> loadRecipesByType(String type) async {
     if (user_id == null) return;
     final today = DateTime.now();
 
-    final recipeLogs = await _logService.getRecipesForDateAndType(user_id!, today, type);
-    final mealPlanLogs = await _logService.getLogsFromMealPlans(user_id!, today, type);
-
-    final combined = [
-      ...recipeLogs.map((e) { e['source']='Recipes'; return e; }),
-      ...mealPlanLogs
-    ];
-
-    setState(() => recipesForType = combined);
-    await _logService.saveDailyNutritionSummary(user_id!, today);
-    await loadCaloriesFromLogs();
-  }
-*/
-  Future<void> loadRecipesByType(String type) async {
-    if (user_id == null) return;
-    final today = DateTime.now();
-
-    final recipeLogs = await _logService.getRecipesForDateAndType(user_id!, today, type);
     final mealPlanLogs = await _logService.getLogsFromMealPlans(user_id!, today, type);
 
     // دمج القائمتين
     List<Map<String, dynamic>> combined = [
-      ...recipeLogs.map((e) {
-        e['source'] = 'Recipes';
-        return e;
-      }),
       ...mealPlanLogs.map((e) {
         e['source'] = 'MealPlans';
         return e;
@@ -178,7 +155,6 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
     await loadCaloriesFromLogs();
   }
 
-
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -186,7 +162,6 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
-
     final percent = userCaloriesGoal > 0
         ? (totalCaloriesTaken / userCaloriesGoal).clamp(0.0, 1.0)
         : 0.0;
@@ -206,7 +181,7 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               centerTitle: true,
-              actions: [NotificationBell(unreadCount: 5)],
+              //actions: [NotificationBell(unreadCount: 5)],
             ),
           ),
         ),
@@ -304,37 +279,39 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
                   carbs: (recipe['Carbs'] ?? 0).toDouble(),
                   imageUrl: recipe['image_url'] ?? 'assets/images/meal.png',
 
-                  onDelete: () async {
-                    final source = recipe['source'];
-                    final id = recipe['recipe_id'] ?? recipe['id'] ?? recipe['docId'];
+                    onDelete: () async {
+                      final source = recipe['source'];
+                      final id = recipe['recipe_id'] ?? recipe['id'] ?? recipe['docId'];
 
-                    print('Attempting to delete from $source with id: $id');
+                      print('Attempting to delete from $source with id: $id');
 
-                    if (id != null) {
-                      try {
-                        if (source == 'Recipes') {
-                          await FirebaseFirestore.instance.collection('Recipes').doc(id).delete();
-                          print('Done deleting from Recipes');
-                        } else if (source == 'MealPlans') {
-                          await FirebaseFirestore.instance.collection('MealPlans').doc(id).delete();
-                          print('Done deleting from MealPlans');
-                        } else {
-                          print('Unknown source: $source');
+                      if (id != null) {
+                        try {
+                          if (source == 'Recipes') {
+                            await FirebaseFirestore.instance.collection('Recipes').doc(id).delete();
+                            print('Done deleting from Recipes');
+                          } else if (source == 'MealPlans') {
+                            await FirebaseFirestore.instance.collection('MealPlans').doc(id).delete();
+                            print('Done deleting from MealPlans');
+                          } else {
+                            print('Unknown source: $source');
+                          }
+
+                          // Remove from local list to update UI immediately
+                          setState(() {
+                            recipesForType.removeAt(index);
+                          });
+
+                          // Optionally reload summary data after deletion
+                          await _logService.saveDailyNutritionSummary(user_id!, DateTime.now());
+                          await loadCaloriesFromLogs();
+
+                        } catch (e) {
+                          print('Error deleting document: $e');
                         }
-
-                        setState(() {
-                          recipesForType.removeAt(index);
-                        });
-
-                        await _logService.saveDailyNutritionSummary(user_id!, DateTime.now());
-                        await loadCaloriesFromLogs();
-                      } catch (e) {
-                        print('❌ Error deleting $source entry: $e');
                       }
-                    } else {
-                      print('❌ id is null, cannot delete');
                     }
-                  },
+
                 );
               },
             ),
