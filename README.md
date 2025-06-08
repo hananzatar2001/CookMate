@@ -53,18 +53,18 @@ CookMate 🍽️ is a mobile app for your personal cooking. It offers smart reci
 **hamburger menu**
 -  **4- Run the app:**:
 -  `flutter run`
-**name page**
+**Shopping List**
 -  **4- Run the app:**:
 -  `flutter run`
 
-**name page**
+**Add Ingredients**
 -  **4- Run the app:**:
 -  `flutter run`
 
-**name page**
+**Authentication**
 -  **4- Run the app:**:
 -  `flutter run`
-**name page**
+**Home Screen**
 -  **4- Run the app:**:
 -  `flutter run`
 
