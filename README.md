@@ -94,37 +94,53 @@ CookMate 🍽️ is a mobile app for your personal cooking. It offers smart reci
 -  **4- Run the app:**:
 -  `flutter run`
 
-**name page**
--  **4- Run the app:**:
--  `flutter run`
-  
-**name page**
--  **4- Run the app:**:
--  `flutter run`
+## **Notifications Screen**
+- **4- Run the app:**  
+  `flutter run`
+- **Integration:**  
+  - Connected to Firebase to display user-specific notifications.
 
-**name page**
--  **4- Run the app:**:
--  `flutter run`
-  
-**name page**
--  **4- Run the app:**:
--  `flutter run`
+---
 
-**name page**
--  **4- Run the app:**:
--  `flutter run`
-  
-**name page**
--  **4- Run the app:**:
--  `flutter run`
+## **Favorites Page**
+- **4- Run the app:**  
+  `flutter run`
+- **Integration:**  
+  - Displays and stores favorite recipes using the Recipe API.
 
-**name page**
--  **4- Run the app:**:
--  `flutter run`
-  
-**name page**
--  **4- Run the app:**:
--  `flutter run`
+---
+
+## **Discovery Recipes Page**
+- **4- Run the app:**  
+  `flutter run`
+- **Integration:**  
+  - Integrated with the Recipe API to display a variety of recipes.  
+  - Supports search and pagination for dynamic loading.
+
+---
+
+## **Ingredients Recipe Page**
+- **4- Run the app:**  
+  `flutter run`
+- **Integration:**  
+  - Displays recipe ingredients fetched from the Recipe API.
+
+---
+
+## **Steps Page**
+- **4- Run the app:**  
+  `flutter run`
+- **Integration:**  
+  - Connected to the YouTube API to display cooking step videos (if available).  
+  - Shows textual preparation steps from the Recipe API.
+
+---
+
+## How to Run the Project
+Make sure you have Flutter installed, then run:
+```bash
+flutter pub get
+flutter run`
 
 
 ## Team
@@ -132,6 +148,6 @@ CookMate 🍽️ is a mobile app for your personal cooking. It offers smart reci
 
 - Eman – Splash1 Screen, Splash2 Screen, Authentication(Log in, Signup) , Home page, saved recipes , User Profile , NavigationBar
 
-- Rahaf – Calorie Tracker, Planner & Settings
+# Rahaf – Notifications Screen, Favorites Page, Discovery Recipes Page, Ingredients Recipe Page, Steps Page,recipe_details
 
 - Dana – Settings ,Meal planning ,Calorie Tracking ,Ingredient Substitution ,Home Screen
