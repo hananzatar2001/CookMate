@@ -33,7 +33,8 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
 
   List<Map<String, dynamic>> recipesForType = [];
 
-  Future<void> loadUserCaloriesGoal() async {
+  Future<void> loadUserCaloriesGoal()
+  async {
     try {
       final doc = await FirebaseFirestore.instance
           .collection('UserCaloriesNeeded')
@@ -54,20 +55,6 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
     }
   }
 
-  Future<void> loadRecipesByType(String type) async {
-    if (user_id == null) return;
-
-    final today = DateTime.now();
-    final recipes = await _logService.getRecipesForDateAndType(user_id!, today, type);
-
-    setState(() {
-      recipesForType = recipes;
-    });
-
-    // حفظ ملخص التغذية بعد تحميل الوصفات
-    await _logService.saveDailyNutritionSummary(user_id!, today);
-    await loadCaloriesFromLogs();
-  }
 
   @override
   void initState() {
@@ -139,6 +126,24 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
     if (percent < 0.8) return Colors.orange;
     return Colors.red;
   }
+
+  Future<void> loadRecipesByType(String type) async {
+    if (user_id == null) return;
+    final today = DateTime.now();
+
+    final recipeLogs = await _logService.getRecipesForDateAndType(user_id!, today, type);
+    final mealPlanLogs = await _logService.getLogsFromMealPlans(user_id!, today, type);
+
+    final combined = [
+      ...recipeLogs.map((e) { e['source']='Recipes'; return e; }),
+      ...mealPlanLogs
+    ];
+
+    setState(() => recipesForType = combined);
+    await _logService.saveDailyNutritionSummary(user_id!, today);
+    await loadCaloriesFromLogs();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -246,28 +251,51 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
 
                 return MealCard(
                   title: recipe['title'] ?? 'Unnamed Meal',
+                  subtitle: Text(
+                    recipe['source'] == 'MealPlans' ? 'From Meal Plans' : 'Added Manually',
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
                   calories: (recipe['calories'] ?? 0).toDouble(),
                   protein: (recipe['Protein'] ?? 0).toDouble(),
                   fats: (recipe['Fats'] ?? 0).toDouble(),
                   carbs: (recipe['Carbs'] ?? 0).toDouble(),
                   imageUrl: recipe['image_url'] ?? 'assets/images/meal.png',
+
                   onDelete: () async {
-                    if (recipeId != null) {
+                    final source = recipe['source'];
+                    final id = recipe['recipe_id'] ?? recipe['id'] ?? recipe['docId'];
+
+                    print('Attempting to delete from $source with id: $id');
+
+                    if (id != null) {
                       try {
-                        await FirebaseFirestore.instance.collection('Recipes').doc(recipeId).delete();
+                        if (source == 'Recipes') {
+                          await FirebaseFirestore.instance.collection('Recipes').doc(id).delete();
+                          print('Done deleting from Recipes');
+                        } else if (source == 'MealPlans') {
+                          await FirebaseFirestore.instance.collection('MealPlans').doc(id).delete();
+                          print('Done deleting from MealPlans');
+                        } else {
+                          print('Unknown source: $source');
+                        }
+
                         setState(() {
                           recipesForType.removeAt(index);
                         });
 
-                        // تحديث ملخص اليوم
                         await _logService.saveDailyNutritionSummary(user_id!, DateTime.now());
                         await loadCaloriesFromLogs();
                       } catch (e) {
-                        print('Error deleting recipe: $e');
+                        print('❌ Error deleting $source entry: $e');
                       }
+                    } else {
+                      print('❌ id is null, cannot delete');
                     }
                   },
+
+
                 );
+
               },
             ),
           ),
