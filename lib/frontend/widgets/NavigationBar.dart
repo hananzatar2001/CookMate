@@ -50,7 +50,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
         top: false,
         bottom: false,
         child: Container(
-          height: 30,
+          height: 40,
           padding: const EdgeInsets.symmetric(horizontal: 33),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -128,7 +128,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                   }
                 },
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 1),
+                  padding: const EdgeInsets.only(bottom: 20),
                   child: Transform.scale(
                     scale: 1.5,
                     child: Container(
