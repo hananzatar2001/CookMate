@@ -28,7 +28,7 @@ class RecipeDiscoveryService {
         'source': 'api',
       }).toList();
     } else {
-      throw Exception('Failed to load API recipes');
+      throw Exception('Failed to load API recipe');
     }
   }
 
