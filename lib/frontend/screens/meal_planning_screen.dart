@@ -7,6 +7,7 @@ import '../../backend/services/RecipeService.dart';
 import '../../backend/models/recipe_model.dart';
 import '../../backend/services/favorite_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../backend/controllers/meal_planning_controller.dart';
 
 class MealPlanningScreen extends StatefulWidget {
   @override
@@ -67,7 +68,7 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
     });
   }
 
-  Future<void> fetchMeals() async {
+ /* Future<void> fetchMeals() async {
     if (user_id == null) return;
 
     final selectedType = recipeTypes[selectedTypes.indexWhere((e) => e)];
@@ -76,6 +77,20 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
       selectedType,
       user_id!,
     );
+
+    await fetchFavorites();
+
+    setState(() {
+      meals = results;
+    });
+  }*/
+
+  Future<void> fetchMeals() async {
+    if (user_id == null) return;
+
+    final selectedType = recipeTypes[selectedTypes.indexWhere((e) => e)];
+    final results = await MealPlanningController()
+        .fetchAllMealsByDateAndType(selectedDate, selectedType, user_id!);
 
     await fetchFavorites();
 
