@@ -82,7 +82,7 @@ CookMate 🍽️ is a mobile app for your personal cooking. It offers smart reci
 ## Team
 - Hanan Zatar – Database ,Calorie Tracking ,Meal planning ,Recipe Upload ,Setting screen ,hamburger menu ,Shopping List and Add Ingredients 
 
-- Eman – Authentication & User Access
+- Eman – - Eman – Splash1 Screen, Splash2 Screen, Authentication(Log in, Signup) , Home page, saved recipes , User Profile , NavigationBar
 
 - Rahaf – Calorie Tracker, Planner & Settings
 
