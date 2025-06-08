@@ -1,71 +1,69 @@
 import 'package:flutter/material.dart';
-import '../../frontend/screens/notifications_screen.dart';
+import 'package:cookmate/backend/controllers/notifications_controller.dart';
+import 'package:cookmate/backend/models/notification_model.dart';
 
-class NotificationBell extends StatelessWidget {
-  final int unreadCount;
-  final VoidCallback? onTap;
+class NotificationBell extends StatefulWidget {
+  final String userId;
+  final VoidCallback? onTap;  //
 
-  const NotificationBell({
-    Key? key,
-    required this.unreadCount,
-    this.onTap,
-  }) : super(key: key);
+  const NotificationBell({Key? key, required this.userId, this.onTap}) : super(key: key);
+
+  @override
+  State<NotificationBell> createState() => _NotificationBellState();
+}
+
+class _NotificationBellState extends State<NotificationBell> {
+  final NotificationsController _controller = NotificationsController();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.fetchNotifications(widget.userId);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Stack(
+    return ValueListenableBuilder<List<NotificationModel>>(
+      valueListenable: _controller.notifications,
+      builder: (context, notifications, _) {
+        final unreadCount = notifications.where((n) => !n.isRead).length;
+
+        return Stack(
           clipBehavior: Clip.none,
           children: [
             IconButton(
-              icon: Icon(
-                unreadCount > 0 ? Icons.notifications : Icons.notifications_none,
-                color: Colors.black,
-                size: 38,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const NotificationsScreen(),
-                  ),
-                );
-              },
+              icon: const Icon(Icons.notifications),
+              onPressed: widget.onTap,
+              color: Colors.black,
             ),
             if (unreadCount > 0)
               Positioned(
-                right: 6,
-                top: 6,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: Container(
-                    key: ValueKey<int>(unreadCount),
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
+                right: 4,
+                top: 4,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 16,
+                    minHeight: 16,
+                  ),
+                  child: Text(
+                    unreadCount.toString(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
                     ),
-                    constraints: const BoxConstraints(
-                      minWidth: 16,
-                      minHeight: 16,
-                    ),
-                    child: Center(
-                      child: Text(
-                        '$unreadCount',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 }
