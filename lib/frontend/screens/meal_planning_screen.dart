@@ -67,24 +67,6 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
       }).toSet();
     });
   }
-
- /* Future<void> fetchMeals() async {
-    if (user_id == null) return;
-
-    final selectedType = recipeTypes[selectedTypes.indexWhere((e) => e)];
-    final results = await _recipeService.fetchRecipesByDateAndType(
-      selectedDate,
-      selectedType,
-      user_id!,
-    );
-
-    await fetchFavorites();
-
-    setState(() {
-      meals = results;
-    });
-  }*/
-
   Future<void> fetchMeals() async {
     if (user_id == null) return;
 

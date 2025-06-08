@@ -127,6 +127,7 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
     return Colors.red;
   }
 
+/*
   Future<void> loadRecipesByType(String type) async {
     if (user_id == null) return;
     final today = DateTime.now();
@@ -140,6 +141,39 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
     ];
 
     setState(() => recipesForType = combined);
+    await _logService.saveDailyNutritionSummary(user_id!, today);
+    await loadCaloriesFromLogs();
+  }
+*/
+  Future<void> loadRecipesByType(String type) async {
+    if (user_id == null) return;
+    final today = DateTime.now();
+
+    final recipeLogs = await _logService.getRecipesForDateAndType(user_id!, today, type);
+    final mealPlanLogs = await _logService.getLogsFromMealPlans(user_id!, today, type);
+
+    // دمج القائمتين
+    List<Map<String, dynamic>> combined = [
+      ...recipeLogs.map((e) {
+        e['source'] = 'Recipes';
+        return e;
+      }),
+      ...mealPlanLogs.map((e) {
+        e['source'] = 'MealPlans';
+        return e;
+      }),
+    ];
+
+    final uniqueMap = <String, Map<String, dynamic>>{};
+    for (var item in combined) {
+      final id = item['recipe_id'] ?? item['id'] ?? item['docId'] ?? '';
+      if (id.isNotEmpty && !uniqueMap.containsKey(id)) {
+        uniqueMap[id] = item;
+      }
+    }
+
+    setState(() => recipesForType = uniqueMap.values.toList());
+
     await _logService.saveDailyNutritionSummary(user_id!, today);
     await loadCaloriesFromLogs();
   }
@@ -158,18 +192,22 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
         : 0.0;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
-        child: Padding(
-          padding: const EdgeInsets.only(top: 16),
-          child: AppBar(
-            leading: const Icon(Icons.arrow_back_ios),
-            title: const Text(
-              'Calorie Tracking',
-              style: TextStyle(fontWeight: FontWeight.bold),
+        child: Material(
+          color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: AppBar(
+              leading: const Icon(Icons.arrow_back_ios),
+              title: const Text(
+                'Calorie Tracking',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              centerTitle: true,
+              actions: [NotificationBell(unreadCount: 5)],
             ),
-            centerTitle: true,
-            actions: [NotificationBell(unreadCount: 5)],
           ),
         ),
       ),
@@ -240,6 +278,11 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
           ),
           const SizedBox(height: 16),
           Expanded(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                final types = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
+                await loadRecipesByType(types[selectedRecipeIndex]);
+              },
             child: recipesForType.isEmpty
                 ? const Center(child: Text("No meals found for selected type."))
                 : ListView.builder(
@@ -292,13 +335,11 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
                       print('❌ id is null, cannot delete');
                     }
                   },
-
-
                 );
-
               },
             ),
           ),
+          )
         ],
       ),
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 7),
