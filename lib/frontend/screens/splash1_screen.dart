@@ -25,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
         pageBuilder: (_, __, ___) => const CookingQuoteScreen(),
       ),
     ).then((_) {
-      // لما يرجع من صفحة الاقتباس
+
       setState(() {
         _hideCTA = false;
       });

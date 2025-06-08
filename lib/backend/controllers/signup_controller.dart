@@ -1,85 +1,75 @@
-import 'dart:convert';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:crypto/crypto.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/signup_services.dart';
+import 'social_auth_controller.dart';
 
-class UserService {
-  final FirebaseFirestore firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+class UserController {
+  final _userService = UserService();
+  final _socialAuth = SocialAuth();
 
-
-  String hashPassword(String password) {
-    final bytes = utf8.encode(password);
-    final digest = sha256.convert(bytes);
-    return digest.toString();
-  }
-
-  Future<String?> addUserWithCheck({
-    required String userId,
-    required String name,
+  Future<String?> registerUser({
+    required String username,
     required String email,
-    required String passwordHash,
+    required String password,
+    required BuildContext context,
   }) async {
-    try {
-
-      final querySnapshot = await firestore
-          .collection('User')
-          .where('email', isEqualTo: email)
-          .limit(1)
-          .get();
-
-      if (querySnapshot.docs.isNotEmpty) {
-        return 'This email is already registered';
-      }
-
-
-      await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: passwordHash,
-      );
-
-
-      final encryptedPassword = hashPassword(passwordHash);
-
-
-      await firestore.collection('User').doc(userId).set({
-        'user_id': userId,
-        'name': name,
-        'email': email,
-        'password_hash': encryptedPassword,
-        'profile_picture': '',
-        'Age': 0,
-        'Weight': 0.0,
-        'Height': 0.0,
-        'Gender': '',
-        'Specific allergies': '',
-        'Diseases': '',
-        'Are you a vegetarian?': false,
-      });
-
-      print(' User added to Firebase Auth & Firestore');
-      return null;
-    } catch (e) {
-      print('Registration Error: $e');
-      return 'Failed to register user: $e';
+    if (!_validateEmail(email)) {
+      _showError(context, "Enter a valid Gmail address");
+      return 'Invalid email';
     }
+
+    if (password.length < 6) {
+      _showError(context, "Password must be at least 6 characters");
+      return 'Weak password';
+    }
+
+    String userId = DateTime.now().millisecondsSinceEpoch.toString();
+    String passwordHash = _userService.hashPassword(password);
+
+    final error = await _userService.addUserWithCheck(
+      userId: userId,
+      name: username,
+      email: email,
+      originalPassword: password,
+    );
+
+
+    if (error != null) {
+      _showError(context, error);
+      return error;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userId', userId);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Account created successfully")),
+      );
+    }
+
+    return null;
   }
 
-  Future<String?> getUserIdByEmail(String email) async {
-    try {
-      final querySnapshot = await firestore
-          .collection('User')
-          .where('email', isEqualTo: email)
-          .limit(1)
-          .get();
+  void _showError(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
+  }
 
-      if (querySnapshot.docs.isNotEmpty) {
-        return querySnapshot.docs.first.id;
-      }
-      return null;
-    } catch (e) {
-      print(' Error fetching user ID:$e');
-      return null;
-    }
+  bool _validateEmail(String email) {
+    return RegExp(r'^[a-zA-Z0-9._%+-]+@gmail\.[a-zA-Z]{2,}$').hasMatch(email);
+  }
+
+  Future<void> signInWithGoogle(BuildContext context) async {
+    await _socialAuth.signInWithGoogle(context);
+  }
+
+  Future<void> signInWithFacebook(BuildContext context) async {
+    await _socialAuth.signInWithFacebook(context);
+  }
+
+  void signInWithApple(BuildContext context) {
+    _showError(context, "Apple login is not implemented yet.");
   }
 }

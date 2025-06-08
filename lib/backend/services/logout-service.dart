@@ -13,11 +13,11 @@ class logoutService {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('logout'),
+            child: const Text('cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('cancel'),
+            child: const Text('logout'),
           ),
         ],
       ),
@@ -25,14 +25,14 @@ class logoutService {
 
     if (confirm != true) return;
 
-    // تسجيل الخروج من Firebase
+
     await FirebaseAuth.instance.signOut();
 
-    // إزالة user_id من SharedPreferences
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('user_id');
 
-    // الانتقال إلى شاشة تسجيل الدخول
+
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginPage()),
           (route) => false,

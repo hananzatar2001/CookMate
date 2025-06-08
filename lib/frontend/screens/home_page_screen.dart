@@ -342,7 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        actions: [NotificationBell(unreadCount: 5)],
+       // actions: [NotificationBell(unreadCount: 5)],
         title: const Text(
           'cookmate',
           style: TextStyle(
