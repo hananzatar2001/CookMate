@@ -4,15 +4,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../frontend/screens/upload_recipe_screen.dart';
 import '../../frontend/screens/user_profile_screen.dart';
 import '../../frontend/screens/saved_recipess_screen.dart';
-import '../../frontend/screens/HomePage.dart';
+import '../../frontend/screens/home_page_screen.dart';
 import '../../frontend/screens/favorites_recipes_screen.dart';
 class CustomBottomNavBar extends StatefulWidget {
   final int currentIndex;
 
-  const CustomBottomNavBar({
-    Key? key,
-    required this.currentIndex,
-  }) : super(key: key);
+  const CustomBottomNavBar({Key? key, required this.currentIndex}) : super(key: key);
 
   @override
   State<CustomBottomNavBar> createState() => _CustomBottomNavBarState();
@@ -64,7 +61,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                       case 0:
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (_) => const HomePage()),
+                          MaterialPageRoute(builder: (_) => const HomeScreen()),
                         );
                         break;
                       case 1:
@@ -72,7 +69,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (_) =>  SavedRecipesScreen(),
+                              builder: (_) => SavedRecipesScreen(userId: userId),
                             ),
                           );
                         } else {
@@ -86,7 +83,21 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (_) =>  UploadRecipeScreen(),
+                              builder: (_) => const UploadRecipeScreen(),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("User ID not found")),
+                          );
+                        }
+                        break;
+                      case 3:
+                        if (userId.isNotEmpty) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const FavoritesRecipesScreen(),
                             ),
                           );
                         } else {
@@ -109,26 +120,11 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                           );
                         }
                         break;
-                      case 5:
-                        if (userId.isNotEmpty) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const FavoritesRecipesScreen(),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("User ID not found")),
-                          );
-                        }
-                        break;
-                    // باقي الحالات يمكن إضافتها هنا لاحقًا
                     }
                   }
                 },
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 40),
+                  padding: const EdgeInsets.only(bottom: 3),
                   child: Transform.scale(
                     scale: 1.5,
                     child: Container(
