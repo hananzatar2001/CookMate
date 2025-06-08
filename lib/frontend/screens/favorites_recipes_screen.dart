@@ -1,19 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../frontend/widgets/notification_bell.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cookmate/frontend/screens/notifications_screen.dart';
+import 'package:cookmate/frontend/widgets/notification_bell.dart';
 
-class Recipe {
-  final String title;
-  final String ingredients;
-  bool isFavorite;
-  final String imageUrl;
-
-  Recipe({
-    required this.title,
-    required this.ingredients,
-    this.isFavorite = true,
-    required this.imageUrl,
-  });
-}
+import '../widgets/NavigationBar.dart'; // عدل المسار حسب موقع ملفك
 
 class FavoritesRecipesScreen extends StatefulWidget {
   const FavoritesRecipesScreen({Key? key}) : super(key: key);
@@ -23,38 +14,80 @@ class FavoritesRecipesScreen extends StatefulWidget {
 }
 
 class _FavoritesRecipesScreenState extends State<FavoritesRecipesScreen> {
-  final List<Recipe> favoriteRecipes = [
-    Recipe(
-      title: 'Shakshoka',
-      ingredients: 'egg, tomato, onion, oil',
-      imageUrl: 'https://via.placeholder.com/80',
-    ),
-    Recipe(
-      title: 'Vegan Burger',
-      ingredients: 'vegan patty, lettuce, tomato, buns',
-      imageUrl: 'https://via.placeholder.com/80',
-    ),
-    Recipe(
-      title: 'Pasta Primavera',
-      ingredients: 'pasta, mixed vegetables, olive oil, garlic',
-      imageUrl: 'https://via.placeholder.com/80',
-    ),
-    Recipe(
-      title: 'Chocolate Cake',
-      ingredients: 'chocolate, flour, sugar, eggs',
-      imageUrl: 'https://via.placeholder.com/80',
-    ),
-    Recipe(
-      title: 'Grilled Chicken Salad',
-      ingredients: 'chicken, lettuce, cucumber, tomato, dressing',
-      imageUrl: 'https://via.placeholder.com/80',
-    ),
-    Recipe(
-      title: 'Quinoa Bowl',
-      ingredients: 'quinoa, chickpeas, avocado, spinach, lemon',
-      imageUrl: 'https://via.placeholder.com/80',
-    ),
-  ];
+  String? user_id;
+  List<Map<String, dynamic>> favoriteRecipes = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserId();
+  }
+
+  Future<void> _loadUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedUserId = prefs.getString('userId');
+
+    if (storedUserId != null) {
+      setState(() {
+        user_id = storedUserId;
+      });
+      await loadFavorites();
+    } else {
+      setState(() {
+        user_id = null;
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> loadFavorites() async {
+    if (user_id == null) {
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+
+    try {
+      final favSnapshot = await FirebaseFirestore.instance
+          .collection('Favorites')
+          .where('user_id', isEqualTo: user_id)
+          .get();
+
+      List<Map<String, dynamic>> tempRecipes = [];
+
+      for (var favDoc in favSnapshot.docs) {
+        final data = favDoc.data() as Map<String, dynamic>;
+
+        // recipe_id هنا من نوع DocumentReference
+        final DocumentReference recipeRef = data['recipe_id'];
+
+        final recipeDoc = await recipeRef.get();
+
+        if (recipeDoc.exists) {
+          final recipeData = recipeDoc.data()! as Map<String, dynamic>;
+
+          // نحافظ على الرفيرنس نفسه في recipe_id لكن نحولها لنص ID للعرض
+          recipeData['favorite_id'] = favDoc.id;
+          recipeData['recipe_ref'] = recipeRef;  // لو حبيت تخزن الرفيرنس لاستخدام مستقبلي
+          recipeData['recipe_id'] = recipeDoc.id; // نستخدم id نصي فقط للعرض
+
+          tempRecipes.add(recipeData);
+        }
+      }
+
+      setState(() {
+        favoriteRecipes = tempRecipes;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading favorites: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,16 +105,35 @@ class _FavoritesRecipesScreenState extends State<FavoritesRecipesScreen> {
         ),
         centerTitle: true,
         actions: [
-          //NotificationBell(unreadCount: 3),
+          if (user_id != null)
+            NotificationBell(
+              userId: user_id!,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NotificationScreen(userId: user_id!),
+                  ),
+                );
+              },
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.notifications, color: Colors.black),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please log in to see notifications')),
+                );
+              },
+            ),
         ],
       ),
-      body: favoriteRecipes.isEmpty
-          ? const Center(
-        child: Text(
-          'No favorite recipes yet!',
-          style: TextStyle(fontSize: 18, color: Colors.grey),
-        ),
-      )
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : user_id == null
+          ? const Center(child: Text('Please log in first.'))
+          : favoriteRecipes.isEmpty
+          ? const Center(child: Text('No favorite recipes yet!'))
           : ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: favoriteRecipes.length,
@@ -111,15 +163,17 @@ class _FavoritesRecipesScreenState extends State<FavoritesRecipesScreen> {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        recipe.imageUrl,
+                      child: recipe['image_url'] != null && recipe['image_url'] != ''
+                          ? Image.network(
+                        recipe['image_url'],
                         width: 80,
                         height: 80,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return const Icon(Icons.broken_image, size: 40, color: Colors.grey);
                         },
-                      ),
+                      )
+                          : const Icon(Icons.broken_image, size: 40, color: Colors.grey),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -128,7 +182,7 @@ class _FavoritesRecipesScreenState extends State<FavoritesRecipesScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          recipe.title,
+                          recipe['title'] ?? 'No Title',
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -136,7 +190,7 @@ class _FavoritesRecipesScreenState extends State<FavoritesRecipesScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          recipe.ingredients,
+                          (recipe['ingredients'] as List<dynamic>?)?.join(', ') ?? '',
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.grey,
@@ -146,16 +200,9 @@ class _FavoritesRecipesScreenState extends State<FavoritesRecipesScreen> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(
-                      recipe.isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: Colors.black,
-                    ),
+                    icon: const Icon(Icons.favorite, color: Colors.red),
                     onPressed: () {
                       _confirmDeleteFavorite(index);
-                      // أو بدك فقط تعمل toggle بدل حذف:
-                      // setState(() {
-                      //   recipe.isFavorite = !recipe.isFavorite;
-                      // });
                     },
                   ),
                   PopupMenuButton<String>(
@@ -170,12 +217,12 @@ class _FavoritesRecipesScreenState extends State<FavoritesRecipesScreen> {
                       }
                     },
                     itemBuilder: (BuildContext context) {
-                      return [
-                        const PopupMenuItem<String>(
+                      return const [
+                        PopupMenuItem<String>(
                           value: 'Share',
                           child: Text('Share'),
                         ),
-                        const PopupMenuItem<String>(
+                        PopupMenuItem<String>(
                           value: 'Delete',
                           child: Text('Delete'),
                         ),
@@ -189,38 +236,34 @@ class _FavoritesRecipesScreenState extends State<FavoritesRecipesScreen> {
           );
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.black,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.add_box), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
-        ],
-      ),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 3),
+
       backgroundColor: Colors.white,
     );
   }
 
-  void _showRecipeDetails(BuildContext context, Recipe recipe) {
+  void _showRecipeDetails(BuildContext context, Map<String, dynamic> recipe) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(recipe.title),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Image.network(recipe.imageUrl),
-              const SizedBox(height: 8),
-              Text('Ingredients: ${recipe.ingredients}'),
-            ],
+          title: Text(recipe['title'] ?? ''),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                recipe['image_url'] != null && recipe['image_url'] != ''
+                    ? Image.network(recipe['image_url'])
+                    : const Icon(Icons.broken_image, size: 80, color: Colors.grey),
+                const SizedBox(height: 8),
+                Text('Ingredients: ${(recipe['ingredients'] as List<dynamic>?)?.join(', ') ?? ''}'),
+                const SizedBox(height: 8),
+                Text('Carbs: ${recipe['Carbs'] ?? 'N/A'}'),
+                Text('Fats: ${recipe['Fats'] ?? 'N/A'}'),
+                Text('Protein: ${recipe['Protein'] ?? 'N/A'}'),
+                Text('Calories: ${recipe['calories'] ?? 'N/A'}'),
+              ],
+            ),
           ),
           actions: <Widget>[
             TextButton(
@@ -235,9 +278,9 @@ class _FavoritesRecipesScreenState extends State<FavoritesRecipesScreen> {
     );
   }
 
-  void _shareRecipe(Recipe recipe) {
-    print('Sharing recipe: ${recipe.title}');
-    // يمكنك استخدام مكتبة share_plus هنا
+  void _shareRecipe(Map<String, dynamic> recipe) {
+    print('Sharing recipe: ${recipe['title']}');
+    // أضف كود المشاركة الفعلي إن أردت
   }
 
   void _confirmDeleteFavorite(int index) {
@@ -250,17 +293,20 @@ class _FavoritesRecipesScreenState extends State<FavoritesRecipesScreen> {
           actions: [
             TextButton(
               child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
               child: const Text('Delete'),
-              onPressed: () {
+              onPressed: () async {
+                final favoriteId = favoriteRecipes[index]['favorite_id'];
+                await FirebaseFirestore.instance.collection('Favorites').doc(favoriteId).delete();
+
                 setState(() {
                   favoriteRecipes.removeAt(index);
                 });
+
                 Navigator.of(context).pop();
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Recipe removed from favorites')),
                 );

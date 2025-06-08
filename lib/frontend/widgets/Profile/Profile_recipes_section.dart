@@ -3,6 +3,7 @@ import 'package:cookmate/frontend/widgets/Profile/profile_item_card.dart';
 import 'package:flutter/material.dart';
 import '../../../backend/models/profile_Recipe_view_model.dart';
 import '../../../backend/services/profile_recipes_section_service.dart';
+import '../../screens/discovery_recipes.dart';
 
 
 class ProfileRecipesSection extends StatefulWidget {
@@ -94,6 +95,14 @@ class _ProfileRecipesSectionState extends State<ProfileRecipesSection> {
           imageUrl: recipe.imageUrl,
           onTap: () {
             print('Tapped on recipe: ${recipe.title}');
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DiscoveryRecipesPage(
+
+                ),
+              ),
+            );
           },
         );
       },

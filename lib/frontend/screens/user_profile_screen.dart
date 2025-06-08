@@ -8,6 +8,7 @@ import '../widgets/Profile/Profile_recipes_section.dart';
 import '../widgets/Profile/profile_collections_section.dart';
 import '../screens/change_profile_picture.dart';
 import '../../backend/services/profile_counter_service.dart';
+import '../screens/Settingscreen.dart';
 class ProfilePage extends StatefulWidget {
 
   const ProfilePage({Key? key}) : super(key: key);
@@ -66,8 +67,8 @@ class _ProfilePageState extends State<ProfilePage> {
         elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
-        scrolledUnderElevation: 0, // ✅ يمنع أي ظل أثناء السحب
-        surfaceTintColor: Colors.white, // ✅ يثبّت اللون الأبيض في Material 3
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.white,
         title: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
           stream: profileService.getUserProfileStream(userId),
           builder: (context, snapshot) {
@@ -89,10 +90,16 @@ class _ProfilePageState extends State<ProfilePage> {
             padding: const EdgeInsets.only(right: 9.0),
             child: IconButton(
               icon: const Icon(Icons.settings, color: Colors.black, size: 37),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                );
+              },
             ),
           ),
         ],
+
       ),
 
       body: Column(

@@ -171,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
                 onFacebookTap: _signInWithFacebook,
                 onAppleTap: _signInWithApple,
               ),
-              const SizedBox(height: 100),
+              const SizedBox(height: 60),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

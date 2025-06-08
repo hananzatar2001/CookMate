@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../frontend/screens/upload_recipe_screen.dart';
 import '../../frontend/screens/user_profile_screen.dart';
 import '../../frontend/screens/saved_recipess_screen.dart';
-import '../../frontend/screens/HomePage.dart';
+import '../../frontend/screens/home_page_screen.dart';
 import '../../frontend/screens/favorites_recipes_screen.dart';
 class CustomBottomNavBar extends StatefulWidget {
   final int currentIndex;
@@ -50,7 +50,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
         top: false,
         bottom: false,
         child: Container(
-          height: 65,
+          height: 30,
           padding: const EdgeInsets.symmetric(horizontal: 33),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -64,7 +64,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                       case 0:
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (_) => const HomePage()),
+                          MaterialPageRoute(builder: (_) => const HomeScreen() ),
                         );
                         break;
                       case 1:
@@ -109,7 +109,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                           );
                         }
                         break;
-                      case 5:
+                      case 3:
                         if (userId.isNotEmpty) {
                           Navigator.pushReplacement(
                             context,
@@ -128,7 +128,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                   }
                 },
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 3),
+                  padding: const EdgeInsets.only(bottom: 1),
                   child: Transform.scale(
                     scale: 1.5,
                     child: Container(
