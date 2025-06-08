@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import '../../frontend/widgets/nutrient_bar.dart';
-import '../../frontend/screens/recipe_details.dart';
-
+import '../../backend/services/recipe_discovery_service.dart';
+import 'recipe_details.dart';
+import 'package:cookmate/frontend/widgets/notification_bell.dart';
 class DiscoveryRecipesPage extends StatefulWidget {
   const DiscoveryRecipesPage({super.key});
 
@@ -14,15 +12,18 @@ class DiscoveryRecipesPage extends StatefulWidget {
 class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  final String apiKey = '5cbc633fbbd840a29f5a29225a1ad55f';
+
+  final RecipeDiscoveryService _service = RecipeDiscoveryService();
 
   List<Map<String, dynamic>> _recipes = [];
   List<bool> pressedStates = [];
   bool isLoading = false;
   bool hasMore = true;
   int offset = 0;
-  int unreadCount = 5;
   final int pageSize = 10;
+
+  // افتراضياً userId ثابت هنا، استبدلها حسب التطبيق عندك
+  final String userId = "some_user_id";
 
   @override
   void initState() {
@@ -37,32 +38,26 @@ class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
       isLoading = true;
     });
 
-    final url = Uri.https('api.spoonacular.com', '/recipes/complexSearch', {
-      'apiKey': apiKey,
-      'query': query,
-      'number': '$pageSize',
-      'offset': '$offset',
-    });
-
-    final response = await http.get(url);
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final List results = data['results'];
+    try {
+      final firestoreRecipes = await _service.fetchFromFirestore(query: query);
+      final apiRecipes = await _service.fetchFromAPI(
+        offset: offset,
+        pageSize: pageSize,
+        query: query,
+      );
 
       setState(() {
         offset += pageSize;
-        _recipes.addAll(results.map((e) => {
-          'id': e['id'],
-          'title': e['title'],
-          'image_url': e['image'],
-        }));
-        pressedStates.addAll(List.generate(results.length, (_) => false));
-        hasMore = results.length == pageSize;
+        _recipes = [...firestoreRecipes, ...apiRecipes];
+        pressedStates = List.generate(_recipes.length, (_) => false);
+        hasMore = apiRecipes.length == pageSize;
+      });
+    } catch (e) {
+      print('Error Fetching recipes: $e');
+    } finally {
+      setState(() {
         isLoading = false;
       });
-    } else {
-      setState(() => isLoading = false);
-      print('Failed to fetch recipes: ${response.statusCode}');
     }
   }
 
@@ -87,26 +82,36 @@ class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        centerTitle: true,
+        title: const Text(
+          'Discovery Recipes',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        actions: [
+          NotificationBell(
+            userId: userId,
+            onTap: () {
+              Navigator.pushNamed(context, '/notifications', arguments: userId);
+            },
+          ),
+          const SizedBox(width: 12),
+        ],
+      ),
       body: Column(
         children: [
-          const SizedBox(height: 40),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const SizedBox(width: 48),
-              const Text(
-                'Discovery Recipes',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 16.0),
-              /*  child: NotificationBell(
-                  unreadCount: unreadCount,
-                  onTap: () => print("Notifications bell tapped!"),
-                ),*/
-              ),
-            ],
-          ),
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -150,8 +155,7 @@ class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          RecipeDetailsPage(recipe: recipe),
+                      builder: (context) => RecipeDetailsPage(recipe: recipe),
                     ),
                   ),
                   child: Container(
@@ -200,19 +204,21 @@ class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
                               setState(() {
                                 pressedStates[index] = true;
                               });
-                              Future.delayed(const Duration(milliseconds: 200),
-                                      () {
-                                    setState(() {
-                                      pressedStates[index] = false;
-                                    });
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            RecipeDetailsPage(recipe: recipe),
-                                      ),
-                                    );
+                              Future.delayed(
+                                const Duration(milliseconds: 200),
+                                    () {
+                                  setState(() {
+                                    pressedStates[index] = false;
                                   });
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          RecipeDetailsPage(recipe: recipe),
+                                    ),
+                                  );
+                                },
+                              );
                             },
                             child: Container(
                               width: 32,
@@ -245,7 +251,8 @@ class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
                 onPressed: isLoading
                     ? null
                     : () => fetchRecipes(
-                    query: _searchController.text.trim()),
+                  query: _searchController.text.trim(),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFF47551),
                   foregroundColor: Colors.white,
