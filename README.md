@@ -59,6 +59,50 @@ CookMate 🍽️ is a mobile app for your personal cooking. It offers smart reci
   
 **Shopping List**
 -  It allows the user to add the purchases he needs on this page, with the ability to mark the purchases that have been brought.
+-  ### 🔔 Rahaf – Notifications Screen
+Displays user-specific notifications fetched from Firebase. Includes recipe reminders and alerts tailored to the user.
+
+---
+
+### ⭐ Favorites Page
+Displays all recipes marked as favorites by the user. Users can:
+- View detailed recipe information
+- Remove from favorites
+- Share or set alerts
+
+---
+
+### 🔍 Discovery Recipes Page
+Shows recipes fetched from:
+- Spoonacular API
+- User-uploaded recipes from Firebase  
+Includes:
+- Search functionality
+- Infinite scrolling to explore more recipes
+- Clean grid layout
+
+---
+
+### 🧂 Ingredients Recipe Page
+Displays ingredients for a selected recipe.  
+If the recipe is from the API, possible ingredient substitutes are also shown.
+
+---
+
+### 📖 Steps Page
+Provides detailed cooking instructions for the selected recipe.  
+Structured in a step-by-step format to enhance the cooking experience.
+
+---
+
+### 📄 Recipe Details Page
+A full recipe view showing:
+- Image and title
+- Ingredients and instructions
+- Nutritional values (calories, protein, fat, etc.)
+- Option to add the recipe to the meal plan
+
+---
 
 **name page**
 -  Recipe explanation:
