@@ -66,22 +66,25 @@ CookMate 🍽️ is a mobile app for your personal cooking. It offers smart reci
 
 **Home Screen**
 -  **4- Run the app:**:
--  `flutter run`
+   `flutter run`
 
 **Splash1 Screen**
 -  **4- Run the app:**:
--  `flutter run`
+   `flutter run`
+  
 **Splash2 Screen**
 -  **4- Run the app:**:
--  `flutter run`
+   `flutter run`
 
 **saved recipes**
 -  **4- Run the app:**:
--  `flutter run`
+   `flutter run`
   
 **User Profile**
 -  **4- Run the app:**:
 -  `flutter run`
+
+  
 **NavigationBar**
 -  **4- Run the app:**:
 -  `flutter run`
