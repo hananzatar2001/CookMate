@@ -29,12 +29,11 @@ class FavoriteService {
 
     final querySnapshot = await _firestore
         .collection('Favorites')
-        .where('user_id', isEqualTo: user_id)
-        .where('recipe_id', isEqualTo: recipeRef) 
+        .where('user_id', isEqualTo: user_id)      // البحث باستخدام سترينج
+        .where('recipe_id', isEqualTo: recipeRef)  // البحث باستخدام المرجع
         .get();
 
     for (var doc in querySnapshot.docs) {
       await _firestore.collection('Favorites').doc(doc.id).delete();
     }
-  }
-}
+  }}
