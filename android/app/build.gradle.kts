@@ -10,6 +10,7 @@ android {
     namespace = "com.example.cook_mate"
     compileSdk = flutter.compileSdkVersion
 
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -55,4 +56,5 @@ dependencies {
 
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
+
 }
