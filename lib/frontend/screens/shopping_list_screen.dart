@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../backend/services/shopping_list_service.dart';
 import '../../frontend/widgets/NavigationBar.dart';
 import '../../frontend/widgets/notification_bell.dart';
+import 'home_page_screen.dart';
 
 class ShoppingListScreen extends StatefulWidget {
   const ShoppingListScreen({super.key});
@@ -125,10 +126,15 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         backgroundColor: Colors.white,
         title: const Text('Shopping List'),
         centerTitle: true,
-        leading: const Icon(Icons.arrow_back_ios),
-        actions: [
-          //NotificationBell(unreadCount: 5),
-        ],
+        leading:IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+            );
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

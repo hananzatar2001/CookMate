@@ -22,9 +22,6 @@ class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
   int offset = 0;
   final int pageSize = 10;
 
-  // افتراضياً userId ثابت هنا، استبدلها حسب التطبيق عندك
-  final String userId = "some_user_id";
-
   @override
   void initState() {
     super.initState();
@@ -100,15 +97,6 @@ class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
             color: Colors.black,
           ),
         ),
-        actions: [
-          NotificationBell(
-            userId: userId,
-            onTap: () {
-              Navigator.pushNamed(context, '/notifications', arguments: userId);
-            },
-          ),
-          const SizedBox(width: 12),
-        ],
       ),
       body: Column(
         children: [

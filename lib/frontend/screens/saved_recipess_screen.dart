@@ -5,6 +5,7 @@ import '../widgets/saved_page_recipe_card.dart';
 import '../widgets/saved_page_category_filter.dart';
 import '../../backend/services/saved_recipes_service.dart';
 import '../widgets/notification_bell.dart';
+import 'home_page_screen.dart';
 
 class SavedRecipesScreen extends StatefulWidget {
   final String userId;
@@ -27,29 +28,14 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
         children: [
           const SizedBox(height: 60),
 
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // CustomBackButton(navigateTo: const ()),
 
-/*
-                NotificationBell(
-                  unreadCount: 5,
-                  onTap: () {
-                    print("Tapped notification bell");
-                  },
-                ),
-*/
-              ],
             ),
+
           ),
-
-
-
-
           const Center(
             child: Text(
               "My Recipes",

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../backend/controllers/home_screen_controller.dart';
@@ -43,7 +42,6 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-       // actions: [NotificationBell(unreadCount: 5)],
         title: const Text(
           'cookmate',
           style: TextStyle(

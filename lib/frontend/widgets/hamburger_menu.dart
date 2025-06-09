@@ -54,20 +54,6 @@ class _CustomDrawerState extends State<CustomDrawer> {
             ),
           ),
           const Divider(height: 30),
-
-          const ListTile(leading: Icon(Icons.settings), title: Text('Settings')),
-
-          ListTile(
-            leading: const Icon(Icons.shopping_cart),
-            title: const Text('Shopping List'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ShoppingListScreen()),
-              );
-            },
-          ),
-
           ListTile(
             leading: const Icon(Icons.restaurant_menu),
             title: const Text('Meal Planning'),

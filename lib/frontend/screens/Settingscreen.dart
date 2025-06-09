@@ -1,9 +1,11 @@
+import 'package:cookmate/frontend/screens/user_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../backend//controllers/settings_controller.dart';
 import '../../frontend/widgets/NavigationBar.dart';
 import '../../frontend/widgets/section_title.dart';
 import '../../frontend/widgets/customDropdown.dart';
+import 'home_page_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -28,12 +30,21 @@ class SettingsView extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        leading: const BackButton(),
+        leading:IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ProfilePage()),
+            );
+          },
+        ),
         title: const Text("Settings", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
         centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
+
         actions: [
           IconButton(
             icon: Icon(controller.isEditing ? Icons.save : Icons.edit),

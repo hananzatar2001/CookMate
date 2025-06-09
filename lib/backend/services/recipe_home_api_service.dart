@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class SpoonacularService {
-  static const String _apiKey = 'bcd268acac3a458792fde6e585f99504';
+  static const String _apiKey = '7f501937a7d9438e9119ecf2446a669f';
   static const String _baseUrl = 'https://api.spoonacular.com/recipes/complexSearch';
 
   static Future<List<Map<String, dynamic>>> fetchRecipes(String type, {int number = 6}) async {

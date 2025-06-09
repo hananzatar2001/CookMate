@@ -9,6 +9,8 @@ import '../widgets/notification_bell.dart';
 import '../../backend/models/recipe_model.dart';
 import 'add_ingredients_screen.dart';
 import '../../backend/controllers/upload_recipe_controller.dart';
+import 'home_page_screen.dart';
+import 'notifications_screen.dart';
 
 class UploadRecipeScreen extends StatefulWidget {
   const UploadRecipeScreen({super.key});
@@ -155,11 +157,42 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading:IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+            );
+          },
+        ),
+
         title: const Text('Upload Recipe'),
         centerTitle: true,
-/*
-        actions: [NotificationBell(unreadCount: 5)],
-*/
+        actions: [
+          if (user_id != null)
+            NotificationBell(
+              userId: user_id!,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NotificationScreen(userId: user_id!),
+                  ),
+                );
+              },
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.notifications, color: Colors.black),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please log in to see notifications')),
+                );
+              },
+            ),
+        ],
+
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

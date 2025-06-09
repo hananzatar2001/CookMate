@@ -9,6 +9,9 @@ import '../../frontend/widgets/RecipeTypeSelector.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'home_page_screen.dart';
+import 'notifications_screen.dart';
+
 class CalorieTrackingScreen extends StatefulWidget {
   const CalorieTrackingScreen({super.key});
 
@@ -110,8 +113,8 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
         setState(() {
           totalCaloriesTaken = (data['Calories taken'] ?? 0).toDouble();
           totalProteinTaken = (data['protein taken'] ?? 0).toDouble();
-          totalFatsTaken = (data['Fatss taken'] ?? 0).toDouble(); // ← صح
-          totalCarbsTaken = (data['Carbs taken'] ?? 0).toDouble(); // ← صح
+          totalFatsTaken = (data['Fatss taken'] ?? 0).toDouble();
+          totalCarbsTaken = (data['Carbs taken'] ?? 0).toDouble();
 
         });
       } else {
@@ -175,13 +178,45 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
           child: Padding(
             padding: const EdgeInsets.only(top: 16),
             child: AppBar(
-              leading: const Icon(Icons.arrow_back_ios),
+              leading:IconButton(
+                icon: const Icon(Icons.arrow_back_ios),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                  );
+                },
+              ),
+
               title: const Text(
                 'Calorie Tracking',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               centerTitle: true,
-              //actions: [NotificationBell(unreadCount: 5)],
+              actions: [
+                if (user_id != null)
+                  NotificationBell(
+                    userId: user_id!,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NotificationScreen(userId: user_id!),
+                        ),
+                      );
+                    },
+                  )
+                else
+                  IconButton(
+                    icon: const Icon(Icons.notifications, color: Colors.black),
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please log in to see notifications')),
+                      );
+                    },
+                  ),
+              ],
+
             ),
           ),
         ),

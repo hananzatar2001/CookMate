@@ -8,6 +8,8 @@ import '../../backend/models/recipe_model.dart';
 import '../../backend/services/favorite_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../backend/controllers/meal_planning_controller.dart';
+import 'home_page_screen.dart';
+import 'notifications_screen.dart';
 
 class MealPlanningScreen extends StatefulWidget {
   @override
@@ -85,11 +87,40 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(),
+        leading:IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+            );
+          },
+        ),
         title: const Text("Meal Planning"),
         actions: [
-         // NotificationBell(unreadCount: 3),
+          if (user_id != null)
+            NotificationBell(
+              userId: user_id!,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NotificationScreen(userId: user_id!),
+                  ),
+                );
+              },
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.notifications, color: Colors.black),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please log in to see notifications')),
+                );
+              },
+            ),
         ],
+
       ),
       body: Column(
         children: [

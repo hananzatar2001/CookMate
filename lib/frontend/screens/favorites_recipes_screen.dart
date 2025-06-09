@@ -4,7 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cookmate/frontend/screens/notifications_screen.dart';
 import 'package:cookmate/frontend/widgets/notification_bell.dart';
 
-import '../widgets/NavigationBar.dart'; // عدل المسار حسب موقع ملفك
+import '../widgets/NavigationBar.dart';
+import 'home_page_screen.dart'; // عدل المسار حسب موقع ملفك
 
 class FavoritesRecipesScreen extends StatefulWidget {
   const FavoritesRecipesScreen({Key? key}) : super(key: key);
@@ -95,9 +96,15 @@ class _FavoritesRecipesScreenState extends State<FavoritesRecipesScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+        leading:IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+            );
+          },
+
         ),
         title: const Text(
           'Favorites Recipes',

@@ -9,6 +9,7 @@ import '../widgets/Profile/profile_collections_section.dart';
 import '../screens/change_profile_picture.dart';
 import '../../backend/services/profile_counter_service.dart';
 import '../screens/Settingscreen.dart';
+import 'home_page_screen.dart';
 class ProfilePage extends StatefulWidget {
 
   const ProfilePage({Key? key}) : super(key: key);
@@ -69,6 +70,16 @@ class _ProfilePageState extends State<ProfilePage> {
         foregroundColor: Colors.black,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.white,
+        leading:IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+            );
+          },
+        ),
+
         title: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
           stream: profileService.getUserProfileStream(userId),
           builder: (context, snapshot) {
