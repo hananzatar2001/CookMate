@@ -34,7 +34,12 @@ class RecipeDetailsController extends ChangeNotifier {
 
     await loadUserId();
     await checkIfRecipeSaved();
-    await fetchRecipeDetails();
+
+    if (recipe.containsKey('source') && recipe['source'] == 'firestore') {
+      await fetchRecipeDetailsFromFirestore();
+    } else {
+      await fetchRecipeDetailsFromApi();
+    }
 
     isLoading = false;
     notifyListeners();
@@ -59,7 +64,36 @@ class RecipeDetailsController extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchRecipeDetails() async {
+  Future<void> fetchRecipeDetailsFromFirestore() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('Recipes')
+          .where('recipe_id', isEqualTo: recipe['id'])
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        final data = snapshot.docs.first.data();
+
+        protein = (data['Protein'] ?? 0).toDouble();
+        fat = (data['Fats'] ?? 0).toDouble();
+        carbs = (data['Carbs'] ?? 0).toDouble();
+        fiber = (data['Fiber'] ?? 0).toDouble(); // إذا الحقل موجود
+        recipe['calories'] = (data['calories'] ?? 0).toDouble();
+
+        ingredients = List<String>.from(data['Ingredients'] ?? []);
+
+        recipe['type'] = data['type'] ?? 'unknown';
+        recipe['image_url'] = data['image_url'] ?? '';
+        recipe['title'] = data['title'] ?? '';
+        videoUrl = data['sourceUrl'] ?? null;
+      }
+    } catch (e) {
+      print('Error fetching recipe from Firestore: $e');
+    }
+  }
+
+  Future<void> fetchRecipeDetailsFromApi() async {
     final recipeId = recipe['id'];
     final url = Uri.parse(
         'https://api.spoonacular.com/recipes/$recipeId/information?apiKey=$apiKey&includeNutrition=true');
@@ -100,7 +134,6 @@ class RecipeDetailsController extends ChangeNotifier {
       }
 
       videoUrl = data['sourceUrl'];
-
       await fetchYouTubeVideo(recipe['title'] ?? '');
     }
   }
@@ -168,7 +201,7 @@ class RecipeDetailsController extends ChangeNotifier {
         'userId': user_id,
         ...getRecipeDataForSaving(),
         'ingredients': ingredients,
-        'savedAt': DateTime.now(), // حفظ كـ DateTime بدل String
+        'savedAt': DateTime.now(),
       });
       savedRecipeDocId = doc.id;
       isSaved = true;
@@ -193,8 +226,8 @@ class RecipeDetailsController extends ChangeNotifier {
         'user_id': user_id,
         ...getRecipeDataForSaving(),
         'mealType': selectedMeal,
-        'dateTime': mealDateTime, // حفظ كـ DateTime بدل String
-        'addedAt': DateTime.now(), // حفظ كـ DateTime بدل String
+        'dateTime': mealDateTime,
+        'addedAt': DateTime.now(),
       });
 
       return "added";

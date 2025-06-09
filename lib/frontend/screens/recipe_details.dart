@@ -38,8 +38,8 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final recipe = widget.recipe;
-    final imageUrl = recipe['image_url'] ?? recipe['image'] ?? '';
+    // نحاول جلب الصورة من controller لأن بعض الوصفات من Firestore تأتي مع image_url
+    final imageUrl = controller.getRecipeImage();
 
     return Scaffold(
       appBar: AppBar(
@@ -69,12 +69,18 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
   Widget buildContent(BuildContext context, String imageUrl) {
     return Column(
       children: [
-        Image.network(
+        imageUrl.isNotEmpty
+            ? Image.network(
           imageUrl,
           height: 180,
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) =>
           const Center(child: Icon(Icons.broken_image)),
+        )
+            : Container(
+          height: 180,
+          color: Colors.grey[300],
+          child: const Center(child: Icon(Icons.broken_image)),
         ),
         const SizedBox(height: 8),
         Padding(
@@ -190,10 +196,12 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
   }
 
   Widget _buildTab(int index, String label, Color color) {
+    // استخدم id الوصفة سواء من Firestore أو API
+    final recipeId = widget.recipe['id'] ?? '';
+
     return Expanded(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 15),
-
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(8),
@@ -204,7 +212,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (_) => IngredientsPage(recipeId: widget.recipe['id'])),
+                    builder: (_) => IngredientsPage(recipeId: recipeId)),
               ).then((_) {
                 setState(() {
                   selectedTabIndex = 0;
@@ -214,8 +222,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
             } else if (index == 2) {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (_) => StepsPage(recipeId: widget.recipe['id'])),
+                MaterialPageRoute(builder: (_) => StepsPage(recipeId: recipeId)),
               ).then((_) {
                 setState(() {
                   selectedTabIndex = 0;
@@ -330,31 +337,31 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                   }
                 },
                 decoration: const InputDecoration(
-                  labelText: "Meal Type",
-                  prefixIcon: Icon(Icons.restaurant_menu),
+                  labelText: "Select Meal",
                 ),
               ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.save),
-                label: const Text("Save to Meal Plan"),
-                onPressed: () async {
-                  final result = await controller.addToMealPlan();
-                  if (!context.mounted) return;
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: () {
+                  controller.addToMealPlan();
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Meal Plan: $result")),
+                    const SnackBar(content: Text("Added to Meal Plan")),
                   );
                 },
+                child: const Text("Add"),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFF47551),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  textStyle:
-                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
             ],
           ),
         );

@@ -1,3 +1,4 @@
+import 'package:cookmate/frontend/screens/home_page_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../../backend/services/CalorieLogService.dart';
@@ -8,9 +9,7 @@ import '../../frontend/widgets/NavigationBar.dart';
 import '../../frontend/widgets/RecipeTypeSelector.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'home_page_screen.dart';
-import 'notifications_screen.dart';
+import '../../frontend/screens/home_page_screen.dart';
 
 class CalorieTrackingScreen extends StatefulWidget {
   const CalorieTrackingScreen({super.key});
@@ -20,28 +19,63 @@ class CalorieTrackingScreen extends StatefulWidget {
 }
 
 class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
-  final _logService = CalorieLogService();
-  String? user_id;
+  final CalorieLogService _logService = CalorieLogService();
+  String? userId;
+
+  double userCaloriesGoal = 0;
+  double userProteinGoal = 0;
+  double userFatsGoal = 0;
+  double userCarbsGoal = 0;
 
   double totalCaloriesTaken = 0;
-  int selectedRecipeIndex = 0;
-  bool isLoading = true;
-  double userCaloriesGoal = 2200;
-  double userProteinGoal = 90;
-  double userFatsGoal = 70;
-  double userCarbsGoal = 110;
   double totalProteinTaken = 0;
   double totalFatsTaken = 0;
   double totalCarbsTaken = 0;
 
+  bool isLoading = true;
+
+  int selectedRecipeIndex = 0;
+  final List<String> mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
+
   List<Map<String, dynamic>> recipesForType = [];
 
-  Future<void> loadUserCaloriesGoal()
-  async {
+  @override
+  void initState() {
+    super.initState();
+    loadUserData();
+  }
+
+  Future<void> loadUserData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final prefs = await SharedPreferences.getInstance();
+    final storedUserId = prefs.getString('userId');
+
+    if (storedUserId != null) {
+      userId = storedUserId;
+      await loadUserGoals();
+      await _logService.saveDailyNutritionSummary(userId!, DateTime.now());
+      await loadCaloriesFromLogs();
+      await loadRecipesByType(mealTypes[selectedRecipeIndex]);
+      await _logService.printDailyNutritionSummary(userId!, DateTime.now(), mealTypes[selectedRecipeIndex]);
+
+      setState(() {});
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<void> loadUserGoals() async {
+    if (userId == null) return;
+
     try {
       final doc = await FirebaseFirestore.instance
           .collection('UserCaloriesNeeded')
-          .doc(user_id)
+          .doc(userId)
           .get();
 
       if (doc.exists) {
@@ -54,108 +88,62 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
         });
       }
     } catch (e) {
-      print('Error loading user calorie goals: $e');
+      print('❌ Error loading user goals: $e');
     }
-  }
-
-
-  @override
-  void initState() {
-    super.initState();
-    loadUserIdAndData();
-  }
-
-  Future<void> loadUserIdAndData() async {
-    print('Loading user ID from SharedPreferences...');
-    final prefs = await SharedPreferences.getInstance();
-    final storedUserId = prefs.getString('userId');
-
-    if (storedUserId != null) {
-      setState(() {
-        user_id = storedUserId;
-      });
-      print('User ID loaded: $user_id');
-
-      await loadUserCaloriesGoal();
-      await _logService.saveDailyNutritionSummary(user_id!, DateTime.now());
-      await loadCaloriesFromLogs();
-
-      final defaultType = ['Breakfast', 'Lunch', 'Dinner', 'Snack'][selectedRecipeIndex];
-      print('Loading recipes for default type: $defaultType');
-      await loadRecipesByType(defaultType);
-    } else {
-      setState(() {
-        user_id = null;
-      });
-      print('No user ID found in SharedPreferences');
-    }
-
-    setState(() {
-      isLoading = false;
-    });
   }
 
   Future<void> loadCaloriesFromLogs() async {
-    final today = DateTime.now();
-    final logDocId = '${user_id}_${today.toIso8601String().split('T')[0]}';
-
-    print('📄 Trying to load CalorieLogs for doc ID: $logDocId');
+    if (userId == null) return;
 
     try {
+      final today = DateTime.now();
+      final docId = '${userId}_${today.toIso8601String().split('T')[0]}';
+
       final doc = await FirebaseFirestore.instance
           .collection('CalorieLogs')
-          .doc(logDocId)
+          .doc(docId)
           .get();
 
       if (doc.exists) {
         final data = doc.data()!;
-        print('📊 Calorie log data: $data');
         setState(() {
           totalCaloriesTaken = (data['Calories taken'] ?? 0).toDouble();
           totalProteinTaken = (data['protein taken'] ?? 0).toDouble();
-          totalFatsTaken = (data['Fatss taken'] ?? 0).toDouble();
+          totalFatsTaken = (data['Fats taken'] ?? 0).toDouble();
           totalCarbsTaken = (data['Carbs taken'] ?? 0).toDouble();
-
         });
       } else {
-        print('No log found for today.');
+        setState(() {
+          totalCaloriesTaken = 0;
+          totalProteinTaken = 0;
+          totalFatsTaken = 0;
+          totalCarbsTaken = 0;
+        });
       }
     } catch (e) {
-      print('Error loading CalorieLogs: $e');
+      print('❌ Error loading daily log: $e');
     }
+  }
+
+  Future<void> loadRecipesByType(String mealType) async {
+    if (userId == null) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    final recipes = await _logService.getLogsFromMealPlans(userId!, DateTime.now(), mealType);
+
+    setState(() {
+      recipesForType = recipes;
+      isLoading = false;
+    });
   }
 
   Color getProgressColor(double percent) {
     if (percent < 0.5) return Colors.green;
-    if (percent < 0.8) return Colors.orange;
+    if (percent < 0.75) return Colors.orange;
     return Colors.red;
-  }
-  Future<void> loadRecipesByType(String type) async {
-    if (user_id == null) return;
-    final today = DateTime.now();
-
-    final mealPlanLogs = await _logService.getLogsFromMealPlans(user_id!, today, type);
-
-    // دمج القائمتين
-    List<Map<String, dynamic>> combined = [
-      ...mealPlanLogs.map((e) {
-        e['source'] = 'MealPlans';
-        return e;
-      }),
-    ];
-
-    final uniqueMap = <String, Map<String, dynamic>>{};
-    for (var item in combined) {
-      final id = item['recipe_id'] ?? item['id'] ?? item['docId'] ?? '';
-      if (id.isNotEmpty && !uniqueMap.containsKey(id)) {
-        uniqueMap[id] = item;
-      }
-    }
-
-    setState(() => recipesForType = uniqueMap.values.toList());
-
-    await _logService.saveDailyNutritionSummary(user_id!, today);
-    await loadCaloriesFromLogs();
   }
 
   @override
@@ -165,6 +153,7 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
+
     final percent = userCaloriesGoal > 0
         ? (totalCaloriesTaken / userCaloriesGoal).clamp(0.0, 1.0)
         : 0.0;
@@ -178,7 +167,7 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
           child: Padding(
             padding: const EdgeInsets.only(top: 16),
             child: AppBar(
-              leading:IconButton(
+              leading: IconButton(
                 icon: const Icon(Icons.arrow_back_ios),
                 onPressed: () {
                   Navigator.pushReplacement(
@@ -187,36 +176,19 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
                   );
                 },
               ),
-
               title: const Text(
                 'Calorie Tracking',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               centerTitle: true,
-              actions: [
-                if (user_id != null)
-                  NotificationBell(
-                    userId: user_id!,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => NotificationScreen(userId: user_id!),
-                        ),
-                      );
-                    },
-                  )
-                else
-                  IconButton(
-                    icon: const Icon(Icons.notifications, color: Colors.black),
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please log in to see notifications')),
-                      );
-                    },
-                  ),
-              ],
-
+              backgroundColor: Colors.white,
+              elevation: 0,
+              iconTheme: const IconThemeData(color: Colors.black),
+              titleTextStyle: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
             ),
           ),
         ),
@@ -280,9 +252,12 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
               onChanged: (index) async {
                 setState(() {
                   selectedRecipeIndex = index;
+                  isLoading = true;
                 });
-                final types = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
-                await loadRecipesByType(types[index]);
+                await loadRecipesByType(mealTypes[index]);
+                setState(() {
+                  isLoading = false;
+                });
               },
             ),
           ),
@@ -290,71 +265,83 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
-                final types = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
-                await loadRecipesByType(types[selectedRecipeIndex]);
+                await loadRecipesByType(mealTypes[selectedRecipeIndex]);
               },
-            child: recipesForType.isEmpty
-                ? const Center(child: Text("No meals found for selected type."))
-                : ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: recipesForType.length,
-              itemBuilder: (context, index) {
-                final recipe = recipesForType[index];
-                final recipeId = recipe['recipe_id'];
+              child: recipesForType.isEmpty
+                  ? const Center(child: Text("No meals found for selected type."))
+                  : ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: recipesForType.length,
+                itemBuilder: (context, index) {
+                  final recipe = recipesForType[index];
+                  final id = recipe['id'];
 
-                return MealCard(
-                  title: recipe['title'] ?? 'Unnamed Meal',
-                  subtitle: Text(
-                    recipe['source'] == 'MealPlans' ? 'From Meal Plans' : 'Added Manually',
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
-                  ),
-                  calories: (recipe['calories'] ?? 0).toDouble(),
-                  protein: (recipe['Protein'] ?? 0).toDouble(),
-                  fats: (recipe['Fats'] ?? 0).toDouble(),
-                  carbs: (recipe['Carbs'] ?? 0).toDouble(),
-                  imageUrl: recipe['image_url'] ?? 'assets/images/meal.png',
+                  return MealCard(
+                    title: recipe['title'] ?? 'Unnamed Meal',
+                    subtitle: Text(
+                      recipe['source'] == 'MealPlans'
+                          ? 'From Meal Plans'
+                          : 'Added Manually',
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                    calories: (recipe['calories'] ?? 0),
+                    protein: (recipe['Protein'] ?? 0),
+                    fats: (recipe['Fats'] ?? 0),
+                    carbs: (recipe['Carbs'] ?? 0),
+                    imageUrl: recipe['image_url'] ?? 'assets/images/meal.png',
 
-                    onDelete: () async {
-                      final source = recipe['source'];
-                      final id = recipe['recipe_id'] ?? recipe['id'] ?? recipe['docId'];
+                  /*onDelete: () async {
+                    try {
+                      await _logService.deleteMealPlan(id);
 
-                      print('Attempting to delete from $source with id: $id');
+                      // بعد الحذف، أعد تحميل الوصفات حسب نوع الوجبة
+                      await loadRecipesByType(mealTypes[selectedRecipeIndex]);
 
-                      if (id != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Meal deleted successfully')),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Failed to delete meal')),
+                      );
+                    }
+                  }*/
+                      onDelete: () async {
                         try {
-                          if (source == 'Recipes') {
-                            await FirebaseFirestore.instance.collection('Recipes').doc(id).delete();
-                            print('Done deleting from Recipes');
-                          } else if (source == 'MealPlans') {
-                            await FirebaseFirestore.instance.collection('MealPlans').doc(id).delete();
-                            print('Done deleting from MealPlans');
-                          } else {
-                            print('Unknown source: $source');
+                          // حذف الوجبة من قاعدة البيانات
+                          await _logService.deleteMealPlan(id);
+
+                          // إعادة تحميل الوصفات لنوع الوجبة الحالي
+                          await loadRecipesByType(mealTypes[selectedRecipeIndex]);
+
+                          // إعادة حساب وحفظ بيانات التغذية اليومية بعد الحذف
+                          if (userId != null) {
+                            await _logService.saveDailyNutritionSummary(userId!, DateTime.now());
+
+                            // إعادة تحميل بيانات الكالوريز والماكروز المعروضة في الشاشة
+                            await loadCaloriesFromLogs();
                           }
 
-                          // Remove from local list to update UI immediately
-                          setState(() {
-                            recipesForType.removeAt(index);
-                          });
-
-                          // Optionally reload summary data after deletion
-                          await _logService.saveDailyNutritionSummary(user_id!, DateTime.now());
-                          await loadCaloriesFromLogs();
-
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Meal deleted successfully')),
+                          );
                         } catch (e) {
-                          print('Error deleting document: $e');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Failed to delete meal')),
+                          );
                         }
                       }
-                    }
 
-                );
-              },
+
+
+                  );
+                },
+              ),
             ),
           ),
-          )
         ],
       ),
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 7),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: -1),
     );
   }
 }
