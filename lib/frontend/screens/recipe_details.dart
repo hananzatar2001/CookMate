@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'Ingredients_Page.dart';
 import 'Steps_Page.dart';
 import '../../backend/controllers/recipe_controller.dart';
+import 'home_page_screen.dart';
 
 class RecipeDetailsPage extends StatefulWidget {
   final Map<String, dynamic> recipe;
@@ -43,7 +44,15 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: const BackButton(),
+        leading:IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+            );
+          },
+        ),
         actions: [
           CustomSaveButton(
             isSaved: controller.isSaved,

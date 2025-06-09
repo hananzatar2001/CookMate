@@ -8,7 +8,6 @@ import '../../backend/models/recipe_model.dart';
 import '../../backend/services/favorite_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../backend/controllers/meal_planning_controller.dart';
-import 'home_page_screen.dart';
 import 'notifications_screen.dart';
 
 class MealPlanningScreen extends StatefulWidget {
@@ -49,23 +48,35 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
       });
     }
   }
-
   Future<void> fetchFavorites() async {
     if (user_id == null) return;
 
-    final snapshot = await FirebaseFirestore.instance
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+    final snapshot = await _firestore
         .collection('Favorites')
-        .where('user_id', isEqualTo: user_id)   // بحث بـ سترينج user_id
+        .where('user_id', isEqualTo: user_id) // هذا صح لأنه user_id عبارة عن String
         .get();
 
     setState(() {
       favoriteRecipeIds = snapshot.docs.map((doc) {
         final data = doc.data();
-        final recipeRef = data['recipe_id'] as DocumentReference;
-        return recipeRef.id;
-      }).toSet();
+
+        // ✅ تحقق هل recipe_id هو DocumentReference أو String
+        if (data['recipe_id'] is DocumentReference) {
+          final ref = data['recipe_id'] as DocumentReference;
+          return ref.id;
+        } else if (data['recipe_id'] is String) {
+          final refPath = data['recipe_id'] as String;
+          // إذا المسار كان من نوع "/MealPlans/xyz" بنرجع آخر جزء فقط
+          return refPath.split('/').last;
+        } else {
+          return '';
+        }
+      }).where((id) => id.isNotEmpty).toSet();
     });
   }
+
   Future<void> fetchMeals() async {
     if (user_id == null) return;
 
@@ -84,15 +95,7 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading:IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => HomeScreen()),
-            );
-          },
-        ),
+        leading: BackButton(),
         title: const Text("Meal Planning"),
         actions: [
           if (user_id != null)
@@ -117,7 +120,6 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
               },
             ),
         ],
-
       ),
       body: Column(
         children: [
@@ -195,7 +197,8 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
                         } else {
                           await _favoriteService.addFavorite(
                             user_id: user_id!,
-                            recipeId: meal.recipe_id!,
+                            recipeDocId: meal.recipe_id!,
+
                           );
                           setState(() {
                             favoriteRecipeIds.add(meal.recipe_id!);

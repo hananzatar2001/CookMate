@@ -27,7 +27,7 @@ class _FavoritesRecipesScreenState extends State<FavoritesRecipesScreen> {
 
   Future<void> _loadUserId() async {
     final prefs = await SharedPreferences.getInstance();
-    final storedUserId = prefs.getString('userId');
+    final storedUserId = prefs.getString('user_id');
 
     if (storedUserId != null) {
       setState(() {
