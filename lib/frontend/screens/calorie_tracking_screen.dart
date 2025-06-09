@@ -291,22 +291,6 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
                     carbs: (recipe['Carbs'] ?? 0),
                     imageUrl: recipe['image_url'] ?? 'assets/images/meal.png',
 
-                  /*onDelete: () async {
-                    try {
-                      await _logService.deleteMealPlan(id);
-
-                      // بعد الحذف، أعد تحميل الوصفات حسب نوع الوجبة
-                      await loadRecipesByType(mealTypes[selectedRecipeIndex]);
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Meal deleted successfully')),
-                      );
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Failed to delete meal')),
-                      );
-                    }
-                  }*/
                       onDelete: () async {
                         try {
                           // حذف الوجبة من قاعدة البيانات

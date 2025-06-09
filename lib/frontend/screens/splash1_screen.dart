@@ -17,7 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkSession(); // ✅ تحقق من الجلسة عند التشغيل
+    _checkSession(); //  تحقق من الجلسة عند التشغيل
   }
 
   Future<void> _checkSession() async {
@@ -25,13 +25,13 @@ class _SplashScreenState extends State<SplashScreen> {
     final userId = prefs.getString('userId');
 
     if (userId != null && mounted) {
-      // ✅ إذا في userId → روح عالهوم
+      //  إذا في userId → روح عالهوم
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
     }
-    // ❌ إذا ما في userId → يكمّل splash عادي (بدون توجيه)
+    //  إذا ما في userId → يكمّل splash عادي (بدون توجيه)
   }
 
   void _showQuoteOverlay() {

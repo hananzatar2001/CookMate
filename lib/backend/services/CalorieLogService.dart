@@ -39,7 +39,7 @@ class CalorieLogService {
         'recipe_count': recipeCount,
       };
     } catch (e) {
-      print('❌ Error calculating daily intake: $e');
+      print(' Error calculating daily intake: $e');
       return {
         'calories': 0,
         'protein': 0,
@@ -67,9 +67,9 @@ class CalorieLogService {
         'recipe_count': result['recipe_count'],
       });
 
-      print('✅ Daily summary saved successfully.');
+      print(' Daily summary saved successfully.');
     } catch (e) {
-      print('❌ Error saving daily summary: $e');
+      print(' Error saving daily summary: $e');
     }
   }
   Future<List<Map<String, dynamic>>> getLogsFromMealPlans(String userId, DateTime date, String mealType) async {
@@ -124,7 +124,7 @@ class CalorieLogService {
         };
       }).toList();
     } catch (e) {
-      print('❌ Error fetching meal plans: $e');
+      print(' Error fetching meal plans: $e');
       return [];
     }
   }
@@ -155,9 +155,9 @@ class CalorieLogService {
   Future<void> deleteMealPlan(String id) async {
     try {
       await _firestore.collection('MealPlans').doc(id).delete();
-      print('✅ MealPlan with id $id deleted successfully.');
+      print(' MealPlan with id $id deleted successfully.');
     } catch (e) {
-      print('❌ Error deleting MealPlan with id $id: $e');
+      print(' Error deleting MealPlan with id $id: $e');
       rethrow;  // ترمي الخطأ للأعلى عشان يتعامل معها الواجهة مثلاً
     }
   }

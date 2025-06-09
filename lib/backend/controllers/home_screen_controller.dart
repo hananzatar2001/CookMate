@@ -1,4 +1,3 @@
-// backend/controllers/home_screen_controller.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';

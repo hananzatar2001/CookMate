@@ -19,7 +19,7 @@ class _SessionHandlerScreenState extends State<SessionHandlerScreen> {
   }
 
   Future<void> _checkSession() async {
-    await Future.delayed(const Duration(seconds: 3)); // 👈 خليها بعد سبلاش متحركة
+    await Future.delayed(const Duration(seconds: 3)); //  خليها بعد سبلاش متحركة
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('userId');
 

@@ -13,7 +13,7 @@ class SavedRecipeService {
 
       for (var doc in saveSnapshot.docs) {
         final data = doc.data();
-        print("🔥 found: $data");
+        print(" found: $data");
 
         if (!data.containsKey('title') || !data.containsKey('type')) continue;
 

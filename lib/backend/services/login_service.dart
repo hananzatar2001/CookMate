@@ -16,7 +16,7 @@ class LoginService {
         password: password,
       );
 
-      print('✅ Login successful for ${userCredential.user?.uid}');
+      print(' Login successful for ${userCredential.user?.uid}');
       return null;
     } catch (e) {
       print(' Login failed:$e');

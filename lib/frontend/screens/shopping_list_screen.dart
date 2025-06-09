@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../backend/services/shopping_list_service.dart';
 import '../../frontend/widgets/NavigationBar.dart';
-import '../../frontend/widgets/notification_bell.dart';
 import 'home_page_screen.dart';
 
 class ShoppingListScreen extends StatefulWidget {

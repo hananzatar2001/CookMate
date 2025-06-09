@@ -88,7 +88,7 @@ class _ProfileCollectionSectionState extends State<ProfileCollectionSection> {
         if (index == _recipes.length) {
           return const Align(
             alignment: Alignment.centerRight,
-              child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(),
 
           );
         }

@@ -1,10 +1,10 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 class ProfileCounterService {
   static Future<Map<String, int>> fetchProfileCounts(String userId) async {
     final firestore = FirebaseFirestore.instance;
 
-    // Recipes
+
     final allRecipes = await firestore.collection('Recipes').get();
     final userRecipes = allRecipes.docs.where((doc) {
       final uid = doc.data()['user_id'];
@@ -13,7 +13,7 @@ class ProfileCounterService {
       return false;
     }).toList();
 
-    // Saved
+
     final savedQuery = await firestore
         .collection('SaveRecipes')
         .where('userId', isEqualTo: userId)
@@ -22,18 +22,12 @@ class ProfileCounterService {
     final savedIds = <String>{};
     for (var doc in savedQuery.docs) {
       final data = doc.data();
-      final recipeField = data['recipe_id'];
-      if (recipeField is DocumentReference) {
-        savedIds.add(recipeField.id);
-      } else if (recipeField is String && recipeField.contains('/')) {
-        savedIds.add(recipeField.split('/').last);
-      } else if (data.containsKey('recipe')) {
-        final map = data['recipe'] as Map<String, dynamic>;
-        savedIds.add(map['id'].toString());
+      if (data.containsKey('id')) {
+        savedIds.add(data['id'].toString());
       }
     }
 
-    // Favorites
+
     final favoritesQuery = await firestore
         .collection('Favorites')
         .where('user_id', isEqualTo: userId)

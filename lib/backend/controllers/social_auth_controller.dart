@@ -103,11 +103,11 @@ class SocialAuth {
         'Diseases': '',
         'Are you a vegetarian?': false,
       });
-      print('✅ New user saved to Firestore.');
+      print(' New user saved to Firestore.');
     } else {
 
       userId = querySnapshot.docs.first.id;
-      print('✅ Existing user loaded from Firestore.');
+      print(' Existing user loaded from Firestore.');
     }
 
     final prefs = await SharedPreferences.getInstance();

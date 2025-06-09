@@ -62,7 +62,7 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
       favoriteRecipeIds = snapshot.docs.map((doc) {
         final data = doc.data();
 
-        // ✅ تحقق هل recipe_id هو DocumentReference أو String
+        //  تحقق هل recipe_id هو DocumentReference أو String
         if (data['recipe_id'] is DocumentReference) {
           final ref = data['recipe_id'] as DocumentReference;
           return ref.id;
