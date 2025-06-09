@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../../backend/services/CalorieLogService.dart';
@@ -17,142 +18,129 @@ class CalorieTrackingScreen extends StatefulWidget {
 }
 
 class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
-  final _logService = CalorieLogService();
-  String? user_id;
+  final CalorieLogService _logService = CalorieLogService();
+  String? userId;
 
-  double totalCaloriesTaken = 0;
-  int selectedRecipeIndex = 0;
-  bool isLoading = true;
   double userCaloriesGoal = 2200;
   double userProteinGoal = 90;
   double userFatsGoal = 70;
   double userCarbsGoal = 110;
+
+  double totalCaloriesTaken = 0;
   double totalProteinTaken = 0;
   double totalFatsTaken = 0;
   double totalCarbsTaken = 0;
 
+  bool isLoading = true;
+
+  int selectedRecipeIndex = 0;
+  final List<String> mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
+
   List<Map<String, dynamic>> recipesForType = [];
-
-  Future<void> loadUserCaloriesGoal()
-  async {
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('UserCaloriesNeeded')
-          .doc(user_id)
-          .get();
-
-      if (doc.exists) {
-        final data = doc.data()!;
-        setState(() {
-          userCaloriesGoal = (data['calories'] ?? 0).toDouble();
-          userProteinGoal = (data['Protein'] ?? 0).toDouble();
-          userFatsGoal = (data['Fats'] ?? 0).toDouble();
-          userCarbsGoal = (data['Carbs'] ?? 0).toDouble();
-        });
-      }
-    } catch (e) {
-      print('Error loading user calorie goals: $e');
-    }
-  }
-
 
   @override
   void initState() {
     super.initState();
-    loadUserIdAndData();
+    loadUserData();
   }
 
-  Future<void> loadUserIdAndData() async {
-    print('Loading user ID from SharedPreferences...');
+  Future<void> loadUserData() async {
+    setState(() {
+      isLoading = true;
+    });
+
     final prefs = await SharedPreferences.getInstance();
     final storedUserId = prefs.getString('userId');
 
     if (storedUserId != null) {
-      setState(() {
-        user_id = storedUserId;
-      });
-      print('User ID loaded: $user_id');
-
-      await loadUserCaloriesGoal();
-      await _logService.saveDailyNutritionSummary(user_id!, DateTime.now());
+      userId = storedUserId;
+      await loadUserGoals();
+      await _logService.saveDailyNutritionSummary(userId!, DateTime.now());
       await loadCaloriesFromLogs();
+      await loadRecipesByType(mealTypes[selectedRecipeIndex]);
+      await _logService.printDailyNutritionSummary(userId!, DateTime.now(), mealTypes[selectedRecipeIndex]);
 
-      final defaultType = ['Breakfast', 'Lunch', 'Dinner', 'Snack'][selectedRecipeIndex];
-      print('Loading recipes for default type: $defaultType');
-      await loadRecipesByType(defaultType);
-    } else {
-      setState(() {
-        user_id = null;
-      });
-      print('No user ID found in SharedPreferences');
     }
 
     setState(() {
       isLoading = false;
     });
   }
-
-  Future<void> loadCaloriesFromLogs() async {
-    final today = DateTime.now();
-    final logDocId = '${user_id}_${today.toIso8601String().split('T')[0]}';
-
-    print('📄 Trying to load CalorieLogs for doc ID: $logDocId');
+  Future<void> loadUserGoals() async {
+    if (userId == null) return;
 
     try {
       final doc = await FirebaseFirestore.instance
-          .collection('CalorieLogs')
-          .doc(logDocId)
+          .collection('UserCaloriesNeeded')
+          .doc(userId)
           .get();
 
       if (doc.exists) {
         final data = doc.data()!;
-        print('📊 Calorie log data: $data');
+        setState(() {
+          userCaloriesGoal = (data['calories'] ?? 2200).toDouble();
+          userProteinGoal = (data['Protein'] ?? 90).toDouble();
+          userFatsGoal = (data['Fats'] ?? 70).toDouble();
+          userCarbsGoal = (data['Carbs'] ?? 110).toDouble();
+        });
+      }
+    } catch (e) {
+      print('❌ Error loading user goals: $e');
+    }
+  }
+
+  Future<void> loadCaloriesFromLogs() async {
+    if (userId == null) return;
+
+    try {
+      final today = DateTime.now();
+      final docId = '${userId}_${today.toIso8601String().split('T')[0]}';
+
+      final doc = await FirebaseFirestore.instance
+          .collection('CalorieLogs')
+          .doc(docId)
+          .get();
+
+      if (doc.exists) {
+        final data = doc.data()!;
         setState(() {
           totalCaloriesTaken = (data['Calories taken'] ?? 0).toDouble();
           totalProteinTaken = (data['protein taken'] ?? 0).toDouble();
-          totalFatsTaken = (data['Fatss taken'] ?? 0).toDouble(); // ← صح
-          totalCarbsTaken = (data['Carbs taken'] ?? 0).toDouble(); // ← صح
-
+          totalFatsTaken = (data['Fats taken'] ?? 0).toDouble();
+          totalCarbsTaken = (data['Carbs taken'] ?? 0).toDouble();
         });
       } else {
-        print('No log found for today.');
+        setState(() {
+          totalCaloriesTaken = 0;
+          totalProteinTaken = 0;
+          totalFatsTaken = 0;
+          totalCarbsTaken = 0;
+        });
       }
     } catch (e) {
-      print('Error loading CalorieLogs: $e');
+      print('❌ Error loading daily log: $e');
     }
+  }
+
+  Future<void> loadRecipesByType(String mealType) async {
+    if (userId == null) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    final recipes = await _logService.getLogsFromMealPlans(userId!, DateTime.now(), mealType);
+
+    setState(() {
+      recipesForType = recipes;
+      isLoading = false;
+    });
   }
 
   Color getProgressColor(double percent) {
     if (percent < 0.5) return Colors.green;
-    if (percent < 0.8) return Colors.orange;
+    if (percent < 0.75) return Colors.orange;
     return Colors.red;
-  }
-  Future<void> loadRecipesByType(String type) async {
-    if (user_id == null) return;
-    final today = DateTime.now();
-
-    final mealPlanLogs = await _logService.getLogsFromMealPlans(user_id!, today, type);
-
-    // دمج القائمتين
-    List<Map<String, dynamic>> combined = [
-      ...mealPlanLogs.map((e) {
-        e['source'] = 'MealPlans';
-        return e;
-      }),
-    ];
-
-    final uniqueMap = <String, Map<String, dynamic>>{};
-    for (var item in combined) {
-      final id = item['recipe_id'] ?? item['id'] ?? item['docId'] ?? '';
-      if (id.isNotEmpty && !uniqueMap.containsKey(id)) {
-        uniqueMap[id] = item;
-      }
-    }
-
-    setState(() => recipesForType = uniqueMap.values.toList());
-
-    await _logService.saveDailyNutritionSummary(user_id!, today);
-    await loadCaloriesFromLogs();
   }
 
   @override
@@ -162,6 +150,7 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
+
     final percent = userCaloriesGoal > 0
         ? (totalCaloriesTaken / userCaloriesGoal).clamp(0.0, 1.0)
         : 0.0;
@@ -181,7 +170,15 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               centerTitle: true,
-              //actions: [NotificationBell(unreadCount: 5)],
+             // actions: [NotificationBell(unreadCount: 5)],
+              backgroundColor: Colors.white,
+              elevation: 0,
+              iconTheme: const IconThemeData(color: Colors.black),
+              titleTextStyle: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
             ),
           ),
         ),
@@ -245,9 +242,13 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
               onChanged: (index) async {
                 setState(() {
                   selectedRecipeIndex = index;
+                  isLoading = true;
                 });
                 final types = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
                 await loadRecipesByType(types[index]);
+                setState(() {
+                  isLoading = false;
+                });
               },
             ),
           ),
@@ -258,68 +259,44 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
                 final types = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
                 await loadRecipesByType(types[selectedRecipeIndex]);
               },
-            child: recipesForType.isEmpty
-                ? const Center(child: Text("No meals found for selected type."))
-                : ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: recipesForType.length,
-              itemBuilder: (context, index) {
-                final recipe = recipesForType[index];
-                final recipeId = recipe['recipe_id'];
+              child: recipesForType.isEmpty
+                  ? const Center(child: Text("No meals found for selected type."))
+                  : ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: recipesForType.length,
+                itemBuilder: (context, index) {
+                  final recipe = recipesForType[index];
+                  final recipeId = recipe['recipe_id'];
 
-                return MealCard(
-                  title: recipe['title'] ?? 'Unnamed Meal',
-                  subtitle: Text(
-                    recipe['source'] == 'MealPlans' ? 'From Meal Plans' : 'Added Manually',
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
-                  ),
-                  calories: (recipe['calories'] ?? 0).toDouble(),
-                  protein: (recipe['Protein'] ?? 0).toDouble(),
-                  fats: (recipe['Fats'] ?? 0).toDouble(),
-                  carbs: (recipe['Carbs'] ?? 0).toDouble(),
-                  imageUrl: recipe['image_url'] ?? 'assets/images/meal.png',
-
+                  return MealCard(
+                    title: recipe['title'] ?? 'Unnamed Meal',
+                    subtitle: Text(
+                      recipe['source'] == 'MealPlans' ? 'From Meal Plans' : 'Added Manually',
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                    calories: (recipe['calories'] ?? 0).toDouble(),
+                    protein: (recipe['Protein'] ?? 0).toDouble(),
+                    fats: (recipe['Fats'] ?? 0).toDouble(),
+                    carbs: (recipe['Carbs'] ?? 0).toDouble(),
+                    imageUrl: recipe['image_url'] ?? 'assets/images/meal.png',
                     onDelete: () async {
                       final source = recipe['source'];
-                      final id = recipe['recipe_id'] ?? recipe['id'] ?? recipe['docId'];
-
-                      print('Attempting to delete from $source with id: $id');
-
-                      if (id != null) {
-                        try {
-                          if (source == 'Recipes') {
-                            await FirebaseFirestore.instance.collection('Recipes').doc(id).delete();
-                            print('Done deleting from Recipes');
-                          } else if (source == 'MealPlans') {
-                            await FirebaseFirestore.instance.collection('MealPlans').doc(id).delete();
-                            print('Done deleting from MealPlans');
-                          } else {
-                            print('Unknown source: $source');
-                          }
-
-                          // Remove from local list to update UI immediately
-                          setState(() {
-                            recipesForType.removeAt(index);
-                          });
-
-                          // Optionally reload summary data after deletion
-                          await _logService.saveDailyNutritionSummary(user_id!, DateTime.now());
-                          await loadCaloriesFromLogs();
-
-                        } catch (e) {
-                          print('Error deleting document: $e');
-                        }
+                      if (source == 'MealPlans') {
+                        await _logService.removeMealPlanRecipe(userId!, recipeId);
                       }
-                    }
+                      await loadCaloriesFromLogs();
+                      await loadRecipesByType(mealTypes[selectedRecipeIndex]);
+                      await _logService.printDailyNutritionSummary(userId!, DateTime.now(), mealTypes[selectedRecipeIndex]);
 
-                );
-              },
+                    },
+                  );
+                },
+              ),
             ),
           ),
-          )
         ],
       ),
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 7),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: -1),
     );
   }
 }
