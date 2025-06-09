@@ -13,7 +13,7 @@ class SavedPageCategoryFilter extends StatefulWidget {
 }
 
 class _SavedPageCategoryFilterState extends State<SavedPageCategoryFilter> {
-  final List<String> categories = ['All', 'Breakfast', 'Lunch', 'Dinner', 'Snakes'];
+  final List<String> categories = ['All', 'Breakfast', 'Lunch', 'Dinner', 'Snack'];
 
   int selectedIndex = 0;
 

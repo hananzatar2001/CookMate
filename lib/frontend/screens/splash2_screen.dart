@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'home_page_screen.dart';
 import 'login_screen.dart';
 
 class CookingQuoteScreen extends StatefulWidget {
@@ -33,7 +35,29 @@ class _CookingQuoteScreenState extends State<CookingQuoteScreen>
       end: 1,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
-    _controller.forward(); // ابدأ الأنيميشن
+    _controller.forward();
+
+
+    Future.delayed(const Duration(seconds: 3), _checkSessionAndNavigate);
+  }
+
+  Future<void> _checkSessionAndNavigate() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
+
+    if (!mounted) return;
+
+    if (userId != null && userId.isNotEmpty) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+      );
+    }
   }
 
   @override
@@ -45,7 +69,7 @@ class _CookingQuoteScreenState extends State<CookingQuoteScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.5), // شفافية فوق الخلفية
+      backgroundColor: Colors.black.withOpacity(0.5),
       body: SafeArea(
         child: Align(
           alignment: Alignment.bottomCenter,
@@ -78,7 +102,6 @@ class _CookingQuoteScreenState extends State<CookingQuoteScreen>
                             MaterialPageRoute(builder: (_) => const LoginPage()),
                                 (route) => false,
                           );
-
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0x99CDE26D),
@@ -96,7 +119,6 @@ class _CookingQuoteScreenState extends State<CookingQuoteScreen>
                         ),
                       ),
                     )
-
                   ],
                 ),
               ),

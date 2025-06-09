@@ -1,9 +1,9 @@
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
 import '../../backend/controllers/home_screen_controller.dart';
-import '../widgets/notification_bell.dart';
 import '../widgets/RecipeTypeSelector.dart';
+import '../widgets/calorie_card_home.dart';
 import '../widgets/home_view_recipe_card.dart';
 import '../widgets/NavigationBar.dart';
 import '../widgets/hamburger_menu.dart';
@@ -66,9 +66,19 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Text(dayName, style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
               Text(dateText, style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
-              _buildGaugeCard(),
-              const SizedBox(height: 10),
+              const SizedBox(height: 15),
+              CalorieCardHome(
+                caloriesTaken: controller.caloriesTaken,
+                userCaloriesGoal: controller.userCaloriesGoal,
+                totalProteinTaken: controller.totalProteinTaken,
+                totalCarbsTaken: controller.totalCarbsTaken,
+                totalFatsTaken: controller.totalFatsTaken,
+                userProteinGoal: controller.userProteinGoal,
+                userCarbsGoal: controller.userCarbsGoal,
+                userFatsGoal: controller.userFatsGoal,
+              ),
+
+              const SizedBox(height: 20),
               const Text('Recipes', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               Center(
@@ -121,100 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildGaugeCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9FCE6),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 5,
-            child: SizedBox(
-              height: 150,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
-                    radiusFactor: 0.9,
-                    minimum: 0,
-                    maximum: controller.userCaloriesGoal,
-                    showLabels: false,
-                    showTicks: false,
-                    startAngle: 180,
-                    endAngle: 0,
-                    axisLineStyle: AxisLineStyle(
-                      thickness: 0.2,
-                      color: Colors.orange.shade100,
-                      thicknessUnit: GaugeSizeUnit.factor,
-                    ),
-                    pointers: <GaugePointer>[
-                      RangePointer(
-                        value: controller.caloriesTaken,
-                        width: 0.2,
-                        color: Colors.deepOrange,
-                        cornerStyle: CornerStyle.bothCurve,
-                        sizeUnit: GaugeSizeUnit.factor,
-                      ),
-                    ],
-                    annotations: <GaugeAnnotation>[
-                      GaugeAnnotation(
-                        angle: 90,
-                        positionFactor: 0.1,
-                        widget: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text('${controller.caloriesTaken.toInt()} Kcal',
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                            Text('of ${controller.userCaloriesGoal.toInt()} kcal',
-                                style: const TextStyle(fontSize: 14, color: Colors.black54)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            flex: 5,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildNutrientLine("Protein", controller.totalProteinTaken, controller.userProteinGoal, Colors.green),
-                _buildNutrientLine("Carbs", controller.totalCarbsTaken, controller.userCarbsGoal, Colors.orange),
-                _buildNutrientLine("Fat", controller.totalFatsTaken, controller.userFatsGoal, Colors.red),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildNutrientLine(String label, double value, double target, Color color) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 2),
-          LinearProgressIndicator(
-            value: (value / target).clamp(0.0, 1.0),
-            color: color,
-            backgroundColor: Colors.grey.shade200,
-            minHeight: 5,
-          ),
-          const SizedBox(height: 2),
-          Text('${value.toInt()} / ${target.toInt()}g', style: const TextStyle(fontSize: 12)),
-        ],
-      ),
-    );
-  }
+
+
 }

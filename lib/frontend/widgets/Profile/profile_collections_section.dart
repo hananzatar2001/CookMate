@@ -3,7 +3,7 @@ import 'package:cookmate/frontend/widgets/Profile/profile_item_card.dart';
 import 'package:flutter/material.dart';
 import '../../../backend/models/profile_Recipe_view_model.dart';
 import '../../../backend/services/profile_collection_section_service.dart';
-import '../../screens/discovery_recipes.dart';
+import '../../screens/recipe_details.dart';
 
 class ProfileCollectionSection extends StatefulWidget {
   final String userId;
@@ -104,11 +104,17 @@ class _ProfileCollectionSectionState extends State<ProfileCollectionSection> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => DiscoveryRecipesPage(
+                builder: (context) => RecipeDetailsPage(
+                  recipe: {
+                    'id': recipe.id,
+                    'title': recipe.title,
+                    'image_url': recipe.imageUrl,
 
+                  },
                 ),
               ),
             );
+
           },
         );
       },

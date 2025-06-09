@@ -23,6 +23,10 @@ class HomeScreenController {
 
   final List<String> recipeTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
 
+  Future<String?> getUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userId');
+  }
   Future<void> initialize() async {
     await refreshAll();
   }
@@ -78,6 +82,7 @@ class HomeScreenController {
   }
 
   Future<void> fetchRecipesForSelectedType() async {
+
     _isLoading = true;
     final selectedType = recipeTypes[selectedRecipeIndex].toLowerCase();
 
