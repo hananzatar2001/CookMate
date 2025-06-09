@@ -128,7 +128,6 @@ class CalorieLogService {
       return [];
     }
   }
-  Future<void> removeMealPlanRecipe(String s, recipeId) async {}
   Future<void> printDailyNutritionSummary(String userId, DateTime date, String mealType) async {
     // أولاً تجيب وصفات الوجبة
     final logs = await getLogsFromMealPlans(userId, date, mealType);
@@ -150,8 +149,17 @@ class CalorieLogService {
     // اطبع الCalories taken and macros taken
     print('Calories taken: ${result['calories']}');
     print('Carbs taken: ${result['carbs']}');
-    print('Fats taken: ${result['fats']}');
+    print('Fats taken: ${result['fat']}');
     print('Protein taken: ${result['protein']}');
+  }
+  Future<void> deleteMealPlan(String id) async {
+    try {
+      await _firestore.collection('MealPlans').doc(id).delete();
+      print('✅ MealPlan with id $id deleted successfully.');
+    } catch (e) {
+      print('❌ Error deleting MealPlan with id $id: $e');
+      rethrow;  // ترمي الخطأ للأعلى عشان يتعامل معها الواجهة مثلاً
+    }
   }
 
 }

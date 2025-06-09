@@ -1,4 +1,4 @@
-
+import 'package:cookmate/frontend/screens/home_page_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../../backend/services/CalorieLogService.dart';
@@ -9,6 +9,7 @@ import '../../frontend/widgets/NavigationBar.dart';
 import '../../frontend/widgets/RecipeTypeSelector.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../frontend/screens/home_page_screen.dart';
 
 class CalorieTrackingScreen extends StatefulWidget {
   const CalorieTrackingScreen({super.key});
@@ -21,10 +22,10 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
   final CalorieLogService _logService = CalorieLogService();
   String? userId;
 
-  double userCaloriesGoal = 2200;
-  double userProteinGoal = 90;
-  double userFatsGoal = 70;
-  double userCarbsGoal = 110;
+  double userCaloriesGoal = 0;
+  double userProteinGoal = 0;
+  double userFatsGoal = 0;
+  double userCarbsGoal = 0;
 
   double totalCaloriesTaken = 0;
   double totalProteinTaken = 0;
@@ -60,12 +61,14 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
       await loadRecipesByType(mealTypes[selectedRecipeIndex]);
       await _logService.printDailyNutritionSummary(userId!, DateTime.now(), mealTypes[selectedRecipeIndex]);
 
+      setState(() {});
     }
 
     setState(() {
       isLoading = false;
     });
   }
+
   Future<void> loadUserGoals() async {
     if (userId == null) return;
 
@@ -78,10 +81,10 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
       if (doc.exists) {
         final data = doc.data()!;
         setState(() {
-          userCaloriesGoal = (data['calories'] ?? 2200).toDouble();
-          userProteinGoal = (data['Protein'] ?? 90).toDouble();
-          userFatsGoal = (data['Fats'] ?? 70).toDouble();
-          userCarbsGoal = (data['Carbs'] ?? 110).toDouble();
+          userCaloriesGoal = (data['calories'] ?? 0).toDouble();
+          userProteinGoal = (data['Protein'] ?? 0).toDouble();
+          userFatsGoal = (data['Fats'] ?? 0).toDouble();
+          userCarbsGoal = (data['Carbs'] ?? 0).toDouble();
         });
       }
     } catch (e) {
@@ -164,13 +167,21 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
           child: Padding(
             padding: const EdgeInsets.only(top: 16),
             child: AppBar(
-              leading: const Icon(Icons.arrow_back_ios),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                  );
+                  // أو إذا اسم الروت للصفحة الرئيسية غير /home، استبدله بالاسم الصحيح
+                },
+              ),
               title: const Text(
                 'Calorie Tracking',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               centerTitle: true,
-             // actions: [NotificationBell(unreadCount: 5)],
               backgroundColor: Colors.white,
               elevation: 0,
               iconTheme: const IconThemeData(color: Colors.black),
@@ -244,8 +255,7 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
                   selectedRecipeIndex = index;
                   isLoading = true;
                 });
-                final types = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
-                await loadRecipesByType(types[index]);
+                await loadRecipesByType(mealTypes[index]);
                 setState(() {
                   isLoading = false;
                 });
@@ -256,8 +266,7 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
-                final types = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
-                await loadRecipesByType(types[selectedRecipeIndex]);
+                await loadRecipesByType(mealTypes[selectedRecipeIndex]);
               },
               child: recipesForType.isEmpty
                   ? const Center(child: Text("No meals found for selected type."))
@@ -266,29 +275,66 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
                 itemCount: recipesForType.length,
                 itemBuilder: (context, index) {
                   final recipe = recipesForType[index];
-                  final recipeId = recipe['recipe_id'];
+                  final id = recipe['id'];
 
                   return MealCard(
                     title: recipe['title'] ?? 'Unnamed Meal',
                     subtitle: Text(
-                      recipe['source'] == 'MealPlans' ? 'From Meal Plans' : 'Added Manually',
+                      recipe['source'] == 'MealPlans'
+                          ? 'From Meal Plans'
+                          : 'Added Manually',
                       style: const TextStyle(color: Colors.grey, fontSize: 12),
                     ),
-                    calories: (recipe['calories'] ?? 0).toDouble(),
-                    protein: (recipe['Protein'] ?? 0).toDouble(),
-                    fats: (recipe['Fats'] ?? 0).toDouble(),
-                    carbs: (recipe['Carbs'] ?? 0).toDouble(),
+                    calories: (recipe['calories'] ?? 0),
+                    protein: (recipe['Protein'] ?? 0),
+                    fats: (recipe['Fats'] ?? 0),
+                    carbs: (recipe['Carbs'] ?? 0),
                     imageUrl: recipe['image_url'] ?? 'assets/images/meal.png',
-                    onDelete: () async {
-                      final source = recipe['source'];
-                      if (source == 'MealPlans') {
-                        await _logService.removeMealPlanRecipe(userId!, recipeId);
-                      }
-                      await loadCaloriesFromLogs();
-                      await loadRecipesByType(mealTypes[selectedRecipeIndex]);
-                      await _logService.printDailyNutritionSummary(userId!, DateTime.now(), mealTypes[selectedRecipeIndex]);
 
-                    },
+                  /*onDelete: () async {
+                    try {
+                      await _logService.deleteMealPlan(id);
+
+                      // بعد الحذف، أعد تحميل الوصفات حسب نوع الوجبة
+                      await loadRecipesByType(mealTypes[selectedRecipeIndex]);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Meal deleted successfully')),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Failed to delete meal')),
+                      );
+                    }
+                  }*/
+                      onDelete: () async {
+                        try {
+                          // حذف الوجبة من قاعدة البيانات
+                          await _logService.deleteMealPlan(id);
+
+                          // إعادة تحميل الوصفات لنوع الوجبة الحالي
+                          await loadRecipesByType(mealTypes[selectedRecipeIndex]);
+
+                          // إعادة حساب وحفظ بيانات التغذية اليومية بعد الحذف
+                          if (userId != null) {
+                            await _logService.saveDailyNutritionSummary(userId!, DateTime.now());
+
+                            // إعادة تحميل بيانات الكالوريز والماكروز المعروضة في الشاشة
+                            await loadCaloriesFromLogs();
+                          }
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Meal deleted successfully')),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Failed to delete meal')),
+                          );
+                        }
+                      }
+
+
+
                   );
                 },
               ),
