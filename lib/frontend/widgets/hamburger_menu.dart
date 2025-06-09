@@ -55,6 +55,17 @@ class _CustomDrawerState extends State<CustomDrawer> {
           ),
           const Divider(height: 30),
           ListTile(
+            leading: const Icon(Icons.shopping_bag_outlined),
+            title: const Text('shopping list'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ShoppingListScreen()),
+              );
+            },
+          ),
+          const Divider(height: 30),
+          ListTile(
             leading: const Icon(Icons.restaurant_menu),
             title: const Text('Meal Planning'),
             onTap: () {
@@ -64,7 +75,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
               );
             },
           ),
-
+          const Divider(height: 30),
           ListTile(
             leading: const Icon(Icons.local_fire_department),
             title: const Text('Calorie Tracker'),
@@ -75,7 +86,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
               );
             },
           ),
-
+          const Divider(height: 30),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),

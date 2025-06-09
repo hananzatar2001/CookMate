@@ -15,7 +15,7 @@ class IngredientsPage extends StatefulWidget {
 }
 
 class _IngredientsPageState extends State<IngredientsPage> {
-  static const String apiKey = 'eaf8e536e30445a4b4862cdcaa7dbb0f';
+  static const String apiKey = '747c317616f247b79c6d9067afde371c';
 
   bool isLoading = true;
   String error = '';
