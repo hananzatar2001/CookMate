@@ -46,7 +46,7 @@ CookMate 🍽️ is a mobile app for your personal cooking. It offers smart reci
 -  For men:
    `BMR = 10 x weight + 6.25 x height - 5 x age + 5.`
 -  For women:
-   `BMR = 10 x weight + 6.25 x height - 5 x age - 161`
+  `BMR = 10 x weight + 6.25 x height - 5 x age - 161`
    
 -  The nutrition taken from meals that day is also shown.
    
@@ -57,7 +57,7 @@ CookMate 🍽️ is a mobile app for your personal cooking. It offers smart reci
 -  On this page, the user can attach any recipe they want. The recipe image can be uploaded from the album.
 -  Select the ingredients from the API.
 -  This API was used.
-  `https://spoonacular.com/food-api`
+-  `https://spoonacular.com/food-api`
 -  Then, select the type of meal.
 -  And the date the meal was consumed.
 -  Then, you can upload it.
@@ -70,149 +70,136 @@ CookMate 🍽️ is a mobile app for your personal cooking. It offers smart reci
   
 **Shopping List**
 -  It allows the user to add the purchases he needs on this page, with the ability to mark the purchases that have been brought.
--  ### 🔔 Rahaf – Notifications Screen
+-  Notifications Screen
 Displays user-specific notifications fetched from Firebase. Includes recipe reminders and alerts tailored to the user.
 
----
+ **Favorites Page**
+-  Displays all recipes marked as favorites by the user. Users can:
+-  View detailed recipe information
+-  Remove from favorites
+-  Share or set alerts
 
-### ⭐ Favorites Page
-Displays all recipes marked as favorites by the user. Users can:
-- View detailed recipe information
-- Remove from favorites
-- Share or set alerts
-
----
-
-### 🔍 Discovery Recipes Page
+**Discovery Recipes Page**
 Shows recipes fetched from:
 - Spoonacular API
 - User-uploaded recipes from Firebase  
-Includes:
+-  Includes:
 - Search functionality
 - Infinite scrolling to explore more recipes
 - Clean grid layout
 
----
+**Ingredients Recipe Page**
+-  Displays ingredients for a selected recipe.  
+-  If the recipe is from the API, possible ingredient substitutes are also shown.
 
-### 🧂 Ingredients Recipe Page
-Displays ingredients for a selected recipe.  
-If the recipe is from the API, possible ingredient substitutes are also shown.
-
----
-
-### 📖 Steps Page
-Provides detailed cooking instructions for the selected recipe.  
-Structured in a step-by-step format to enhance the cooking experience.
-
----
+**Steps Page**
+-  Provides detailed cooking instructions for the selected recipe.  
+-  Structured in a step-by-step format to enhance the cooking experience.
 
 **Recipe Details Page**
-A full recipe view showing:
-- Image and title
-- Ingredients and instructions
-- Nutritional values (calories, protein, fat, etc.)
-- Option to add the recipe to the meal plan
+-  A full recipe view showing:
+-  Image and title
+-   ngredients and instructions
+-  Nutritional values (calories, protein, fat, etc.)
+-   ption to add the recipe to the meal plan
 
-
-**Emanr**
-  
 **Authentication**
--SignupPage
-Function:
-Enables new users to create an account using Firebase services.
-Includes:
-Fields for name, email, and password
-Email duplication check
-User creation in Firebase Auth and Firestore
-Password encryption using SHA256
+-  SignupPage
+-  Function:
+-  Enables new users to create an account using Firebase services.
+-  Includes:
+-  Fields for name, email, and password
+-  Email duplication check
+-  User creation in Firebase Auth and Firestore
+-  Password encryption using SHA256
 
--LoginPage
-Function:
-Allows users to log in using email/password or Google/Facebook authentication.
-Includes:
-Input validation for email and password
-Firebase Auth integration
-Fetching userId from Firestore
-Saving session using SharedPreferences
-Navigates to HomeScreen upon successful login
+-  **LoginPage**
+-  Function:
+-  Allows users to log in using email/password or Google/Facebook authentication.
+-  Includes:
+-  Input validation for email and password
+-  Firebase Auth integration
+-  Fetching userId from Firestore
+-  Saving session using SharedPreferences
+-  Navigates to HomeScreen upon successful login
 
--ForgotPasswordDialog
-Function:
-A dialog box that allows users to reset their password.
-Includes:
-Email input only
-Sends a reset password link using Firebase Auth
-Displays success or error messages via SnackBar
+- **ForgotPasswordDialog**
+-  Function:
+-  A dialog box that allows users to reset their password.
+-  Includes:
+-  Email input only
+-  Sends a reset password link using Firebase Auth
+-  Displays success or error messages via SnackBar
 
 **Home Screen**
--HomeScreen
-Function:
-Main dashboard displayed after user login.
-Includes:
-Displays current date and greeting
-Shows remaining daily calories via a radial gauge
-Fetches personalized meal suggestions from API
-Displays protein, carbs, and fat using calculated values from a custom widget
+-  HomeScreen
+-  Function:
+-  Main dashboard displayed after user login.
+-  Includes:
+-  Displays current date and greeting
+-  Shows remaining daily calories via a radial gauge
+-  Fetches personalized meal suggestions from API
+-  Displays protein, carbs, and fat using calculated values from a custom widget
 
 
 **Splash1 Screen**
--Splash1 Screen
-Function:
-The initial welcome screen shown when the app launches for the first time.
-Includes:
-Display of the CookMate app logo
-A short description: "Personalized recipes, smart meal planning..."
-A Call-to-Action button that navigates to the next screen
+-  Splash1 Screen
+-  Function:
+-  The initial welcome screen shown when the app launches for the first time.
+-  Includes:
+-  Display of the CookMate app logo
+-  A short description: "Personalized recipes, smart meal planning..."
+-  A Call-to-Action button that navigates to the next screen
 
 
   
 **Splash2 Screen**
--Splash2 Screen (CookingQuoteScreen)
-Function:
-An animated motivational quote screen layered transparently over Splash1 before login.
-Includes:
-Animated quote: "Cooking is an art..."
-“Let’s start cooking” button that leads to the LoginPage
+-  Splash2 Screen (CookingQuoteScreen)
+-  Function:
+-  An animated motivational quote screen layered transparently over Splash1 before login.
+-  Includes:
+-  Animated quote: "Cooking is an art..."
+-  “Let’s start cooking” button that leads to the LoginPage
 
 **saved recipes**
--SavedRecipesScreen
-Function:
-Displays all recipes the user has saved.
-Includes:
-Retrieves data from Firestore using SavedRecipeService
-Category filtering (All, Breakfast, Lunch, etc.)
-Navigates to detailed recipe view on tap
+-  SavedRecipesScreen
+-  Function:
+-  Displays all recipes the user has saved.
+-  Includes:
+-  Retrieves data from Firestore using SavedRecipeService
+-  Category filtering (All, Breakfast, Lunch, etc.)
+-  Navigates to detailed recipe view on tap
 
 
   
 **User Profile**
--User Profile Screen
-Function:
-Displays and allows editing of user account details.
-Includes:
-Shows user's name, bio, and profile picture
-Uploads profile image to Cloudinary
-Updates Firestore data on edit
-Displays uploaded, saved, and favorited recipes by category
-Counters show the number of recipes per type
+-  User Profile Screen
+-  Function:
+-  Displays and allows editing of user account details.
+-  Includes:
+-  Shows user's name, bio, and profile picture
+-  Uploads profile image to Cloudinary
+-  Updates Firestore data on edit
+-  Displays uploaded, saved, and favorited recipes by category
+-  Counters show the number of recipes per type
   
 **NavigationBar**
--NavigationBar
-Function:
-Custom bottom navigation bar for page navigation.
-Includes:
-Navigation between Home, Saved Recipes, and Profile
-Highlights the active screen using currentIndex
-Icon-only design with no labels
+-  NavigationBar
+-  Function:
+-  Custom bottom navigation bar for page navigation.
+-  Includes:
+-  Navigation between Home, Saved Recipes, and Profile
+-  Highlights the active screen using currentIndex
+-  Icon-only design with no labels
 
 **SessionHandler**
--SessionHandler (in Splash)
-Function:
-Checks for an active user session on app startup.
-Includes:
-Uses SharedPreferences to check for a saved userId
-If found, navigates directly to HomeScreen
-If not, shows Splash1 → Splash2 → LoginPage
+-  SessionHandler (in Splash)
+-  Function:
+-  Checks for an active user session on app startup.
+-  Includes:
+-  Uses SharedPreferences to check for a saved userId
+-  If found, navigates directly to HomeScreen
+-  If not, shows Splash1 → Splash2 → LoginPage
 
 ----------------------------------------------------------------------------
 ## **Notifications Screen**
@@ -227,11 +214,9 @@ If not, shows Splash1 → Splash2 → LoginPage
 - **4- Run the app:**  
   `flutter run`
 - **Integration:**  
-  - Displays and stores favorite recipes using the Recipe API.
+-  Displays and stores favorite recipes using the Recipe API.
 
----
-
-## **Discovery Recipes Page**
+**Discovery Recipes Page**
 - **4- Run the app:**  
   `flutter run`
 - **Integration:**  
@@ -246,8 +231,6 @@ If not, shows Splash1 → Splash2 → LoginPage
 - **Integration:**  
   - Displays recipe ingredients fetched from the Recipe API.
 
----
-
 ## **Steps Page**
 - **4- Run the app:**  
   `flutter run`
@@ -260,9 +243,9 @@ If not, shows Splash1 → Splash2 → LoginPage
 ## How to Run the Project
 Make sure you have Flutter installed, then run:
 ```bash
-`flutter pub get`
-`flutter run`
-
+flutter pub get
+flutter run`
+```
 
 ## Team
 - Hanan Zatar – Database ,Calorie Tracking ,Meal planning ,Recipe Upload ,Setting screen ,hamburger menu and Shopping List 
