@@ -76,7 +76,7 @@ class HomeScreenController {
       final data = doc.data()!;
       caloriesTaken = (data['Calories taken'] ?? 0).toDouble();
       totalProteinTaken = (data['protein taken'] ?? 0).toDouble();
-      totalFatsTaken = (data['Fatss taken'] ?? 0).toDouble();
+      totalFatsTaken = (data['Fats taken'] ?? 0).toDouble();
       totalCarbsTaken = (data['Carbs taken'] ?? 0).toDouble();
     }
   }
