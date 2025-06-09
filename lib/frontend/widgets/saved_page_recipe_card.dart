@@ -17,65 +17,36 @@ class RecipeCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        margin: const EdgeInsets.all(12),
         padding: const EdgeInsets.all(12),
-        height: 110,
-        decoration: BoxDecoration(
-          color: const Color(0xFFFBFEEC),
-          border: Border.all(
-            color: const Color(0xFF333333),
-            width: 0.4,
-          ),
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 5,
-              offset: const Offset(0, 6),
-              spreadRadius: 2,
-            ),
-          ],
-        ),
+        color: Colors.yellow[100],
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-
-            Container(
+            Image.network(
+              imageUrl,
               width: 90,
               height: 90,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: const Color(0xFF333333),
-                  width: 0.4,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  imageUrl,
-                  width: 90,
-                  height: 90,
-                  fit: BoxFit.cover,
-                ),
-              ),
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return const Icon(Icons.broken_image, size: 50, color: Colors.grey);
+              },
             ),
-            const SizedBox(width: 12),
 
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 10,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+
               ),
-            ),
+            )
           ],
         ),
       ),
     );
+
   }
 }

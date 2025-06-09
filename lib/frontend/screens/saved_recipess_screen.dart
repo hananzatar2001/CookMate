@@ -1,11 +1,10 @@
-import 'package:cookmate/frontend/screens/recipe_details.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../widgets/NavigationBar.dart';
-import '../widgets/saved_page_recipe_card.dart';
-import '../widgets/saved_page_category_filter.dart';
 import '../../backend/services/saved_recipes_service.dart';
+import '../screens/recipe_details.dart';
+import '../widgets/NavigationBar.dart';
 import '../widgets/notification_bell.dart';
-import 'home_page_screen.dart';
+import '../widgets/saved_page_category_filter.dart';
 
 class SavedRecipesScreen extends StatefulWidget {
   final String userId;
@@ -20,6 +19,12 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
   String selectedCategory = 'All';
 
   @override
+  void initState() {
+    super.initState();
+    print("🚀 SavedRecipesScreen loaded with userId: ${widget.userId}");
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -27,15 +32,6 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 60),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-            ),
-
-          ),
           const Center(
             child: Text(
               "My Recipes",
@@ -46,9 +42,7 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
               ),
             ),
           ),
-
           const SizedBox(height: 20),
-
           SavedPageCategoryFilter(
             onCategorySelected: (category) {
               setState(() {
@@ -56,11 +50,9 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
               });
             },
           ),
-
           Expanded(
             child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: SavedRecipeService.fetchSavedRecipes(
-                  widget.userId, selectedCategory),
+              future: SavedRecipeService.fetchSavedRecipes(widget.userId, selectedCategory),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -72,37 +64,39 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
 
                 final recipes = snapshot.data!;
                 return ListView.builder(
-                  padding: const EdgeInsets.only(top: 0),
                   itemCount: recipes.length,
                   itemBuilder: (context, index) {
                     final recipe = recipes[index];
-                    return Column(
-                      children: [
-                        RecipeCard(
-                          title: recipe['title'] ?? 'No title',
-                          imageUrl: recipe['image_url'] ?? '',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => RecipeDetailsPage(
-                                  recipe: {
-                                    'id': recipe['id'],
-                                    'title': recipe['title'],
-                                    'image_url': recipe['image_url'],
-
-                                  },
-                                ),
-                              ),
-                            );
-                          },
+                    return Card(
+                      elevation: 3,
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: ListTile(
+                        leading: Image.network(
+                          recipe['image_url'] ?? '',
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
                         ),
-                        const SizedBox(height: 20),
-                      ],
+                        title: Text(recipe['title'] ?? ''),
+                        subtitle: Text(recipe['type'] ?? ''),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => RecipeDetailsPage(
+                                recipe: {
+                                  'id': recipe['id'],
+                                  'title': recipe['title'],
+                                  'image_url': recipe['image_url'],
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     );
-
                   },
-
                 );
               },
             ),

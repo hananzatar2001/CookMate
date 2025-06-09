@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../backend/services/recipe_discovery_service.dart';
-import '../widgets/NavigationBar.dart';
-import 'home_page_screen.dart';
+import 'calorie_tracking_screen.dart';
 import 'recipe_details.dart';
 import 'package:cookmate/frontend/widgets/notification_bell.dart';
 
@@ -111,7 +110,7 @@ class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => HomeScreen()),
+              MaterialPageRoute(builder: (context) => CalorieTrackingScreen()),
             );
           },
         ),

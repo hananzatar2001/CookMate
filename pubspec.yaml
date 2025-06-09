@@ -30,6 +30,8 @@ dependencies:
   shelf: ^1.4.2
   provider: ^6.1.5
   syncfusion_flutter_gauges: ^29.2.9
+  flutter_launcher_icons: ^0.13.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -43,16 +45,15 @@ dev_dependencies:
 
 # For information on the generic Dart part of this file, see the
 
-
+flutter_icons:
+  android: true
+  ios: true
+  image_path: assets/cookmate.jpeg
 flutter:
-
-
-
-
   uses-material-design: true
-
   assets:
     - assets/google_logo.jpeg
     - assets/facebook_logo.jpeg
     - assets/apple_logo.jpeg
     - assets/cookmate_logo.jpeg
+
