@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 
 class RecipeDiscoveryService {
-  final String apiKey = '6332c6ee82c340aaaaeb91ac7c2be66d';
+  final String apiKey = 'eec6552349ba41a5813b613f4e920261';
 
   Future<List<Map<String, dynamic>>> fetchFromAPI({
     required int offset,

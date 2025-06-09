@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 
 class RecipeDetailsController extends ChangeNotifier {
   final Map<String, dynamic> recipe;
-  final String apiKey = '5cbc633fbbd840a29f5a29225a1ad55f'; // Spoonacular
+  final String apiKey = '7f415babe34244ba95282f0213a48c30'; // Spoonacular
   final String ytApiKey = 'AIzaSyAn4XdXyZ-hLagS-je_kMEXw2M1afcajJ4'; // YouTube
 
   bool isSaved = false;
