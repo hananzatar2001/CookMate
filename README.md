@@ -106,19 +106,14 @@ Structured in a step-by-step format to enhance the cooking experience.
 
 ---
 
-### 📄 Recipe Details Page
+**Recipe Details Page**
 A full recipe view showing:
 - Image and title
 - Ingredients and instructions
 - Nutritional values (calories, protein, fat, etc.)
 - Option to add the recipe to the meal plan
 
----
 
-**name page**
--  Recipe explanation:
--  `Code or link`
-  ---------------------------------------------------------
 **Emanr**
   
 **Authentication**
@@ -265,8 +260,8 @@ If not, shows Splash1 → Splash2 → LoginPage
 ## How to Run the Project
 Make sure you have Flutter installed, then run:
 ```bash
-flutter pub get
-flutter run`
+`flutter pub get`
+`flutter run`
 
 
 ## Team
