@@ -167,19 +167,20 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
           child: Padding(
             padding: const EdgeInsets.only(top: 16),
             child: AppBar(
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
-                  );
-                },
-              ),
+                leading:IconButton(
+                  icon: const Icon(Icons.arrow_back_ios),
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()),
+                    );
+                  },
+                ),
               title: const Text(
                 'Calorie Tracking',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
+
               centerTitle: true,
               backgroundColor: Colors.white,
               elevation: 0,

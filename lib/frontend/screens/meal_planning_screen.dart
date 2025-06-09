@@ -53,12 +53,9 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
   Future<void> fetchFavorites() async {
     if (user_id == null) return;
 
-    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-    final userRef = _firestore.collection('users').doc(user_id);
-
-    final snapshot = await _firestore
+    final snapshot = await FirebaseFirestore.instance
         .collection('Favorites')
-        .where('user_id', isEqualTo: userRef)
+        .where('user_id', isEqualTo: user_id)   // بحث بـ سترينج user_id
         .get();
 
     setState(() {

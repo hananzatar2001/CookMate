@@ -23,14 +23,14 @@ class FavoriteService {
     await docRef.set(favoriteData);
   }
 
+
   Future<void> removeFavorite(String user_id, String recipeId) async {
-    final userRef = _firestore.collection('users').doc(user_id);
     final recipeRef = _firestore.collection('Recipes').doc(recipeId);
 
     final querySnapshot = await _firestore
         .collection('Favorites')
-        .where('user_id', isEqualTo: userRef)
-        .where('recipe_id', isEqualTo: recipeRef)
+        .where('user_id', isEqualTo: user_id)
+        .where('recipe_id', isEqualTo: recipeRef) 
         .get();
 
     for (var doc in querySnapshot.docs) {

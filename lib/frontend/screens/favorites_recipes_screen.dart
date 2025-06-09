@@ -104,8 +104,8 @@ class _FavoritesRecipesScreenState extends State<FavoritesRecipesScreen> {
               MaterialPageRoute(builder: (context) => HomeScreen()),
             );
           },
-
         ),
+
         title: const Text(
           'Favorites Recipes',
           style: TextStyle(color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold),
@@ -243,9 +243,9 @@ class _FavoritesRecipesScreenState extends State<FavoritesRecipesScreen> {
           );
         },
       ),
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 3),
-
       backgroundColor: Colors.white,
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: -1),
+
     );
   }
 

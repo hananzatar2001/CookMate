@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../backend/services/recipe_discovery_service.dart';
+import '../widgets/NavigationBar.dart';
 import 'recipe_details.dart';
 import 'package:cookmate/frontend/widgets/notification_bell.dart';
+
 class DiscoveryRecipesPage extends StatefulWidget {
   const DiscoveryRecipesPage({super.key});
 
@@ -12,6 +14,7 @@ class DiscoveryRecipesPage extends StatefulWidget {
 class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  final ScrollController _scrollController = ScrollController();
 
   final RecipeDiscoveryService _service = RecipeDiscoveryService();
 
@@ -22,10 +25,21 @@ class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
   int offset = 0;
   final int pageSize = 10;
 
+  final String userId = "some_user_id";
+
   @override
   void initState() {
     super.initState();
     fetchRecipes(); // Initial fetch
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200 &&
+          !isLoading &&
+          hasMore) {
+        fetchRecipes(query: _searchController.text.trim());
+      }
+    });
   }
 
   Future<void> fetchRecipes({String query = ''}) async {
@@ -43,10 +57,18 @@ class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
         query: query,
       );
 
+      final newRecipes = [...firestoreRecipes, ...apiRecipes];
+
+      // منع التكرار عبر ids
+      final existingIds = _recipes.map((r) => r['id']).toSet();
+
+      final filteredNewRecipes =
+      newRecipes.where((recipe) => !existingIds.contains(recipe['id'])).toList();
+
       setState(() {
         offset += pageSize;
-        _recipes = [...firestoreRecipes, ...apiRecipes];
-        pressedStates = List.generate(_recipes.length, (_) => false);
+        _recipes.addAll(filteredNewRecipes);
+        pressedStates.addAll(List.generate(filteredNewRecipes.length, (_) => false));
         hasMore = apiRecipes.length == pageSize;
       });
     } catch (e) {
@@ -70,6 +92,7 @@ class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _searchController.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -84,9 +107,7 @@ class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
         title: const Text(
@@ -97,6 +118,15 @@ class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
             color: Colors.black,
           ),
         ),
+        actions: [
+          NotificationBell(
+            userId: userId,
+            onTap: () {
+              Navigator.pushNamed(context, '/notifications', arguments: userId);
+            },
+          ),
+          const SizedBox(width: 12),
+        ],
       ),
       body: Column(
         children: [
@@ -133,6 +163,7 @@ class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
           ),
           Expanded(
             child: GridView.count(
+              controller: _scrollController,
               crossAxisCount: 2,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
@@ -232,35 +263,14 @@ class _DiscoveryRecipesPageState extends State<DiscoveryRecipesPage> {
               }),
             ),
           ),
-          if (hasMore)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: ElevatedButton(
-                onPressed: isLoading
-                    ? null
-                    : () => fetchRecipes(
-                  query: _searchController.text.trim(),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF47551),
-                  foregroundColor: Colors.white,
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: isLoading
-                    ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-                    : const Text('Load More'),
-              ),
+          if (isLoading)
+            const Padding(
+              padding: EdgeInsets.all(12.0),
+              child: CircularProgressIndicator(),
             ),
         ],
       ),
+
     );
   }
 }

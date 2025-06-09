@@ -62,7 +62,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
       body: controller.isLoading
           ? const Center(child: CircularProgressIndicator())
           : buildContent(context, imageUrl),
-      bottomNavigationBar: CustomBottomNavBar(currentIndex: selectedTabIndex),
+      bottomNavigationBar: CustomBottomNavBar(currentIndex: -1),
     );
   }
 

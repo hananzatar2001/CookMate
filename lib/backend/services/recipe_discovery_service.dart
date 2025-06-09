@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 
 class RecipeDiscoveryService {
-  final String apiKey = '5cbc633fbbd840a29f5a29225a1ad55f';
+  final String apiKey = 'eaf8e536e30445a4b4862cdcaa7dbb0f';
 
   Future<List<Map<String, dynamic>>> fetchFromAPI({
     required int offset,
@@ -28,7 +28,7 @@ class RecipeDiscoveryService {
         'source': 'api',
       }).toList();
     } else {
-      throw Exception('Failed to load API recipes');
+      throw Exception('Failed to load API recipe');
     }
   }
 
