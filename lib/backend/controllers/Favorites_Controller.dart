@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Recipe {
   final String id;
@@ -29,12 +29,13 @@ class FavoriteItem {
 
 class FavoritesController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   List<FavoriteItem> favoriteRecipes = [];
 
   Future<void> fetchFavorites() async {
-    final userId = _auth.currentUser?.uid;
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
+
     if (userId == null) {
       favoriteRecipes = [];
       return;
@@ -51,12 +52,10 @@ class FavoritesController {
       final favoriteId = doc.id;
       final data = doc.data();
 
-      // هنا recipe_id هو DocumentReference
       final recipeRef = data['recipe_id'] as DocumentReference?;
       if (recipeRef == null) continue;
 
       final recipeSnap = await recipeRef.get();
-
       if (!recipeSnap.exists) continue;
 
       final recipeData = recipeSnap.data() as Map<String, dynamic>;
@@ -67,8 +66,7 @@ class FavoritesController {
         ingredients: (recipeData['ingredients'] as List<dynamic>?)
             ?.join(', ') ??
             'No ingredients',
-        imageUrl: recipeData['image_url'] ??
-            'https://via.placeholder.com/80',
+        imageUrl: recipeData['image_url'] ?? 'https://via.placeholder.com/80',
       );
 
       favoriteRecipes.add(FavoriteItem(

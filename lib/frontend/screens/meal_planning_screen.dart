@@ -178,7 +178,8 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
                         isFavorite ? Icons.favorite : Icons.favorite_border,
                         color: isFavorite ? Colors.red : null,
                       ),
-                      onPressed: () async {
+                      onPressed: ()
+                      async {
                         if (user_id == null) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('User not logged in')),
@@ -197,7 +198,7 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
                         } else {
                           await _favoriteService.addFavorite(
                             user_id: user_id!,
-                            recipeDocId: meal.recipe_id!,
+                            recipeId: meal.recipe_id!,
 
                           );
                           setState(() {
