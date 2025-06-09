@@ -174,7 +174,6 @@ class _CalorieTrackingScreenState extends State<CalorieTrackingScreen> {
                     context,
                     MaterialPageRoute(builder: (context) => HomeScreen()),
                   );
-                  // أو إذا اسم الروت للصفحة الرئيسية غير /home، استبدله بالاسم الصحيح
                 },
               ),
               title: const Text(
