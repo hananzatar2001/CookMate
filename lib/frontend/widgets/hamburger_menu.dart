@@ -91,7 +91,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),
-            onTap: () => logoutService.logout(context),
+            onTap: () => LogoutService.logout(context),
           ),
 
         ],

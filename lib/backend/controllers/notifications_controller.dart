@@ -16,6 +16,7 @@ class NotificationsController {
   final ValueNotifier<bool> isLoading = ValueNotifier(false);
   final ValueNotifier<String?> error = ValueNotifier(null);
 
+  /// جلب إشعارات المستخدم
   Future<void> fetchNotifications(String userId) async {
     if (userId.isEmpty) {
       error.value = 'User ID is empty';
@@ -29,6 +30,7 @@ class NotificationsController {
       final snapshot = await FirebaseFirestore.instance
           .collection('Notifications')
           .where('userId', isEqualTo: userId)
+          .orderBy('time', descending: true)
           .get();
 
       notifications.value =
@@ -40,6 +42,7 @@ class NotificationsController {
     }
   }
 
+  /// تحديد إشعار كمقروء
   Future<void> markAsRead(String notificationId) async {
     try {
       await FirebaseFirestore.instance
@@ -66,6 +69,27 @@ class NotificationsController {
     } catch (e) {
       error.value = 'Failed to mark notification as read: $e';
       print('NotificationsController: Error in markAsRead: $e');
+    }
+  }
+
+  /// إنشاء إشعار جديد
+  Future<void> createNotification({
+    required String userId,
+    required String message,
+    required String type,
+    String? recipeId,
+  }) async {
+    try {
+      await FirebaseFirestore.instance.collection('Notifications').add({
+        'userId': userId,
+        'message': message,
+        'type': type,
+        'recipeId': recipeId,
+        'time': Timestamp.now(),
+        'isRead': false,
+      });
+    } catch (e) {
+      print('NotificationsController: Error creating notification: $e');
     }
   }
 }

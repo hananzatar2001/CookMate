@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/notification_model.dart';
 import '../services/recipe_home_api_service.dart';
+import 'package:flutter/material.dart';
 
 class HomeScreenController {
   String userId = '';
@@ -16,22 +18,39 @@ class HomeScreenController {
 
   List<Map<String, dynamic>> recipes = [];
   int selectedRecipeIndex = 0;
-  bool _isLoading = true;
-
-  bool get isLoading => _isLoading;
 
   final List<String> recipeTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
+  final ValueNotifier<bool> isLoading = ValueNotifier(false);
+  final ValueNotifier<String?> error = ValueNotifier(null);
+  final ValueNotifier<List<NotificationModel>> notifications = ValueNotifier([]);
 
-  Future<String?> getUserId() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('userId');
-  }
-  Future<void> initialize() async {
+  /// Initialize with context to show snackBar if userId is missing
+  Future<bool> initializeWithContext(BuildContext context) async {
+    final success = await _loadUserIdWithContext(context);
+    if (!success) return false;
+
     await refreshAll();
+    return true;
+  }
+
+  Future<bool> _loadUserIdWithContext(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getString('userId');
+
+    if (id == null || id.isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User ID does not exist. Please login again.')),
+        );
+      }
+      return false;
+    }
+
+    userId = id;
+    return true;
   }
 
   Future<void> refreshAll() async {
-    await _loadUserId();
     await loadUserCaloriesGoal();
     await loadCaloriesFromLogs();
     await fetchRecipesForSelectedType();
@@ -40,11 +59,6 @@ class HomeScreenController {
   Future<void> updateRecipeType(int index) async {
     selectedRecipeIndex = index;
     await fetchRecipesForSelectedType();
-  }
-
-  Future<void> _loadUserId() async {
-    final prefs = await SharedPreferences.getInstance();
-    userId = prefs.getString('userId') ?? '';
   }
 
   Future<void> loadUserCaloriesGoal() async {
@@ -81,16 +95,40 @@ class HomeScreenController {
   }
 
   Future<void> fetchRecipesForSelectedType() async {
-
-    _isLoading = true;
+    isLoading.value = true;
     final selectedType = recipeTypes[selectedRecipeIndex].toLowerCase();
 
     try {
       recipes = await SpoonacularService.fetchRecipes(selectedType);
     } catch (e) {
-      print('Error fetching recipes: \$e');
+      print('Error fetching recipes: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchNotifications(String userId) async {
+    if (userId.isEmpty) {
+      error.value = 'User ID is empty';
+      return;
     }
 
-    _isLoading = false;
+    isLoading.value = true;
+    error.value = null;
+
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('Notifications')
+          .where('userId', isEqualTo: userId)
+          .orderBy('time', descending: true)
+          .get();
+
+      notifications.value =
+          snapshot.docs.map((doc) => NotificationModel.fromDocument(doc)).toList();
+    } catch (e) {
+      error.value = e.toString();
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cookmate/backend/models/user_model.dart';
 import 'package:cookmate/backend/services/user_service.dart';
+import 'package:cookmate/backend/controllers/notifications_controller.dart';
 
 class SettingsController extends ChangeNotifier {
   final UserService _userService = UserService();
@@ -10,7 +11,6 @@ class SettingsController extends ChangeNotifier {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController bioController = TextEditingController();
-
 
   String? user_id;
 
@@ -128,6 +128,13 @@ class SettingsController extends ChangeNotifier {
 
       await _userService.updateUser(user);
       await _userService.saveUserCalories(user);
+
+      //  إرسال إشعار للمستخدم
+      await NotificationsController().createNotification(
+        userId: user_id!,
+        message: 'Your profile has been updated successfully.',
+        type: 'profileUpdate',
+      );
 
       isVegetarianOriginal = isVegetarianTemp;
 

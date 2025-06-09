@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:uuid/uuid.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/recipe_model.dart';
 import '../services/RecipeService.dart';
 import '../services/CloudinaryService.dart';
@@ -29,7 +30,6 @@ class RecipeController {
       imageUrl = await CloudinaryService.uploadImage(imageFile);
     }
 
-
     final recipe_id = "${recipe.user_id}_${const Uuid().v4()}";
 
     final updatedRecipe = Recipe(
@@ -46,6 +46,17 @@ class RecipeController {
       carbs: totalCarbs,
       fats: totalFats,
     );
+
     await _recipeService.uploadRecipe(updatedRecipe);
+
+    // حفظ إشعار في كوليكشن Notifications على Firestore
+    await FirebaseFirestore.instance.collection('Notifications').add({
+      'message': 'Your recipe "${recipe.title}" has been uploaded successfully.',
+      'time': Timestamp.now(),
+      'type': 'recipeUpload',
+      'userId': recipe.user_id,
+      'recipeId': recipe_id,
+      'isRead': false,
+    });
   }
 }

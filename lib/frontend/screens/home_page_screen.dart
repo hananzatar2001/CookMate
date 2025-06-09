@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../backend/controllers/home_screen_controller.dart';
-import '../widgets/RecipeTypeSelector.dart';
-import '../widgets/calorie_card_home.dart';
-import '../widgets/home_view_recipe_card.dart';
-import '../widgets/NavigationBar.dart';
-import '../widgets/hamburger_menu.dart';
-import 'discovery_recipes.dart';
+import '../../frontend/screens/discovery_recipes.dart';
+import '../../frontend/screens/notifications_screen.dart';
+import '../../frontend/widgets/NavigationBar.dart';
+import '../../frontend/widgets/RecipeTypeSelector.dart';
+import '../../frontend/widgets/calorie_card_home.dart';
+import '../../frontend/widgets/hamburger_menu.dart';
+import '../../frontend/widgets/home_view_recipe_card.dart';
+import '../../frontend/widgets/notification_bell.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,11 +20,21 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final HomeScreenController controller = HomeScreenController();
+  String? userId;
 
   @override
   void initState() {
     super.initState();
-    controller.initialize().then((_) => setState(() {}));
+    initializeController();
+  }
+
+  Future<void> initializeController() async {
+    final success = await controller.initializeWithContext(context);
+    if (success) {
+      setState(() {
+        userId = controller.userId;
+      });
+    }
   }
 
   @override
@@ -50,6 +63,29 @@ class _HomeScreenState extends State<HomeScreen> {
             fontSize: 40,
           ),
         ),
+        actions: [
+          if (userId != null)
+            NotificationBell(
+              userId: userId!,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NotificationScreen(userId: userId!),
+                  ),
+                );
+              },
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.notifications, color: Colors.black),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please log in to see notifications')),
+                );
+              },
+            ),
+        ],
         centerTitle: true,
       ),
       drawer: const CustomDrawer(),
@@ -75,7 +111,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 userCarbsGoal: controller.userCarbsGoal,
                 userFatsGoal: controller.userFatsGoal,
               ),
-
               const SizedBox(height: 20),
               const Text('Recipes', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
@@ -89,37 +124,43 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              controller.isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : SizedBox(
-                height: 200,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: controller.recipes.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
-                  itemBuilder: (context, index) {
-                    final recipe = controller.recipes[index];
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const DiscoveryRecipesPage(),
+              ValueListenableBuilder<bool>(
+                valueListenable: controller.isLoading,
+                builder: (context, isLoading, _) {
+                  if (isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return SizedBox(
+                    height: 200,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: controller.recipes.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 12),
+                      itemBuilder: (context, index) {
+                        final recipe = controller.recipes[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const DiscoveryRecipesPage(),
+                              ),
+                            );
+                          },
+                          child: SizedBox(
+                            width: 160,
+                            child: HomeViewRecipeCard(
+                              recipeId: recipe['id'],
+                              title: recipe['title'],
+                              imageUrl: recipe['image'],
+                              calories: recipe['calories'],
+                            ),
                           ),
                         );
                       },
-                      child: SizedBox(
-                        width: 160,
-                        child: HomeViewRecipeCard(
-                          recipeId: recipe['id'],
-                          title: recipe['title'],
-                          imageUrl: recipe['image'],
-                          calories: recipe['calories'],
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -128,8 +169,4 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 0),
     );
   }
-
-
-
-
 }
