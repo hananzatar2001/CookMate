@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 class IngredientService {
   static const String _apiKey = '7522e29d3dc44b16bfb34d94f5d331bb';
   static const String _baseUrl = 'https://api.spoonacular.com';
-
+//
   static Future<List<Map<String, dynamic>>> fetchIngredients(String query) async {
     final url = Uri.parse('$_baseUrl/food/ingredients/search?query=$query&number=5&apiKey=$_apiKey');
     final response = await http.get(url);
