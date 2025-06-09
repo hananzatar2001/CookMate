@@ -201,21 +201,6 @@ Shows recipes fetched from:
 -  If found, navigates directly to HomeScreen
 -  If not, shows Splash1 → Splash2 → LoginPage
 
-----------------------------------------------------------------------------
-## **Notifications Screen**
-- **4- Run the app:**  
-  `flutter run`
-- **Integration:**  
-  - Connected to Firebase to display user-specific notifications.
-
----
-
-## **Favorites Page**
-- **4- Run the app:**  
-  `flutter run`
-- **Integration:**  
--  Displays and stores favorite recipes using the Recipe API.
-
 **Discovery Recipes Page**
 - **4- Run the app:**  
   `flutter run`
@@ -223,29 +208,6 @@ Shows recipes fetched from:
   - Integrated with the Recipe API to display a variety of recipes.  
   - Supports search and pagination for dynamic loading.
 
----
-
-## **Ingredients Recipe Page**
-- **4- Run the app:**  
-  `flutter run`
-- **Integration:**  
-  - Displays recipe ingredients fetched from the Recipe API.
-
-## **Steps Page**
-- **4- Run the app:**  
-  `flutter run`
-- **Integration:**  
-  - Connected to the YouTube API to display cooking step videos (if available).  
-  - Shows textual preparation steps from the Recipe API.
-
----
-
-## How to Run the Project
-Make sure you have Flutter installed, then run:
-```bash
-flutter pub get
-flutter run`
-```
 
 ## Team
 - Hanan Zatar – Database ,Calorie Tracking ,Meal planning ,Recipe Upload ,Setting screen ,hamburger menu and Shopping List 
