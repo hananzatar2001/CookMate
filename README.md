@@ -201,7 +201,12 @@ Shows recipes fetched from:
 -  If found, navigates directly to HomeScreen
 -  If not, shows Splash1 → Splash2 → LoginPage
 
-
+**Discovery Recipes Page**
+- **4- Run the app:**  
+  `flutter run`
+- **Integration:**  
+  - Integrated with the Recipe API to display a variety of recipes.  
+  - Supports search and pagination for dynamic loading.
 
 
 ## Team
